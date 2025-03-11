@@ -1,0 +1,3 @@
+[submodule "KT_Library"]
+	path = KT_Library
+	url = https://github.com/Kroktur/KT_Library.git
