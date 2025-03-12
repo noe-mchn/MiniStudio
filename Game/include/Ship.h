@@ -4,6 +4,45 @@
 
 class Ship : public DestructibleObject, public IComposite
 {
+protected:
+	enum State
+	{
+		IDLE,
+		/*HAND_ATTACK,*/
+		PISTOL_ATTACK
+	};
+
+	struct IState
+	{
+		virtual ~IState() = default;
+		virtual IState* handle(const State& state) = 0;
+		virtual void update(Ship* ship, float deltaTime) = 0;
+	};
+
+	struct IdleState : IState
+	{
+		~IdleState() override = default;
+		IState* handle(const State& state) override;
+		void update(Ship* ship, float deltaTime) override;
+	};
+
+	//struct HandAttackState : IState
+	//{
+	//	~HandAttackState() override = default;
+	//	IState* handle(const State& state) override;
+	//	void update(Ship* ship, float deltaTime) override;
+	//};
+
+	struct PistolAttackState : IState
+	{
+		~PistolAttackState() override = default;
+		IState* handle(const State& state) override;
+		void update(Ship* ship, float deltaTime) override;
+
+	};
+
+	IState* currentState;
+
 public:
 	friend BorderShip;
 	Ship(IComposite* scene, IShapeSFML* background);
@@ -18,16 +57,10 @@ public:
 
 	float anglecalcul();
 	void HandleCollision(IGameObject* object) override;
-	void ChangeLife(const float& life) override
-	{
-		if (!m_invisibility.ActionIsReady())
-			return;
+	void ChangeLife(const float& life) override;
 
-		m_life += life;
-		if (m_life <= 0)
-			destroy();
-		m_invisibility.resetTimer();
-	}
+	void changeState(const State& newState);
+
 
 private:
 	IShapeSFML* m_background;
@@ -37,6 +70,6 @@ private:
 
 	AnimateSprite m_animate;
 	IPhysics* m_physics;
-	KT::Array<ITurret*,2> m_turrets;
+	ITurret* m_turret;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
 };

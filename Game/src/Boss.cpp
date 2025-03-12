@@ -7,7 +7,8 @@
 EntityParameters EntityParameters::getForPhase(EntityPhase phase) {
     EntityParameters params;
 
-    switch (phase) {
+    switch (phase) 
+    {
     case EntityPhase::One:
         params = { 350.0f, 2.0f, 1, 0.0f, 20.0f, 500.0f, 1.0f };
         break;
