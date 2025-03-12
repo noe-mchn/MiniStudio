@@ -1,5 +1,6 @@
 #include "Ship.h"
 #include "IGameObject.h"
+#include "Boss.h"
 #include <iostream>
 #include <exception>
 
@@ -19,15 +20,27 @@ Ship::IState* Ship::IdleState::handle(const State& state)
 
 void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
-	sf::Vector2f shipPos = ship->getShape()->getPosition();
-	float distance = std::sqrt(shipPos.x * shipPos.x + shipPos.y * shipPos.y);
+	std::cout << "Mode Idle" << std::endl;
 
-	std::cout << distance << std::endl;
 
-	if (distance <= 100.0f)
+	for (Boss* enemy : ship->m_enemiesInGame)
 	{
-		ship->changeState(State::PISTOL_ATTACK);
-		return;
+		//if (enemy == this) continue;
+
+		sf::Vector2f myPos = ship->getShape()->getPosition();
+		sf::Vector2f enemyPos = enemy->getShape()->getPosition();
+		float abcisse = (myPos.x - enemyPos.x) * (myPos.x - enemyPos.x);
+		float ordonnee = (myPos.y - enemyPos.y) * (myPos.y - enemyPos.y);
+		float distance = std::sqrt(abcisse + ordonnee);
+
+		std::cout << distance << std::endl;
+		if (distance < ship->m_detectionRadius)
+		{
+			std::cout << "distance : " << distance << std::endl;
+			std::cout << "change to attack" << std::endl;
+			ship->ChangeState(State::PISTOL_ATTACK);
+			return;
+		}
 	}
 }
 
@@ -87,7 +100,13 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 {
 	if (!ship->m_turret)
 		throw std::runtime_error("ship est nullptr!");
-	ship->m_turret->Fire();
+
+
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		ship->m_turret->Fire();
+	}
 
 
 	/*if (distance > 200.0f)
@@ -100,8 +119,8 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 
 // fin de la state machine 
 
-Ship::Ship(IComposite* scene, IShapeSFML* background) :
-	DestructibleObject(scene, 10)
+Ship::Ship(IComposite* scene, IShapeSFML* background) 
+	: DestructibleObject(scene, 10)
 	, IComposite(scene)
 	, m_background(background)
 	, m_angle(0)
@@ -109,6 +128,7 @@ Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	, m_animate({ "SpaceHero.png", "SpaceHero2.png" })
 	, m_physics(new MovementInSpace(1000, 400, 200))
 	, m_invisibility(2.5)
+	, m_detectionRadius(30.0f)
 
 {
 	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
@@ -147,6 +167,7 @@ void Ship::ProssesInput(const sf::Event& event)
 	{
 		m_strafe[trust::Down] = true;
 	}
+	
 
 	physics();
 }
@@ -214,7 +235,7 @@ void Ship::ChangeLife(const float& life)
 	m_invisibility.resetTimer();
 }
 
-void Ship::changeState(const State& newState)
+void Ship::ChangeState(const State& newState)
 {
 	if (currentState)
 	{
@@ -225,4 +246,15 @@ void Ship::changeState(const State& newState)
 			currentState = state;
 		}
 	}
+}
+
+float Ship::DistancedetectBoss(Ship* ship, Boss* boss)
+{
+
+	sf::Vector2f myPos = ship->getShape()->getPosition();
+	sf::Vector2f bossPos = boss->getShape()->getPosition();
+
+	float distance;
+	return distance = std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
+
 }
