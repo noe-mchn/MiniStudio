@@ -1,38 +1,14 @@
-project(KT_Library)
+cmake_minimum_required(VERSION 3.10.0)
+project(Library VERSION 1.0.0)
 
-set(HEADER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
-set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/app/bin)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-set(HEADERS
- ${HEADER_DIR}/KT_Array.h
- ${HEADER_DIR}/KT_Vector.h
- ${HEADER_DIR}/KT_List.h
- ${HEADER_DIR}/KT_Algorithm.h
- ${HEADER_DIR}/KT_Container.h
- ${HEADER_DIR}/KT_IntrusiveList.h
- ${HEADER_DIR}/KT_InsertionSort.h
- ${HEADER_DIR}/KT_BubbleSort.h
- ${HEADER_DIR}/KT_FusionSort.h
- ${HEADER_DIR}/KT_VectorND.h
- ${HEADER_DIR}/KT_Math_Algorithm.h
- ${HEADER_DIR}/KT_Matrix.h
- ${HEADER_DIR}/KT_Math.h
-)
-set(SOURCES
-${SOURCE_DIR}/KT_Algorithm.cpp
-)
-
-add_library(${PROJECT_NAME}
-
-${SOURCES}
-${HEADERS}
-)
-
-target_include_directories(${PROJECT_NAME}
-PUBLIC
-    $<INSTALL_INTERFACE:include>
-    $<BUILD_INTERFACE:${HEADER_DIR}>
-)
-
-set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "Libraries")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_subdirectory(sample)
+add_subdirectory(KT_Library)
+add_subdirectory(Test_Unit)

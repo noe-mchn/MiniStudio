@@ -8,7 +8,7 @@
  *********************************************************************/
 
 //include
- #include <exception>
+#include <exception>
 #include <initializer_list>
 #include <sstream>
 #include "KT_Math.h"
