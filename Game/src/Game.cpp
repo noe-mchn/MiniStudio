@@ -54,6 +54,7 @@ void Game::ProssesInput(const sf::Event& event)
 		obj->ProssesInput(event);
 	}
 	cursor.ProssesInput(event);
+
 }
 
 void Game::Render()

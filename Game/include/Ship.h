@@ -11,8 +11,8 @@ protected:
 	{
 		 IDLE
 		,MOVE
-		/*HAND_ATTACK,*/
-		/*,PISTOL_ATTACK*/
+		,HAND_ATTACK
+		,PISTOL_ATTACK
 	};
 
 	struct IState
@@ -36,20 +36,20 @@ protected:
 		void update(Ship* ship, float deltaTime) override;
 	};
 
-	//struct HandAttackState : IState
-	//{
-	//	~HandAttackState() override = default;
-	//	IState* handle(const State& state) override;
-	//	void update(Ship* ship, float deltaTime) override;
-	//};
+	struct HandAttackState : IState
+	{
+		~HandAttackState() override = default;
+		IState* handle(const State& state) override;
+		void update(Ship* ship, float deltaTime) override;
+	};
 
-	/*struct PistolAttackState : IState
+	struct PistolAttackState : IState
 	{
 		~PistolAttackState() override = default;
 		IState* handle(const State& state) override;
 		void update(Ship* ship, float deltaTime) override;
 
-	};*/
+	};
 
 	IState* currentState;
 

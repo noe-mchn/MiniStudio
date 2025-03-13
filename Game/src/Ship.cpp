@@ -13,14 +13,16 @@ Ship::IState* Ship::IdleState::handle(const State& state)
 	{
 		return new MoveState;
 	}
-	/*if (state == State::HAND_ATTACK)
+
+	if (state == State::HAND_ATTACK)
 	{
 		return new HandAttackState();
-	}*/
-	/*if (state == State::PISTOL_ATTACK)
+	}
+
+	if (state == State::PISTOL_ATTACK)
 	{
 		return new PistolAttackState();
-	}*/
+	}
 	return nullptr;
 }
 
@@ -28,14 +30,25 @@ void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
 	std::cout << "Mode Idle" << std::endl;
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)
-		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Q)
-		|| sf::Keyboard::isKeyPressed(sf::Keyboard::S)
-		|| sf::Keyboard::isKeyPressed(sf::Keyboard::D)
-		)
+	if (ship->m_strafe[trust::Left] 
+		|| ship->m_strafe[trust::Right] 
+		|| ship->m_strafe[trust::Up] 
+		|| ship->m_strafe[trust::Down])
 	{
+
 		ship->ChangeState(State::MOVE);
 	}
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+	{
+		ship->ChangeState(State::HAND_ATTACK);
+	}
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		ship->ChangeState(State::PISTOL_ATTACK);
+	}
+
 	
 }
 
@@ -46,117 +59,134 @@ Ship::IState* Ship::MoveState::handle(const State& state)
 	{
 		return new IdleState();
 	}
-	/*if (state == State::HAND_ATTACK)
+
+	if (state == State::HAND_ATTACK)
 	{
 		return new HandAttackState();
-	}*/
-	/*if (state == State::PISTOL_ATTACK)
+	}
+	
+	if (state == State::PISTOL_ATTACK)
 	{
 		return new PistolAttackState();
-	}*/
+	}
 	return nullptr;
 }
 
 void Ship::MoveState::update(Ship* ship, float deltaTime)
 {
-	std::cout << "Mode move" << std::endl;
+	std::cout << "Mode Move" << std::endl;
+
+		if (!ship->m_strafe[trust::Left] 
+			&& !ship->m_strafe[trust::Right]
+			&& !ship->m_strafe[trust::Up] 
+			&& !ship->m_strafe[trust::Down])
+		{
+			ship->ChangeState(State::IDLE);
+		}
+
+
 	static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(ship->m_strafe, ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 
-
-	for (Boss* enemy : ship->m_enemiesInGame)
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 	{
-		//if (enemy == this) continue;
-
-		sf::Vector2f myPos = ship->getShape()->getPosition();
-		sf::Vector2f enemyPos = enemy->getShape()->getPosition();
-		float abcisse = (myPos.x - enemyPos.x) * (myPos.x - enemyPos.x);
-		float ordonnee = (myPos.y - enemyPos.y) * (myPos.y - enemyPos.y);
-		float distance = std::sqrt(abcisse + ordonnee);
-
-		std::cout << distance << std::endl;
-		if (distance < ship->m_detectionRadius)
-		{
-			std::cout << "distance : " << distance << std::endl;
-			std::cout << "change to attack" << std::endl;
-			/*ship->ChangeState(State::PISTOL_ATTACK);*/
-			return;
-		}
+		ship->ChangeState(State::HAND_ATTACK);
 	}
+
+	else if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		ship->ChangeState(State::PISTOL_ATTACK);
+	}
+
+}
+
+// hand attck
+
+Ship::IState* Ship::HandAttackState::handle(const State& state)
+{
+	if (state == State::IDLE)
+	{
+		return new IdleState();
+	}
+	if (state == State::PISTOL_ATTACK)
+	{
+		return new PistolAttackState();
+	}
+	return nullptr;
+}
+
+void Ship::HandAttackState::update(Ship* ship, float deltaTime)
+{
+	std::cout << "Mode Hand Attack" << std::endl;
+
+	if (!ship->m_strafe[trust::Left]
+		&& !ship->m_strafe[trust::Right]
+		&& !ship->m_strafe[trust::Up]
+		&& !ship->m_strafe[trust::Down])
+	{
+		ship->ChangeState(State::IDLE);
+	}
+		
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		ship->ChangeState(State::PISTOL_ATTACK);
+	}
+
 	
 }
 
-//Ship::IState* Ship::HandAttackState::handle(const State& state)
-//{
-//	if (state == State::IDLE)
-//	{
-//		return new IdleState();
-//	}
-//	if (state == State::PISTOL_ATTACK)
-//	{
-//		return new PistolAttackState();
-//	}
-//	return nullptr;
-//}
-//
-//void Ship::HandAttackState::update(Ship* ship, float deltaTime)
-//{
-//	sf::Vector2f direction = ship->targetPosition - ship->getShape()->getPosition();
-//	float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-//
-//	if (distance > 700)
-//	{
-//		ship->changeState(State::IDLE);
-//		return;
-//	}
-//
-//	if (distance > 0)
-//	{
-//
-//	}
-//
-//	if (distance < 200.0f)
-//	{
-//		ship->changeState(State::PISTOL_ATTACK);
-//	}
-//}
+// Pistol Attack
 
+Ship::IState* Ship::PistolAttackState::handle(const State& state)
+{
+	if (state == State::IDLE)
+	{
+		return new IdleState();
+	}
 
-//
-//Ship::IState* Ship::PistolAttackState::handle(const State& state)
-//{
-//	/*if (state == State::HAND_ATTACK)
-//	{
-//		return new HandAttackState();
-//	}*/
-//
-//	if (state == State::IDLE)
-//	{
-//		return new IdleState();
-//	}
-//
-//	return nullptr;
-//}
-//
-//void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
-//{
-//	if (!ship->m_turret)
-//		throw std::runtime_error("ship est nullptr!");
-//
-//
-//
-//	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-//	{
-//		ship->m_turret->Fire();
-//	}
-//
-//
-//	/*if (distance > 200.0f)
-//	{
-//		ship->changeState(State::HAND_ATTACK);
-//		return;
-//	}*/
-//
-//}
+	if (state == State::MOVE)
+	{
+		return new MoveState();
+	}
+
+	if (state == State::HAND_ATTACK)
+	{
+		return new HandAttackState();
+	}
+	
+	return nullptr;
+}
+
+void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
+{
+	std::cout << "Mode Pistol Attack" << std::endl;
+
+	if (!ship->m_turret)
+		throw std::runtime_error("ship est nullptr!");
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		ship->m_turret->Fire();
+	}
+
+	if (ship->m_strafe[trust::Left]
+		|| ship->m_strafe[trust::Right]
+		|| ship->m_strafe[trust::Up]
+		|| ship->m_strafe[trust::Down])
+	{
+
+		ship->ChangeState(State::MOVE);
+	}
+
+	if (!ship->m_strafe[trust::Left]
+		&& !ship->m_strafe[trust::Right]
+		&& !ship->m_strafe[trust::Up]
+		&& !ship->m_strafe[trust::Down])
+	{
+		ship->ChangeState(State::IDLE);
+	}
+
+}
 
 // fin de la state machine 
 
@@ -191,15 +221,7 @@ Ship::~Ship()
 void Ship::ProssesInput(const sf::Event& event)
 {
 	m_strafe = { false,false,false,false };
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-	{
-		m_strafe[trust::Right] = true;
 
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
-	{
-		m_strafe[trust::Left] = true;
-	}
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 	{
 		m_strafe[trust::Up] = true;
@@ -208,7 +230,14 @@ void Ship::ProssesInput(const sf::Event& event)
 	{
 		m_strafe[trust::Down] = true;
 	}
-	
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+	{
+		m_strafe[trust::Left] = true;
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+	{
+		m_strafe[trust::Right] = true;
+	}
 
 	physics();
 }
@@ -220,6 +249,7 @@ void Ship::physics()
 
 void Ship::Update(const float& deltatime)
 {
+
 	if (!currentState)
 		throw std::runtime_error("current state est nullptr!");
 
@@ -290,11 +320,9 @@ void Ship::ChangeState(const State& newState)
 
 float Ship::DistancedetectBoss(Ship* ship, Boss* boss)
 {
-
 	sf::Vector2f myPos = ship->getShape()->getPosition();
 	sf::Vector2f bossPos = boss->getShape()->getPosition();
 
 	float distance;
 	return distance = std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
-
 }
