@@ -4,23 +4,63 @@
 #include <iostream>
 #include <exception>
 
-// state Machine du player pour passer en mode hidle ou attack à main nue ou pistoler attack...
+// state Machine du player pour passer en mode hidle ou move ou attack à main nue ou pistoler attack...
+
+//Idle
 Ship::IState* Ship::IdleState::handle(const State& state)
 {
+	if (state == State::MOVE)
+	{
+		return new MoveState;
+	}
 	/*if (state == State::HAND_ATTACK)
 	{
 		return new HandAttackState();
 	}*/
-	if (state == State::PISTOL_ATTACK)
+	/*if (state == State::PISTOL_ATTACK)
 	{
 		return new PistolAttackState();
-	}
+	}*/
 	return nullptr;
 }
 
 void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
 	std::cout << "Mode Idle" << std::endl;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z)
+		|| sf::Keyboard::isKeyPressed(sf::Keyboard::Q)
+		|| sf::Keyboard::isKeyPressed(sf::Keyboard::S)
+		|| sf::Keyboard::isKeyPressed(sf::Keyboard::D)
+		)
+	{
+		ship->ChangeState(State::MOVE);
+	}
+	
+}
+
+//Move
+Ship::IState* Ship::MoveState::handle(const State& state)
+{
+	if (state == State::IDLE)
+	{
+		return new IdleState();
+	}
+	/*if (state == State::HAND_ATTACK)
+	{
+		return new HandAttackState();
+	}*/
+	/*if (state == State::PISTOL_ATTACK)
+	{
+		return new PistolAttackState();
+	}*/
+	return nullptr;
+}
+
+void Ship::MoveState::update(Ship* ship, float deltaTime)
+{
+	std::cout << "Mode move" << std::endl;
+	static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(ship->m_strafe, ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 
 
 	for (Boss* enemy : ship->m_enemiesInGame)
@@ -38,10 +78,11 @@ void Ship::IdleState::update(Ship* ship, float deltaTime)
 		{
 			std::cout << "distance : " << distance << std::endl;
 			std::cout << "change to attack" << std::endl;
-			ship->ChangeState(State::PISTOL_ATTACK);
+			/*ship->ChangeState(State::PISTOL_ATTACK);*/
 			return;
 		}
 	}
+	
 }
 
 //Ship::IState* Ship::HandAttackState::handle(const State& state)
@@ -80,42 +121,42 @@ void Ship::IdleState::update(Ship* ship, float deltaTime)
 //}
 
 
-
-Ship::IState* Ship::PistolAttackState::handle(const State& state)
-{
-	/*if (state == State::HAND_ATTACK)
-	{
-		return new HandAttackState();
-	}*/
-
-	if (state == State::IDLE)
-	{
-		return new IdleState();
-	}
-
-	return nullptr;
-}
-
-void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
-{
-	if (!ship->m_turret)
-		throw std::runtime_error("ship est nullptr!");
-
-
-
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-	{
-		ship->m_turret->Fire();
-	}
-
-
-	/*if (distance > 200.0f)
-	{
-		ship->changeState(State::HAND_ATTACK);
-		return;
-	}*/
-
-}
+//
+//Ship::IState* Ship::PistolAttackState::handle(const State& state)
+//{
+//	/*if (state == State::HAND_ATTACK)
+//	{
+//		return new HandAttackState();
+//	}*/
+//
+//	if (state == State::IDLE)
+//	{
+//		return new IdleState();
+//	}
+//
+//	return nullptr;
+//}
+//
+//void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
+//{
+//	if (!ship->m_turret)
+//		throw std::runtime_error("ship est nullptr!");
+//
+//
+//
+//	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+//	{
+//		ship->m_turret->Fire();
+//	}
+//
+//
+//	/*if (distance > 200.0f)
+//	{
+//		ship->changeState(State::HAND_ATTACK);
+//		return;
+//	}*/
+//
+//}
 
 // fin de la state machine 
 
@@ -184,7 +225,6 @@ void Ship::Update(const float& deltatime)
 
 	currentState->update(this, deltatime);
 
-	static_cast<MovementInSpace*>(m_physics)->ExecutePhysics(m_strafe, m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 	m_shape->setRotation(m_angle);
 	m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
 
