@@ -85,4 +85,5 @@ private:
 
 	std::vector<Boss*> m_enemiesInGame;
 	float m_detectionRadius;
+
 };
