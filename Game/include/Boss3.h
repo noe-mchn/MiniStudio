@@ -9,7 +9,7 @@ namespace BossAI
     class RandomMovementSelector;
 }
 
-enum class EntityMovementPattern
+enum class EntityMovementPattern3
 {
     Horizontal,
     Vertical,
@@ -19,7 +19,7 @@ enum class EntityMovementPattern
     Stationary
 };
 
-enum class EntityPhase
+enum class EntityPhase3
 {
     One,
     Two,
@@ -28,7 +28,7 @@ enum class EntityPhase
     Five
 };
 
-struct EntityParameters
+struct EntityParameters3
 {
     float speed;
     float attackRate;
@@ -38,12 +38,10 @@ struct EntityParameters
     float projectileSpeed;
     float damageMultiplier;
 
-    static EntityParameters getForPhase(EntityPhase phase);
+    static EntityParameters3 getForPhase(EntityPhase3 phase);
 };
 
-
-
-class Boss1 : public DestructibleObject, public IComposite
+class Boss3 : public DestructibleObject, public IComposite
 {
 protected:
     enum State
@@ -58,38 +56,38 @@ protected:
     {
         virtual ~IState() = default;
         virtual IState* handle(const State& state) = 0;
-        virtual void update(Boss1* boss, float deltaTime) = 0;
+        virtual void update(Boss3* boss, float deltaTime) = 0;
     };
     struct PatrolState : IState
     {
         ~PatrolState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss3* boss, float deltaTime) override;
     };
     struct ChaseState : IState
     {
         ~ChaseState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss3* boss, float deltaTime) override;
     };
     struct ReloadState : IState
     {
         ~ReloadState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss3* boss, float deltaTime) override;
 
     };
     struct FireState : IState
     {
         ~FireState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss3* boss, float deltaTime) override;
 
     };
 
 public:
-    Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
-    virtual ~Boss1();
+    Boss3(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
+    virtual ~Boss3();
 
     void ProssesInput(const sf::Event& event) override {};
     void Update(const float& deltatime) override;
@@ -117,7 +115,7 @@ public:
     virtual void regenerateHealth(float amount);
 
     virtual void updateEntityParameters();
-    EntityPhase getCurrentPhase() const { return m_currentPhase; }
+    EntityPhase3 getCurrentPhase() const { return m_currentPhase; }
 
     void move(const sf::Vector2f& offset);
 
@@ -137,7 +135,7 @@ protected:
     Animate m_animate;
     Timer m_animationTimer;
 
-    EntityParameters m_entityParams;
+    EntityParameters3 m_entityParams;
 
     bool m_offensiveBoostActive;
     float m_damageMultiplier;
@@ -146,7 +144,7 @@ protected:
     Timer m_invulnerabilityTimer;
     bool m_isInvulnerable;
 
-    EntityPhase m_currentPhase;
+    EntityPhase3 m_currentPhase;
 
     IShapeSFML* m_target;
 
@@ -172,5 +170,5 @@ protected:
     int m_maxProjectilesBeforeReload = 5;
 
 
-    Boss1* boss;
+    Boss3* boss;
 };

@@ -9,7 +9,7 @@ namespace BossAI
     class RandomMovementSelector;
 }
 
-enum class EntityMovementPattern
+enum class EntityMovementPattern2
 {
     Horizontal,
     Vertical,
@@ -19,7 +19,7 @@ enum class EntityMovementPattern
     Stationary
 };
 
-enum class EntityPhase
+enum class EntityPhase2
 {
     One,
     Two,
@@ -28,7 +28,7 @@ enum class EntityPhase
     Five
 };
 
-struct EntityParameters
+struct EntityParameters2
 {
     float speed;
     float attackRate;
@@ -38,17 +38,15 @@ struct EntityParameters
     float projectileSpeed;
     float damageMultiplier;
 
-    static EntityParameters getForPhase(EntityPhase phase);
+    static EntityParameters2 getForPhase(EntityPhase2 phase);
 };
 
-
-
-class Boss1 : public DestructibleObject, public IComposite
+class Boss2 : public DestructibleObject, public IComposite
 {
 protected:
     enum State
     {
-        PATROL
+        IDLE
         , CHASE
         , RELOAD
         , FIRE
@@ -58,38 +56,38 @@ protected:
     {
         virtual ~IState() = default;
         virtual IState* handle(const State& state) = 0;
-        virtual void update(Boss1* boss, float deltaTime) = 0;
+        virtual void update(Boss2* boss, float deltaTime) = 0;
     };
-    struct PatrolState : IState
+    struct IdleState : IState
     {
-        ~PatrolState() override = default;
+        ~IdleState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss2* boss, float deltaTime) override;
     };
     struct ChaseState : IState
     {
         ~ChaseState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss2* boss, float deltaTime) override;
     };
     struct ReloadState : IState
     {
         ~ReloadState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss2* boss, float deltaTime) override;
 
     };
     struct FireState : IState
     {
         ~FireState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss1* boss, float deltaTime) override;
+        void update(Boss2* boss, float deltaTime) override;
 
     };
 
 public:
-    Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
-    virtual ~Boss1();
+    Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
+    virtual ~Boss2();
 
     void ProssesInput(const sf::Event& event) override {};
     void Update(const float& deltatime) override;
@@ -117,7 +115,7 @@ public:
     virtual void regenerateHealth(float amount);
 
     virtual void updateEntityParameters();
-    EntityPhase getCurrentPhase() const { return m_currentPhase; }
+    EntityPhase2 getCurrentPhase() const { return m_currentPhase; }
 
     void move(const sf::Vector2f& offset);
 
@@ -137,7 +135,7 @@ protected:
     Animate m_animate;
     Timer m_animationTimer;
 
-    EntityParameters m_entityParams;
+    EntityParameters2 m_entityParams;
 
     bool m_offensiveBoostActive;
     float m_damageMultiplier;
@@ -146,7 +144,7 @@ protected:
     Timer m_invulnerabilityTimer;
     bool m_isInvulnerable;
 
-    EntityPhase m_currentPhase;
+    EntityPhase2 m_currentPhase;
 
     IShapeSFML* m_target;
 
@@ -172,5 +170,5 @@ protected:
     int m_maxProjectilesBeforeReload = 5;
 
 
-    Boss1* boss;
+    Boss2* boss;
 };

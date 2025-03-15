@@ -72,19 +72,114 @@ void AnimateSprite::ChangeToPreviousPath()
 		--m_curentTexture;
 }
 
+Animate::Animate(const std::string& texturePath, int cols, int rows)
+	: m_texture(texturePath), m_cols(cols), m_rows(rows), m_curentTexture(0)
+{
+	sf::Texture tempTexture;
+	if (!tempTexture.loadFromFile(texturePath)) 
+	{
+		throw std::runtime_error("Impossible de charger la texture: " + texturePath);
+	}
+
+	sf::Vector2u textureSize = tempTexture.getSize();
+	divideSheet(textureSize.x, textureSize.y);
+}
+
+std::string Animate::getTexture()
+{
+	return m_texture;
+}
+
+void Animate::divideSheet(int sheetWidth, int sheetHeight)
+{
+	if (m_cols == 0 || m_rows == 0) return;
+
+	m_widthSpriteWithDeadZone = static_cast<float>(sheetWidth) / m_cols;
+	m_heightSpriteWithDeadZone = static_cast<float>(sheetHeight) / m_rows;
+
+	deadZone(m_widthSpriteWithDeadZone - 2, m_heightSpriteWithDeadZone - 2);
+}
+
+void Animate::deadZone(float spriteWidth, float spriteHeight)
+{
+	m_widthDeadZone = (m_widthSpriteWithDeadZone - spriteWidth) / 2.0f;
+	m_heightDeadZone = (m_heightSpriteWithDeadZone - spriteHeight) / 2.0f;
+}
+
+void Animate::firstSprite()
+{
+	m_currentCol = 0;
+	m_curentTexture = m_currentRow * m_cols;
+	updateSpriteCoordinates();
+}
+
+void Animate::changeToNextSprite()
+{
+	m_curentTexture = (m_curentTexture + 1) % (m_cols * m_rows);
+	updateSpriteCoordinates();
+}
+
+sf::IntRect Animate::getTextureRect() const
+{
+	int col = m_curentTexture % m_cols;
+	int row = m_curentTexture / m_cols;
+
+	return sf::IntRect
+	(static_cast<int>(col * m_widthSpriteWithDeadZone + m_widthDeadZone),
+		static_cast<int>(row * m_heightSpriteWithDeadZone + m_heightDeadZone),
+		static_cast<int>(m_widthSpriteWithDeadZone - 2 * m_widthDeadZone),
+		static_cast<int>(m_heightSpriteWithDeadZone - 2 * m_heightDeadZone)
+	);
+}
+
+void Animate::update(float deltaTime)
+{
+	m_animationTimer += deltaTime;
+	if (m_animationTimer >= m_animationSpeed)
+	{
+		m_animationTimer = 0.0f;
+		changeToNextSprite();
+	}
+
+}
+
+void Animate::updateSpriteCoordinates()
+{
+	int col = m_curentTexture % m_cols;
+	int row = m_curentTexture / m_cols;
+
+	m_currentRect = sf::IntRect(
+		static_cast<int>(col * m_widthSpriteWithDeadZone + m_widthDeadZone),
+		static_cast<int>(row * m_heightSpriteWithDeadZone + m_heightDeadZone),
+		static_cast<int>(m_widthSpriteWithDeadZone - 2 * m_widthDeadZone),
+		static_cast<int>(m_heightSpriteWithDeadZone - 2 * m_heightDeadZone)
+	);
+}
+
+void Animate::setAnimationRow(int row)
+{
+	if (row >= 0 && row < m_rows) {
+		m_currentRow = row;
+		m_currentCol = 0;
+		m_curentTexture = m_currentRow * m_cols;
+	}
+}
+
+
+
 RectangleSFML::RectangleSFML(float width, float height, sf::Vector2f position, sf::Vector2f Origin) :m_shape(sf::Vector2f(width, height))
 {
 	m_shape.setPosition(position);
 	m_shape.setOrigin(Origin);
 }
 
-RectangleSFML::RectangleSFML(float width, float heignt, sf::Vector2f position) :m_shape(sf::Vector2f(width, heignt))
+RectangleSFML::RectangleSFML(float width, float height, sf::Vector2f position) :m_shape(sf::Vector2f(width, height))
 {
 	m_shape.setPosition(position);
 	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
 }
 
-RectangleSFML::RectangleSFML(float width, float heignt, ISceneBase* scene) :m_shape(sf::Vector2f(width, heignt))
+RectangleSFML::RectangleSFML(float width, float height, ISceneBase* scene) :m_shape(sf::Vector2f(width, height))
 {
 	m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
 	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
@@ -126,6 +221,11 @@ float RectangleSFML::getangle()
 void RectangleSFML::setTexture(const sf::Texture& texture)
 {
 	m_shape.setTexture(&texture);
+}
+
+void RectangleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
 }
 
 void RectangleSFML::setPosition(const sf::Vector2f& position)
@@ -226,6 +326,11 @@ float CircleSFML::getangle()
 void CircleSFML::setTexture(const sf::Texture& texture)
 {
 	m_shape.setTexture(&texture);
+}
+
+void CircleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
 }
 
 void CircleSFML::setPosition(const sf::Vector2f& position)

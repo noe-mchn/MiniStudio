@@ -1,6 +1,8 @@
 #include "ISpawner.h"
 #include "GameObject.h"
 #include "Boss1.h"
+#include "Boss2.h"
+#include "Boss3.h"
 
 ISpawner::ISpawner(IComposite* scene, const size_t& maxEntity):IComposite(scene) , m_Scene(scene), m_maxEntity(maxEntity), m_SpawnZone(sf::Vector2f(0, 0), sf::Vector2f(0, 0)), m_RestrictedArea(sf::Vector2f(0, 0), sf::Vector2f(0, 0))
 {
@@ -72,19 +74,36 @@ void BossSpawner::Spawn()
     if (getChildren().Size() >= m_maxEntity)
         return;
 
-    sf::Vector2f spawnPos;
+    sf::Vector2f spawnPos1, spawnPos2, spawnPos3;
 
-    if (m_useFixedPosition) {
-        spawnPos = m_fixedSpawnPosition;
+    if (m_useFixedPosition) 
+	{
+        spawnPos1 = m_fixedSpawnPosition;
+        spawnPos2 = m_fixedSpawnPosition + sf::Vector2f(800, 0);
+        spawnPos3 = m_fixedSpawnPosition + sf::Vector2f(-800, 0);
     }
-    else {
-        int x = UseRandomNumber().getRandomNumber<int>(
-            m_RestrictedArea.Pmin.x + 200,
-            m_RestrictedArea.Pmax.x - 200);
+    else 
+	{
+        int x1 = UseRandomNumber().getRandomNumber<int>
+			(m_RestrictedArea.Pmin.x + 100,
+             m_RestrictedArea.Pmax.x - 100);
+
+        int x2 = UseRandomNumber().getRandomNumber<int>
+			(m_RestrictedArea.Pmin.x + 400,
+             m_RestrictedArea.Pmax.x - 400);
+
+        int x3 = UseRandomNumber().getRandomNumber<int>
+			(m_RestrictedArea.Pmin.x + 600,
+             m_RestrictedArea.Pmax.x - 600);
 
         float y = m_RestrictedArea.Pmin.y + 150;
-        spawnPos = sf::Vector2f(x, y);
+
+        spawnPos1 = sf::Vector2f(x1, y);
+        spawnPos2 = sf::Vector2f(x2, y);
+        spawnPos3 = sf::Vector2f(x3, y);
     }
 
-    new Boss1(this, spawnPos, m_bossHealth);
+    new Boss1(this, spawnPos1, m_bossHealth);
+	new Boss2(this, spawnPos2, m_bossHealth);
+	new Boss3(this, spawnPos3, m_bossHealth);
 }

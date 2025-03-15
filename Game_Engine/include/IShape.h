@@ -12,23 +12,14 @@ class AnimateSprite
 {
 public:
 	AnimateSprite(std::initializer_list<std::string> init);
-
 	void add(std::string toBeAdded);
-
 	std::string getPath(const std::string& check);
-
 	std::string getPath(const int& idx);
-
 	std::string getCurrentPath();
-
 	void resetTexture();
-
 	void ChangeToNextPath();
-
 	void ChangeToPreviousPath();
-
 	void ChangePath(const int& idx);
-
 
 private:
 	KT::Vector<std::string> m_textureContainer;
@@ -38,64 +29,41 @@ private:
 class Animate
 {
 public:
+	Animate(const std::string& texturePath, int cols, int rows);
 
-	Animate(int start, int end, int rows, int cols)
-		: m_start(start), m_end(end), m_rows(rows), m_cols(cols), m_curentTexture(start)
-	{
+	std::string getTexture();
+	void divideSheet(int sheetWidth, int sheetHeight);
+	void deadZone(float spriteWidth, float spriteHeight);
+	void firstSprite();
+	void changeToNextSprite();
 
-	}
+	sf::IntRect getTextureRect() const;
+	void update(float deltaTime);
+	void updateSpriteCoordinates();
 
-	void setTexture(sf::RenderTexture& texture, float widthSprite, float heightSprite)
-	{
-		float spriteSizeWidth = widthSprite / m_end;
-		float spriteSizeHeight = heightSprite / m_end;
-	}
-
-	void deadZone()
-	{
-
-	}
-
-	void iterator()
-	{
-		if (m_curentTexture < m_end)
-		{
-			++m_curentTexture;
-		}
-		else
-		{
-			m_curentTexture = m_start;
-		}
-	}
-	void counter()
-	{
-
-	}
-
+	void setAnimationRow(int row);
 
 private:
-	KT::Vector<std::string> m_textureContainer;
+
+	std::string m_texture;
 	int m_curentTexture;
-	int m_start;
-	int m_end;
+	sf::Vector2f m_start;
+	sf::Vector2f m_end;
 	int m_rows;
 	int m_cols;
-};
 
-//struct Animation
-//{
-//	sf::Texture texture;
-//	sf::Sprite sprite;
-//	int frameWidth, frameHeight;
-//	int frameCount;
-//	int currentFrame;
-//	float frameTime;
-//	Timer elapsedTime;
-//
-//	void getTexture();
-//
-//	
-//};
+	float m_widthSpriteWithDeadZone = 0.0f;
+	float m_heightSpriteWithDeadZone = 0.0f;
+	float m_widthDeadZone = 0.0f;
+	float m_heightDeadZone = 0.0f;
+
+	float m_animationTimer = 0.0f;
+	float m_animationSpeed = 0.1f;
+
+	sf::IntRect m_currentRect;
+	int m_currentRow = 0;
+	int m_currentCol = 0;
+};
 
 
 class IShapeSFML
@@ -109,6 +77,7 @@ public:
 	virtual void setSize(const sf::Vector2f&) = 0;
 	virtual void setRotation(const float& angle) = 0;
 	virtual void setTexture(const sf::Texture& texture) = 0;
+	virtual void setTextureRect(const sf::IntRect& rect) = 0;
 	virtual void setCenter(sf::Vector2f) = 0;
 	virtual sf::Vector2f getCenter() = 0;
 
@@ -130,6 +99,9 @@ public:
 	float getangle() override;
 
 	void setTexture(const sf::Texture& texture) override;
+
+
+	void setTextureRect(const sf::IntRect& rect) override;
 
 	void setPosition(const sf::Vector2f& position) override;
 
@@ -174,6 +146,8 @@ public:
 	float getangle() override;
 
 	void setTexture(const sf::Texture& texture) override;
+
+	void setTextureRect(const sf::IntRect& rect) override;
 
 	void setPosition(const sf::Vector2f& position) override;
 

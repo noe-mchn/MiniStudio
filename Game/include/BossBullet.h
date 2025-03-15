@@ -72,7 +72,7 @@ public:
 
 private:
     IShapeSFML* m_owner;
-    AnimateSprite m_animate;
+    Animate m_animate;
     Timer m_duration;
     Timer m_pulseTimer;
     float m_radius;

@@ -1,6 +1,6 @@
 #include "Ship.h"
 #include "IGameObject.h"
-#include "Boss1.h"
+
 #include <iostream>
 #include <exception>
 
@@ -189,14 +189,14 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
 	, m_background(background)
 	, m_angle(0)
 	, m_elapsedTime(0.2)
-	, m_animate({ "SpaceHero.png", "SpaceHero2.png" })
+	, m_animate({ "SpaceHero.png", 1, 1})
 	, m_physics(new MovementInSpace(1000, 400, 200))
 	, m_invisibility(2.5)
 	, m_detectionRadius(30.0f)
 
 {
 	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
-	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
 	new Life(this, this, Color::Blue);
 	m_turret = new FixTurret(this, m_shape, sf::Vector2f(35, -25), 0.75);
 	m_turret->SetFireRate(0.2f);
@@ -253,8 +253,8 @@ void Ship::Update(const float& deltatime)
 
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) 
 	{
-		m_animate.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		m_animate.changeToNextSprite();
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
 	}
 
 	IComposite::Update(deltatime);
@@ -311,7 +311,25 @@ void Ship::ChangeState(const State& newState)
 	}
 }
 
-float Ship::DistancedetectBoss(Ship* ship, Boss1* boss)
+float Ship::DistancedetectBoss1(Ship* ship, Boss1* boss)
+{
+	sf::Vector2f myPos = ship->getShape()->getPosition();
+	sf::Vector2f bossPos = boss->getShape()->getPosition();
+
+	float distance;
+	return distance = std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
+}
+
+float Ship::DistancedetectBoss2(Ship* ship, Boss2* boss)
+{
+	sf::Vector2f myPos = ship->getShape()->getPosition();
+	sf::Vector2f bossPos = boss->getShape()->getPosition();
+
+	float distance;
+	return distance = std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
+}
+
+float Ship::DistancedetectBoss3(Ship* ship, Boss3* boss)
 {
 	sf::Vector2f myPos = ship->getShape()->getPosition();
 	sf::Vector2f bossPos = boss->getShape()->getPosition();

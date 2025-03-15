@@ -1,6 +1,9 @@
 #pragma once
 #include "IGameObject.h"
 #include "GameObject.h"
+#include "Boss1.h"
+#include "Boss2.h"
+#include "Boss3.h"
 
 class Boss1;
 
@@ -70,7 +73,9 @@ public:
 	void ChangeLife(const float& life) override;
 
 	void ChangeState(const State& newState);
-	float DistancedetectBoss(Ship* ship, Boss1* boss);
+	float DistancedetectBoss1(Ship* ship, Boss1* boss);
+	float DistancedetectBoss2(Ship* ship, Boss2* boss);
+	float DistancedetectBoss3(Ship* ship, Boss3* boss);
 
 private:
 	IShapeSFML* m_background;
@@ -78,7 +83,7 @@ private:
 	Timer m_elapsedTime;
 	Timer m_invisibility;
 
-	AnimateSprite m_animate;
+	Animate m_animate;
 	IPhysics* m_physics;
 	ITurret* m_turret;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
