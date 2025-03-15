@@ -1,6 +1,6 @@
 #include "ISpawner.h"
 #include "GameObject.h"
-#include "Boss.h"
+#include "Boss1.h"
 
 ISpawner::ISpawner(IComposite* scene, const size_t& maxEntity):IComposite(scene) , m_Scene(scene), m_maxEntity(maxEntity), m_SpawnZone(sf::Vector2f(0, 0), sf::Vector2f(0, 0)), m_RestrictedArea(sf::Vector2f(0, 0), sf::Vector2f(0, 0))
 {
@@ -86,5 +86,5 @@ void BossSpawner::Spawn()
         spawnPos = sf::Vector2f(x, y);
     }
 
-    new Boss(this, spawnPos, m_bossHealth);
+    new Boss1(this, spawnPos, m_bossHealth);
 }

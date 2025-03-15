@@ -41,7 +41,7 @@ struct EntityParameters
     static EntityParameters getForPhase(EntityPhase phase);
 };
 
-class Boss : public DestructibleObject, public IComposite
+class Boss1 : public DestructibleObject, public IComposite
 {
 protected:
     enum State
@@ -56,38 +56,38 @@ protected:
     {
         virtual ~IState() = default;
         virtual IState* handle(const State& state) = 0;
-        virtual void update(Boss* boss, float deltaTime) = 0;
+        virtual void update(Boss1* boss, float deltaTime) = 0;
     };
     struct PatrolState : IState
     {
         ~PatrolState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss* boss, float deltaTime) override;
+        void update(Boss1* boss, float deltaTime) override;
     };
     struct ChaseState : IState
     {
         ~ChaseState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss* boss, float deltaTime) override;
+        void update(Boss1* boss, float deltaTime) override;
     };
     struct ReloadState : IState
     {
         ~ReloadState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss* boss, float deltaTime) override;
+        void update(Boss1* boss, float deltaTime) override;
 
     };
     struct FireState : IState
     {
         ~FireState() override = default;
         IState* handle(const State& state) override;
-        void update(Boss* boss, float deltaTime) override;
+        void update(Boss1* boss, float deltaTime) override;
 
     };
 
 public:
-    Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
-    virtual ~Boss();
+    Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
+    virtual ~Boss1();
 
     void ProssesInput(const sf::Event& event) override {};
     void Update(const float& deltatime) override;
@@ -166,5 +166,9 @@ protected:
     bool shouldAttackTarget() const;
     bool isTargetValid() const;
 
-    Boss* boss;
+    int m_projectileCount = 0;
+    int m_maxProjectilesBeforeReload = 5;
+
+
+    Boss1* boss;
 };

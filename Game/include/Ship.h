@@ -2,7 +2,7 @@
 #include "IGameObject.h"
 #include "GameObject.h"
 
-class Boss;
+class Boss1;
 
 class Ship : public DestructibleObject, public IComposite
 {
@@ -70,7 +70,7 @@ public:
 	void ChangeLife(const float& life) override;
 
 	void ChangeState(const State& newState);
-	float DistancedetectBoss(Ship* ship, Boss* boss);
+	float DistancedetectBoss(Ship* ship, Boss1* boss);
 
 private:
 	IShapeSFML* m_background;
@@ -83,7 +83,7 @@ private:
 	ITurret* m_turret;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
 
-	std::vector<Boss*> m_enemiesInGame;
+	std::vector<Boss1*> m_enemiesInGame;
 	float m_detectionRadius;
 
 };

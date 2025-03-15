@@ -1,4 +1,4 @@
-#include "Boss.h"
+#include "Boss1.h"
 #include "RandomNumber.h"
 #include "Ship.h"
 #include <functional>
@@ -31,7 +31,7 @@ EntityParameters EntityParameters::getForPhase(EntityPhase phase)
 }
 
 // Patrol State
-Boss::IState* Boss::PatrolState::handle(const State& state)
+Boss1::IState* Boss1::PatrolState::handle(const State& state)
 {
     if (state == State::CHASE)
     {
@@ -50,7 +50,7 @@ Boss::IState* Boss::PatrolState::handle(const State& state)
     return nullptr;
 }
 
-void Boss::PatrolState::update(Boss* boss, float deltaTime)
+void Boss1::PatrolState::update(Boss1* boss, float deltaTime)
 {
     std::cout << "Mode Patrol" << std::endl;
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
@@ -67,9 +67,11 @@ void Boss::PatrolState::update(Boss* boss, float deltaTime)
         return;
     }
 
+
+
 }
 ///// Chase State
-Boss::IState* Boss::ChaseState::handle(const State& state)
+Boss1::IState* Boss1::ChaseState::handle(const State& state)
 {
     if (state == State::PATROL)
     {
@@ -90,7 +92,7 @@ Boss::IState* Boss::ChaseState::handle(const State& state)
     return nullptr;
 }
 
-void Boss::ChaseState::update(Boss* boss, float deltaTime)
+void Boss1::ChaseState::update(Boss1* boss, float deltaTime)
 {
     std::cout << "Mode Chase" << std::endl;
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
@@ -120,7 +122,7 @@ void Boss::ChaseState::update(Boss* boss, float deltaTime)
 }
 
 ///// Reload State
-Boss::IState* Boss::ReloadState::handle(const State& state)
+Boss1::IState* Boss1::ReloadState::handle(const State& state)
 {
     if (state == State::PATROL)
     {
@@ -140,11 +142,40 @@ Boss::IState* Boss::ReloadState::handle(const State& state)
     return nullptr;
 }
 
-void Boss::ReloadState::update(Boss* boss, float deltaTime)
+void Boss1::ReloadState::update(Boss1* boss, float deltaTime)
 {
     std::cout << "Mode Reload" << std::endl;
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    static float reloadTime = 3.0f; 
+    static float reloadTimer = 0.0f;
+
+    reloadTimer += deltaTime;
+
+    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
+    {
+        boss->m_projectileCount = 0;
+
+    }
+
+    if (distance >= 650.0f)
+    {
+        boss->changeState(State::PATROL);
+        return;
+    }
+
+    if (distance < 650.0f)
+    {
+        boss->changeState(State::CHASE);
+        return;
+    }
+
+    if (distance <= 300.0f)
+    {
+        boss->changeState(State::FIRE);
+        return;
+    }
 
     if (distance > 0)
     {
@@ -157,7 +188,7 @@ void Boss::ReloadState::update(Boss* boss, float deltaTime)
 }
 
 ///// Fire State
-Boss::IState* Boss::FireState::handle(const State& state)
+Boss1::IState* Boss1::FireState::handle(const State& state)
 {
     if (state == State::PATROL)
     {
@@ -179,16 +210,26 @@ Boss::IState* Boss::FireState::handle(const State& state)
     return nullptr;
 }
 
-void Boss::FireState::update(Boss* boss, float deltaTime)
+void Boss1::FireState::update(Boss1* boss, float deltaTime)
 {
     std::cout << "Mode Fire" << std::endl;
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (boss->m_attackTimer.ActionIsReady())
+    if (boss->m_projectileCount == 0)
     {
-        boss->fireProjectiles(boss->m_entityParams.attackCount, boss->m_entityParams.spreadAngle);
-        boss->m_attackTimer.setNewTimer(boss->m_entityParams.attackRate);
+        boss->m_projectileCount = 1;
+    }
+    else
+    {
+        boss->m_projectileCount++;
+    }
+
+    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
+    {
+        std::cout << "Passage en Mode Reload" << std::endl;
+        boss->changeState(State::RELOAD);
+        return;
     }
 
     if (distance > 300.0f)
@@ -214,7 +255,7 @@ void Boss::FireState::update(Boss* boss, float deltaTime)
 
 }
 
-Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
+Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
     , m_maxLife(maxHealth)
@@ -256,12 +297,12 @@ Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth
 
 }
 
-Boss::~Boss()
+Boss1::~Boss1()
 {
    
 }
 
-void Boss::createWeapons(float weaponOffset) {
+void Boss1::createWeapons(float weaponOffset) {
     auto weapon1 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset/3, -weaponOffset/3), 0);
     auto weapon2 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset/2, -weaponOffset/2), 0);
     auto weapon3 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset/3, weaponOffset/3), 0);
@@ -276,21 +317,21 @@ void Boss::createWeapons(float weaponOffset) {
     }
 }
 
-sf::Vector2f Boss::worldToScreenPosition(const sf::Vector2f& worldPos) const {
+sf::Vector2f Boss1::worldToScreenPosition(const sf::Vector2f& worldPos) const {
     return sf::Vector2f(
         m_scene->getRoot()->getScene()->getBackgroundCenter().x + worldPos.x,
         m_scene->getRoot()->getScene()->getBackgroundCenter().y + worldPos.y
     );
 }
 
-sf::Vector2f Boss::screenToWorldPosition(const sf::Vector2f& screenPos) const {
+sf::Vector2f Boss1::screenToWorldPosition(const sf::Vector2f& screenPos) const {
     return sf::Vector2f(
         screenPos.x - m_scene->getRoot()->getScene()->getBackgroundCenter().x,
         screenPos.y - m_scene->getRoot()->getScene()->getBackgroundCenter().y
     );
 }
 
-float Boss::calculateAngleToTarget() const
+float Boss1::calculateAngleToTarget() const
 {
     if (!m_target) return m_movementAngle;
 
@@ -308,7 +349,7 @@ float Boss::calculateAngleToTarget() const
     }
 }
 
-bool Boss::isTargetValid() const
+bool Boss1::isTargetValid() const
 {
     if (!m_target) return false;
 
@@ -327,7 +368,7 @@ bool Boss::isTargetValid() const
     }
 }
 
-bool Boss::isTargetInDetectionZone() const
+bool Boss1::isTargetInDetectionZone() const
 {
     if (!m_target) return false;
 
@@ -342,12 +383,12 @@ bool Boss::isTargetInDetectionZone() const
     }
 }
 
-bool Boss::shouldAttackTarget() const
+bool Boss1::shouldAttackTarget() const
 {
     return m_target && isTargetInDetectionZone() && const_cast<Timer&>(m_attackTimer).ActionIsReady();
 }
 
-void Boss::moveToPosition(const sf::Vector2f& position)
+void Boss1::moveToPosition(const sf::Vector2f& position)
 {
     sf::Vector2f direction = position - m_worldPosition;
     float distance = sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -383,7 +424,7 @@ void Boss::moveToPosition(const sf::Vector2f& position)
     }
 }
 
-void Boss::Update(const float& deltaTime)
+void Boss1::Update(const float& deltaTime)
 {
     static Timer targetSearchTimer(2.0f);
 
@@ -460,13 +501,13 @@ void Boss::Update(const float& deltaTime)
     IComposite::Update(deltaTime);
 }
 
-void Boss::Render()
+void Boss1::Render()
 {
     m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
     IComposite::Render();
 }
 
-void Boss::HandleCollision(IGameObject* object)
+void Boss1::HandleCollision(IGameObject* object)
 {
     if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
         return;
@@ -491,7 +532,7 @@ void Boss::HandleCollision(IGameObject* object)
 
 }
 
-void Boss::ChangeLife(const float& life)
+void Boss1::ChangeLife(const float& life)
 {
     if (life < 0 && m_isInvulnerable)
         return;
@@ -513,17 +554,17 @@ void Boss::ChangeLife(const float& life)
     }
 }
 
-float Boss::getSpeed()
+float Boss1::getSpeed()
 {
     return m_speed;
 }
 
-void Boss::setSpeed(float speed)
+void Boss1::setSpeed(float speed)
 {
     m_speed = speed;
 }
 
-void Boss::moveTowards(const sf::Vector2f& target, float deltaTime)
+void Boss1::moveTowards(const sf::Vector2f& target, float deltaTime)
 {
     sf::Vector2f targetWorldPos = screenToWorldPosition(target);
 
@@ -543,7 +584,7 @@ void Boss::moveTowards(const sf::Vector2f& target, float deltaTime)
     }
 }
 
-void Boss::fireProjectiles(int count, float spreadAngle)
+void Boss1::fireProjectiles(int count, float spreadAngle)
 {
     if (!m_target || !m_isTrackingTarget) return;
 
@@ -584,7 +625,7 @@ void Boss::fireProjectiles(int count, float spreadAngle)
     }
 }
 
-void Boss::fireSpecialProjectile(ProjectileType type)
+void Boss1::fireSpecialProjectile(ProjectileType type)
 {
     switch (type) {
     case ProjectileType::Large:
@@ -634,12 +675,12 @@ void Boss::fireSpecialProjectile(ProjectileType type)
     }
 }
 
-void Boss::activateDefensiveAbility(float duration)
+void Boss1::activateDefensiveAbility(float duration)
 {
     regenerateHealth(25.0f);
 }
 
-void Boss::activateOffensiveBoost(float multiplier, float duration)
+void Boss1::activateOffensiveBoost(float multiplier, float duration)
 {
     m_offensiveBoostActive = true;
     m_damageMultiplier = multiplier;
@@ -650,7 +691,7 @@ void Boss::activateOffensiveBoost(float multiplier, float duration)
     }
 }
 
-void Boss::regenerateHealth(float amount)
+void Boss1::regenerateHealth(float amount)
 {
     float newHealth = m_life + amount;
     if (newHealth > m_maxLife) {
@@ -659,7 +700,7 @@ void Boss::regenerateHealth(float amount)
     m_life = newHealth;
 }
 
-void Boss::updateEntityParameters()
+void Boss1::updateEntityParameters()
 {
     m_entityParams = EntityParameters::getForPhase(m_currentPhase);
     m_speed = m_entityParams.speed;
@@ -672,7 +713,7 @@ void Boss::updateEntityParameters()
     }
 }
 
-void Boss::findTarget()
+void Boss1::findTarget()
 {
     auto root = m_scene->getRoot();
     m_target = nullptr;
@@ -709,17 +750,17 @@ void Boss::findTarget()
     findShipInChildren(root);
 }
 
-void Boss::fireGrowingProjectile()
+void Boss1::fireGrowingProjectile()
 {
     fireSpecialProjectile(ProjectileType::Large);
 }
 
-void Boss::fireFastProjectile()
+void Boss1::fireFastProjectile()
 {
     fireSpecialProjectile(ProjectileType::Fast);
 }
 
-void Boss::move(const sf::Vector2f& offset)
+void Boss1::move(const sf::Vector2f& offset)
 {
     float maxSpeedPerFrame = 0.30f;
 
@@ -735,7 +776,7 @@ void Boss::move(const sf::Vector2f& offset)
     m_shape->setPosition(screenPos);
 }
 
-void Boss::changeState(const State& newState)
+void Boss1::changeState(const State& newState)
 {
     if (m_currentState)
     {

@@ -1,6 +1,7 @@
 #pragma once
-
 #include "SceneBase.h"
+#include <iostream>
+
 class IPhysics
 {
 public:
@@ -32,6 +33,53 @@ public:
 private:
 	KT::Vector<std::string> m_textureContainer;
 	int m_curentTexture;
+};
+
+class Animate
+{
+public:
+
+	Animate(int start, int end, int rows, int cols)
+		: m_start(start), m_end(end), m_rows(rows), m_cols(cols), m_curentTexture(start)
+	{
+
+	}
+
+	void setTexture(sf::RenderTexture& texture, float widthSprite, float heightSprite)
+	{
+		float spriteSizeWidth = widthSprite / m_end;
+		float spriteSizeHeight = heightSprite / m_end;
+	}
+
+	void deadZone()
+	{
+
+	}
+
+	void iterator()
+	{
+		if (m_curentTexture < m_end)
+		{
+			++m_curentTexture;
+		}
+		else
+		{
+			m_curentTexture = m_start;
+		}
+	}
+	void counter()
+	{
+
+	}
+
+
+private:
+	KT::Vector<std::string> m_textureContainer;
+	int m_curentTexture;
+	int m_start;
+	int m_end;
+	int m_rows;
+	int m_cols;
 };
 
 //struct Animation

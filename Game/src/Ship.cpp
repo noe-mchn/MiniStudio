@@ -1,6 +1,6 @@
 #include "Ship.h"
 #include "IGameObject.h"
-#include "Boss.h"
+#include "Boss1.h"
 #include <iostream>
 #include <exception>
 
@@ -311,7 +311,7 @@ void Ship::ChangeState(const State& newState)
 	}
 }
 
-float Ship::DistancedetectBoss(Ship* ship, Boss* boss)
+float Ship::DistancedetectBoss(Ship* ship, Boss1* boss)
 {
 	sf::Vector2f myPos = ship->getShape()->getPosition();
 	sf::Vector2f bossPos = boss->getShape()->getPosition();
