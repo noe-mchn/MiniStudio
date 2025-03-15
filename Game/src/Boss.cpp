@@ -1,10 +1,11 @@
 #include "Boss.h"
 #include "RandomNumber.h"
-#include "BossBehavior.h"
 #include "Ship.h"
 #include <functional>
+#include <iostream>
 
-EntityParameters EntityParameters::getForPhase(EntityPhase phase) {
+EntityParameters EntityParameters::getForPhase(EntityPhase phase) 
+{
     EntityParameters params;
 
     switch (phase) 
@@ -29,12 +30,195 @@ EntityParameters EntityParameters::getForPhase(EntityPhase phase) {
     return params;
 }
 
+// Patrol State
+Boss::IState* Boss::PatrolState::handle(const State& state)
+{
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+    if (state == State::FIRE)
+    {
+        return new FireState();
+    }
+
+    return nullptr;
+}
+
+void Boss::PatrolState::update(Boss* boss, float deltaTime)
+{
+    std::cout << "Mode Patrol" << std::endl;
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (direction.x == 0 && direction.y == 0) 
+    {
+        return;
+    }
+
+    if (distance < 650.0f)
+    {
+        boss->changeState(State::CHASE);
+        return;
+    }
+
+}
+///// Chase State
+Boss::IState* Boss::ChaseState::handle(const State& state)
+{
+    if (state == State::PATROL)
+    {
+        return new PatrolState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+
+    if (state == State::FIRE)
+    {
+        return new FireState();
+    }
+
+
+    return nullptr;
+}
+
+void Boss::ChaseState::update(Boss* boss, float deltaTime)
+{
+    std::cout << "Mode Chase" << std::endl;
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (distance >= 650.0f)
+    {
+        boss->changeState(State::PATROL);
+        return;
+    }
+
+
+    if (distance <= 300.0f)
+    {
+        boss->changeState(State::FIRE);
+        return;
+    }
+
+    if (distance > 0)
+    {
+        direction /= distance;
+        boss->move(direction * boss->getSpeed() * deltaTime);
+    }
+    else
+        return;
+
+}
+
+///// Reload State
+Boss::IState* Boss::ReloadState::handle(const State& state)
+{
+    if (state == State::PATROL)
+    {
+        return new PatrolState();
+    }
+
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::FIRE)
+    {
+        return new FireState();
+    }
+
+    return nullptr;
+}
+
+void Boss::ReloadState::update(Boss* boss, float deltaTime)
+{
+    std::cout << "Mode Reload" << std::endl;
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (distance > 0)
+    {
+        direction /= distance;
+        boss->move(direction * boss->getSpeed() * deltaTime);
+    }
+    else
+        return;
+
+}
+
+///// Fire State
+Boss::IState* Boss::FireState::handle(const State& state)
+{
+    if (state == State::PATROL)
+    {
+        return new PatrolState();
+    }
+
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+
+
+
+    return nullptr;
+}
+
+void Boss::FireState::update(Boss* boss, float deltaTime)
+{
+    std::cout << "Mode Fire" << std::endl;
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (boss->m_attackTimer.ActionIsReady())
+    {
+        boss->fireProjectiles(boss->m_entityParams.attackCount, boss->m_entityParams.spreadAngle);
+        boss->m_attackTimer.setNewTimer(boss->m_entityParams.attackRate);
+    }
+
+    if (distance > 300.0f)
+    {
+        boss->changeState(State::CHASE);
+        return;
+    }
+
+
+    if (distance >= 650.0f)
+    {
+        boss->changeState(State::PATROL);
+        return;
+    }
+
+    if (distance > 0)
+    {
+        direction /= distance;
+        boss->move(direction * boss->getSpeed() * deltaTime);
+    }
+    else
+        return;
+
+}
+
 Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
-    , m_behaviorTree(nullptr)
     , m_animate({ "Boss1.png", "Boss2.png" })
     , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
@@ -51,6 +235,7 @@ Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth
     , m_isTrackingTarget(false)
     , m_attackTimer(2.0f)
     , m_patrolTimer(0.0f)
+    , m_currentState(new PatrolState())
 {
     m_entityParams = EntityParameters::getForPhase(m_currentPhase);
 
@@ -69,12 +254,11 @@ Boss::Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth
 
     new Life(this, this, Color::Pink);
 
-    setupBehaviorTree();
 }
 
 Boss::~Boss()
 {
-    delete m_behaviorTree;
+   
 }
 
 void Boss::createWeapons(float weaponOffset) {
@@ -188,7 +372,8 @@ void Boss::moveToPosition(const sf::Vector2f& position)
             float blendedAngle = m_movementAngle * 0.7f + targetAngle * 0.3f;
             m_shape->setRotation(blendedAngle);
         }
-        else {
+        else 
+        {
             m_shape->setRotation(m_movementAngle);
         }
     }
@@ -198,17 +383,20 @@ void Boss::moveToPosition(const sf::Vector2f& position)
     }
 }
 
-void Boss::Update(const float& deltatime)
+void Boss::Update(const float& deltaTime)
 {
     static Timer targetSearchTimer(2.0f);
 
-    if (!m_target || targetSearchTimer.AutoActionIsReady(deltatime)) {
+    if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime)) 
+    {
         findTarget();
     }
 
-    if (m_isInvulnerable) {
-        m_invulnerabilityTimer.NextTIck(deltatime);
-        if (m_invulnerabilityTimer.ActionIsReady()) {
+    if (m_isInvulnerable) 
+    {
+        m_invulnerabilityTimer.NextTIck(deltaTime);
+        if (m_invulnerabilityTimer.ActionIsReady()) 
+        {
             m_isInvulnerable = false;
         }
     }
@@ -218,21 +406,32 @@ void Boss::Update(const float& deltatime)
         m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
     }
 
-    m_attackTimer.NextTIck(deltatime);
+    if (m_currentState)
+    {
+        m_currentState->update(this, deltaTime);
+    }
+
+    m_attackTimer.NextTIck(deltaTime);
 
     m_isTrackingTarget = m_target && isTargetInDetectionZone();
 
-    if (m_isTrackingTarget && m_target) {
+    if (m_isTrackingTarget && m_target)
+    {
         float angleToTarget = calculateAngleToTarget();
         m_shape->setRotation(angleToTarget);
 
-        if (m_attackTimer.ActionIsReady()) {
-            fireProjectiles(m_entityParams.attackCount, m_entityParams.spreadAngle);
-            m_attackTimer.setNewTimer(m_entityParams.attackRate);
+        if (m_currentState && dynamic_cast<FireState*>(m_currentState))
+        {
+            if (m_attackTimer.ActionIsReady())
+            {
+                fireProjectiles(m_entityParams.attackCount, m_entityParams.spreadAngle);
+                m_attackTimer.setNewTimer(m_entityParams.attackRate);
+            }
         }
     }
-    else {
-        m_patrolTimer += deltatime;
+    else 
+    {
+        m_patrolTimer += deltaTime;
 
         float radius = 200.0f;
         sf::Vector2f patrolPos;
@@ -241,13 +440,16 @@ void Boss::Update(const float& deltatime)
         moveToPosition(patrolPos);
     }
 
-    if (m_offensiveBoostActive) {
-        m_offensiveBoostTimer.NextTIck(deltatime);
-        if (m_offensiveBoostTimer.ActionIsReady()) {
+    if (m_offensiveBoostActive) 
+    {
+        m_offensiveBoostTimer.NextTIck(deltaTime);
+        if (m_offensiveBoostTimer.ActionIsReady()) 
+        {
             m_offensiveBoostActive = false;
             m_damageMultiplier = 1.0f;
 
-            for (auto& weapon : m_weapons) {
+            for (auto& weapon : m_weapons) 
+            {
                 weapon->setBullet(m_entityParams.projectileSize, m_entityParams.projectileSpeed, 1.0f);
             }
         }
@@ -255,11 +457,7 @@ void Boss::Update(const float& deltatime)
 
     m_shape->setPosition(worldToScreenPosition(m_worldPosition));
 
-    if (m_behaviorTree) {
-        m_behaviorTree->tick();
-    }
-
-    IComposite::Update(deltatime);
+    IComposite::Update(deltaTime);
 }
 
 void Boss::Render()
@@ -313,6 +511,11 @@ void Boss::ChangeLife(const float& life)
         m_currentPhase = newPhase;
         updateEntityParameters();
     }
+}
+
+float Boss::getSpeed()
+{
+    return m_speed;
 }
 
 void Boss::setSpeed(float speed)
@@ -516,227 +719,31 @@ void Boss::fireFastProjectile()
     fireSpecialProjectile(ProjectileType::Fast);
 }
 
-void Boss::setupBehaviorTree()
+void Boss::move(const sf::Vector2f& offset)
 {
-    m_behaviorTree = new BT::RootNode(this);
+    float maxSpeedPerFrame = 0.30f;
 
-    BT::Sequence* mainSequence = new BT::Sequence(m_behaviorTree);
-
-    BossAI::MovementPatternTimerNode* movementPatternTimer = new BossAI::MovementPatternTimerNode(mainSequence, 30.0f);
-    BT::DoNTime* selectNewPattern = new BT::DoNTime(movementPatternTimer, 1);
-
-    class SelectRandomPatternNode : public BossAI::BossBehaviorNode<BT::IActionNode>
+    sf::Vector2f clampedOffset = offset;
+    float offsetLength = std::sqrt(offset.x * offset.x + offset.y * offset.y);
+    if (offsetLength > maxSpeedPerFrame)
     {
-    public:
-        SelectRandomPatternNode(BT::ICompositeNode* parent, BossAI::RandomMovementSelector* selector)
-            : BossAI::BossBehaviorNode<BT::IActionNode>(parent), m_selector(selector) {}
+        clampedOffset = (offset / offsetLength) * maxSpeedPerFrame;
+    }
 
-        BT::Status tick() override {
-            int randomPattern = UseRandomNumber().getRandomNumber<int>(0, 2);
-            m_selector->setCurrentPattern(static_cast<BossMovementPattern>(randomPattern));
-            return BT::Success;
-        }
+    m_worldPosition += clampedOffset;
+    sf::Vector2f screenPos = worldToScreenPosition(m_worldPosition);
+    m_shape->setPosition(screenPos);
+}
 
-        void display() override {
-        }
-
-    private:
-        BossAI::RandomMovementSelector* m_selector;
-    };
-
-    m_movementSelector = new BossAI::RandomMovementSelector(mainSequence);
-    new BossAI::HorizontalPatternNode(m_movementSelector);
-    new BossAI::VerticalPatternNode(m_movementSelector);
-    new BossAI::DiagonalPatternNode(m_movementSelector);
-    new SelectRandomPatternNode(selectNewPattern, m_movementSelector);
-
-    class AlwaysTrueNode : public BossAI::BossBehaviorNode<BT::IConditionalNode>
+void Boss::changeState(const State& newState)
+{
+    if (m_currentState)
     {
-    public:
-        AlwaysTrueNode(BT::ICompositeNode* parent)
-            : BossAI::BossBehaviorNode<BT::IConditionalNode>(parent) {}
-
-        bool condition() override {
-            return true;
-        }
-    };
-
-    BT::IConditionalNode* specialAttackCondition = new AlwaysTrueNode(mainSequence);
-    BT::Sequence* specialAttackSequence = new BT::Sequence(specialAttackCondition);
-
-    class ForceSpecialAttackTimerNode : public BossAI::BossBehaviorNode<BT::IActionNode>
-    {
-    public:
-        ForceSpecialAttackTimerNode(BT::ICompositeNode* parent, float minInterval, float maxInterval)
-            : BossAI::BossBehaviorNode<BT::IActionNode>(parent),
-            m_timer(0.0f),
-            m_minInterval(minInterval),
-            m_maxInterval(maxInterval),
-            m_initialized(false) {
-        }
-        BT::Status tick() override {
-            if (!m_initialized) {
-                int nextInterval = UseRandomNumber().getRandomNumber<int>(m_minInterval, m_maxInterval);
-                m_timer.setNewTimer(nextInterval);
-                m_initialized = true;
-            }
-
-            m_timer.NextTIck(1.0f / 60.0f);
-
-            if (m_timer.ActionIsReady()) {
-                int attackType = UseRandomNumber().getRandomNumber<int>(0, 3);
-
-                if (attackType == 3) attackType = 4;
-
-                switch (attackType) {
-                case 0:
-                    getGameObject()->regenerateHealth(50.0f);
-                    break;
-                case 1:
-                    getGameObject()->fireGrowingProjectile();
-                    break;
-                case 2:
-                    getGameObject()->fireFastProjectile();
-                    break;
-                case 4:
-                    getGameObject()->activateOffensiveBoost(2.0f, 8.0f);
-                    break;
-                }
-
-                m_initialized = false;
-            }
-
-            return BT::Success;
-        }
-
-    private:
-        Timer m_timer;
-        float m_minInterval;
-        float m_maxInterval;
-        bool m_initialized;
-    };
-
-    new ForceSpecialAttackTimerNode(specialAttackSequence, 5.0f, 15.0f);
-
-    BT::IConditionalNode* phaseAttackCondition = new AlwaysTrueNode(mainSequence);
-    BT::Sequence* phaseAttackSequence = new BT::Sequence(phaseAttackCondition);
-
-    class PhaseBasedAttacks : public BossAI::BossBehaviorNode<BT::IActionNode>
-    {
-    public:
-        PhaseBasedAttacks(BT::ICompositeNode* parent)
-            : BossAI::BossBehaviorNode<BT::IActionNode>(parent),
-            m_phase(1),
-            m_timer(1.2f),
-            m_initialized(false)
+        IState* state = m_currentState->handle(newState);
+        if (state)
         {
+            delete m_currentState;
+            m_currentState = state;
         }
-
-        BT::Status tick() override {
-            if (!m_initialized) {
-                m_timer.setNewTimer(1.2f);
-                m_initialized = true;
-            }
-
-            float healthPercent = (getGameObject()->getCurrentLife() / getGameObject()->getMaxLife()) * 100.0f;
-            int currentPhase = 1;
-
-            if (healthPercent <= 20.0f) currentPhase = 5;
-            else if (healthPercent <= 40.0f) currentPhase = 4;
-            else if (healthPercent <= 60.0f) currentPhase = 3;
-            else if (healthPercent <= 80.0f) currentPhase = 2;
-
-            if (currentPhase != m_phase) {
-                m_phase = currentPhase;
-
-                updatePhaseParameters();
-
-                m_timer.resetTimer();
-
-                getGameObject()->updateEntityParameters();
-            }
-
-            m_timer.NextTIck(1.0f / 60.0f);
-
-            if (m_timer.ActionIsReady()) {
-                int bulletCount;
-                float spreadAngle;
-
-                switch (m_phase) {
-                case 1:
-                    bulletCount = 1;
-                    spreadAngle = 0.0f;
-                    m_timer.setNewTimer(1.2f);
-                    break;
-                case 2:
-                    bulletCount = 2;
-                    spreadAngle = 15.0f;
-                    m_timer.setNewTimer(1.0f);
-                    break;
-                case 3:
-                    bulletCount = 3;
-                    spreadAngle = 30.0f;
-                    m_timer.setNewTimer(0.8f);
-                    break;
-                case 4:
-                    bulletCount = 4;
-                    spreadAngle = 45.0f;
-                    m_timer.setNewTimer(0.6f);
-                    break;
-                case 5:
-                    bulletCount = 5;
-                    spreadAngle = 60.0f;
-                    m_timer.setNewTimer(0.4f);
-                    break;
-                }
-
-                getGameObject()->fireProjectiles(bulletCount, spreadAngle);
-            }
-
-            return BT::Success;
-        }
-
-    private:
-        int m_phase;
-        Timer m_timer;
-        bool m_initialized;
-
-        void updatePhaseParameters() {
-            switch (m_phase) {
-            case 1:
-                m_timer.setNewTimer(1.2f);
-                break;
-            case 2:
-                m_timer.setNewTimer(1.0f);
-                break;
-            case 3:
-                m_timer.setNewTimer(0.8f);
-                break;
-            case 4:
-                m_timer.setNewTimer(0.6f);
-                break;
-            case 5:
-                m_timer.setNewTimer(0.4f);
-                break;
-            }
-        }
-    };
-
-    new PhaseBasedAttacks(phaseAttackSequence);
-
-    BossAI::HealthPercentageNode* health80Check = new BossAI::HealthPercentageNode(mainSequence, 80.0f);
-    BT::Sequence* phase2Sequence = new BT::Sequence(health80Check);
-    BossAI::MoveBossNode* phase2Move = new BossAI::MoveBossNode(phase2Sequence, 400.0f);
-
-    BossAI::HealthPercentageNode* health60Check = new BossAI::HealthPercentageNode(mainSequence, 60.0f);
-    BT::Sequence* phase3Sequence = new BT::Sequence(health60Check);
-    BossAI::MoveBossNode* phase3Move = new BossAI::MoveBossNode(phase3Sequence, 500.0f);
-
-    BossAI::HealthPercentageNode* health40Check = new BossAI::HealthPercentageNode(mainSequence, 40.0f);
-    BT::Sequence* phase4Sequence = new BT::Sequence(health40Check);
-    BossAI::MoveBossNode* phase4Move = new BossAI::MoveBossNode(phase4Sequence, 600.0f);
-
-    BossAI::HealthPercentageNode* health20Check = new BossAI::HealthPercentageNode(mainSequence, 20.0f);
-    BT::Sequence* phase5Sequence = new BT::Sequence(health20Check);
-    BossAI::MoveBossNode* phase5Move = new BossAI::MoveBossNode(phase5Sequence, 700.0f);
+    }
 }

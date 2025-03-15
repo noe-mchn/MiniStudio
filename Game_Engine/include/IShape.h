@@ -34,38 +34,20 @@ private:
 	int m_curentTexture;
 };
 
-struct Animation
-{
-	sf::Texture texture;
-	sf::Sprite sprite;
-	int frameWidth, frameHeight;
-	int frameCount;
-	int currentFrame;
-	float frameTime;
-	sf::Clock elapsedTime;
-
-	void setTexture(const std::string& filepath, int fCount, float fTime)
-	{
-		texture.loadFromFile(filepath);
-		sprite.setTexture(texture);
-		frameCount = fCount;
-		frameTime = fTime;
-		currentFrame = 0;
-		frameWidth = texture.getSize().x / frameCount;
-		frameHeight = texture.getSize().y;
-		sprite.setTextureRect(sf::IntRect(0, 0, frameWidth, frameHeight));
-	}
-
-	void update()
-	{
-		if (elapsedTime.getElapsedTime().asSeconds() >= frameTime)
-		{
-			currentFrame = (currentFrame + 1) % frameCount;
-			sprite.setTextureRect(sf::IntRect(currentFrame * frameWidth, 0, frameWidth, frameHeight));
-			elapsedTime.restart();
-		}
-	}
-};
+//struct Animation
+//{
+//	sf::Texture texture;
+//	sf::Sprite sprite;
+//	int frameWidth, frameHeight;
+//	int frameCount;
+//	int currentFrame;
+//	float frameTime;
+//	Timer elapsedTime;
+//
+//	void getTexture();
+//
+//	
+//};
 
 
 class IShapeSFML

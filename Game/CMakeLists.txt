@@ -12,8 +12,6 @@ set(HEADERS
  ${HEADER_DIR}/Collision.h
  ${HEADER_DIR}/ISpawner.h
  ${HEADER_DIR}/Boss.h
- ${HEADER_DIR}/BehaviorTree.h
- ${HEADER_DIR}/BossBehavior.h
  ${HEADER_DIR}/BossBullet.h
 )
 set(SOURCES
@@ -23,8 +21,6 @@ ${SOURCE_DIR}/Ship.cpp
 ${SOURCE_DIR}/Collision.cpp
 ${SOURCE_DIR}/ISpawner.cpp
 ${SOURCE_DIR}/Boss.cpp
-${SOURCE_DIR}/BehaviorTree.cpp
-${SOURCE_DIR}/BossBehavior.cpp
 ${SOURCE_DIR}/BossBullet.cpp
 )
 

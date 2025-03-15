@@ -2,7 +2,8 @@
 #include "GameObject.h"
 #include "RandomNumber.h"
 
-enum class ProjectileType {
+enum class ProjectileType 
+{
     Normal,
     Large,
     Fast,

@@ -1,15 +1,16 @@
 #pragma once
 #include "IGameObject.h"
 #include "GameObject.h"
-#include "BehaviorTree.h"
 #include "BossBullet.h"
 
-namespace BossAI {
+namespace BossAI 
+{
     class RandomAttackSelector;
     class RandomMovementSelector;
 }
 
-enum class EntityMovementPattern {
+enum class EntityMovementPattern 
+{
     Horizontal,
     Vertical,
     Diagonal,
@@ -27,7 +28,8 @@ enum class EntityPhase
 	Five
 };
 
-struct EntityParameters {
+struct EntityParameters 
+{
     float speed;
     float attackRate;
     int attackCount;
@@ -41,6 +43,48 @@ struct EntityParameters {
 
 class Boss : public DestructibleObject, public IComposite
 {
+protected:
+    enum State
+    {
+        PATROL
+        , CHASE
+        , RELOAD
+        , FIRE
+    };
+
+    struct IState
+    {
+        virtual ~IState() = default;
+        virtual IState* handle(const State& state) = 0;
+        virtual void update(Boss* boss, float deltaTime) = 0;
+    };
+    struct PatrolState : IState
+    {
+        ~PatrolState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss* boss, float deltaTime) override;
+    };
+    struct ChaseState : IState
+    {
+        ~ChaseState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss* boss, float deltaTime) override;
+    };
+    struct ReloadState : IState
+    {
+        ~ReloadState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss* boss, float deltaTime) override;
+
+    };
+    struct FireState : IState
+    {
+        ~FireState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss* boss, float deltaTime) override;
+
+    };
+
 public:
     Boss(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
     virtual ~Boss();
@@ -55,6 +99,7 @@ public:
     float getCurrentLife() const { return m_life; }
     IComposite* getScene() const { return m_scene; }
 
+    float getSpeed();
     void setSpeed(float speed);
     void moveTowards(const sf::Vector2f& target, float deltaTime);
     void moveToPosition(const sf::Vector2f& position);
@@ -72,8 +117,13 @@ public:
     virtual void updateEntityParameters();
     EntityPhase getCurrentPhase() const { return m_currentPhase; }
 
+    void move(const sf::Vector2f& offset);
+
+    void changeState(const State& newState);
+
+    IState* m_currentState;
+
 protected:
-    virtual void setupBehaviorTree();
     virtual void findTarget();
     virtual void createWeapons(float offset);
     sf::Vector2f worldToScreenPosition(const sf::Vector2f& worldPos) const;
@@ -81,7 +131,6 @@ protected:
 
     float m_maxLife;
     float m_speed;
-    BT::RootNode* m_behaviorTree;
 
     AnimateSprite m_animate;
     Timer m_animationTimer;
@@ -116,4 +165,6 @@ protected:
     bool isTargetInDetectionZone() const;
     bool shouldAttackTarget() const;
     bool isTargetValid() const;
+
+    Boss* boss;
 };

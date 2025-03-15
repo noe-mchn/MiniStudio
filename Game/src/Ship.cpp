@@ -28,8 +28,6 @@ Ship::IState* Ship::IdleState::handle(const State& state)
 
 void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
-	std::cout << "Mode Idle" << std::endl;
-
 	if (ship->m_strafe[trust::Left] 
 		|| ship->m_strafe[trust::Right] 
 		|| ship->m_strafe[trust::Up] 
@@ -74,7 +72,6 @@ Ship::IState* Ship::MoveState::handle(const State& state)
 
 void Ship::MoveState::update(Ship* ship, float deltaTime)
 {
-	std::cout << "Mode Move" << std::endl;
 
 		if (!ship->m_strafe[trust::Left] 
 			&& !ship->m_strafe[trust::Right]
@@ -116,8 +113,6 @@ Ship::IState* Ship::HandAttackState::handle(const State& state)
 
 void Ship::HandAttackState::update(Ship* ship, float deltaTime)
 {
-	std::cout << "Mode Hand Attack" << std::endl;
-
 	if (!ship->m_strafe[trust::Left]
 		&& !ship->m_strafe[trust::Right]
 		&& !ship->m_strafe[trust::Up]
@@ -159,8 +154,6 @@ Ship::IState* Ship::PistolAttackState::handle(const State& state)
 
 void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 {
-	std::cout << "Mode Pistol Attack" << std::endl;
-
 	if (!ship->m_turret)
 		throw std::runtime_error("ship est nullptr!");
 
@@ -234,7 +227,7 @@ void Ship::ProssesInput(const sf::Event& event)
 	{
 		m_strafe[trust::Left] = true;
 	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 	{
 		m_strafe[trust::Right] = true;
 	}
