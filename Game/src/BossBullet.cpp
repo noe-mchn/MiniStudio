@@ -127,7 +127,7 @@ ShieldProjectile::ShieldProjectile(IComposite* scene, IShapeSFML* owner, float d
     : DestructibleObject(scene, 100.0f)
     , ILeaf(scene)
     , m_owner(owner)
-    , m_animate({ "PlayerBulle.png", 1, 1})
+    , m_animate({ "PlayerBulle.png"})
     , m_duration(duration)
     , m_pulseTimer(0.2)
     , m_radius(radius)
@@ -135,7 +135,7 @@ ShieldProjectile::ShieldProjectile(IComposite* scene, IShapeSFML* owner, float d
     , m_growing(true)
 {
     m_shape = new CircleSFML(m_radius, m_owner->getPosition());
-    m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
+    m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 }
 
 void ShieldProjectile::Render()
@@ -148,8 +148,8 @@ void ShieldProjectile::Update(const float& deltatime)
     m_shape->setPosition(m_owner->getPosition());
 
     if (m_pulseTimer.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
-        m_animate.changeToNextSprite();
-        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
+        m_animate.ChangeToNextPath();
+        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 
         if (m_growing) {
             m_radius += 2.0f;

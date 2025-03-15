@@ -255,7 +255,7 @@ Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , IComposite(scene)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
-    , m_animate("Boss1_.png", 6, 8)
+    , m_animate({ "Boss1_.png" })
     , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
     , m_damageMultiplier(1.0f)
@@ -437,9 +437,6 @@ void Boss1::Update(const float& deltaTime)
         }
     }
 
-    m_shape->setTextureRect(m_animate.getTextureRect());
-    m_animate.update(deltaTime);
-
     if (m_currentState)
     {
         m_currentState->update(this, deltaTime);
@@ -496,7 +493,6 @@ void Boss1::Update(const float& deltaTime)
 
 void Boss1::Render()
 {
-    m_shape->setTextureRect(m_animate.getTextureRect());
     m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
     IComposite::Render();
 }

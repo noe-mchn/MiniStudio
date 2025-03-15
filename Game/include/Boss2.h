@@ -132,7 +132,7 @@ protected:
     float m_maxLife;
     float m_speed;
 
-    Animate m_animate;
+    AnimateSprite m_animate;
     Timer m_animationTimer;
 
     EntityParameters2 m_entityParams;

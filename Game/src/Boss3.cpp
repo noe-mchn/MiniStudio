@@ -255,7 +255,7 @@ Boss3::Boss3(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , IComposite(scene)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
-    , m_animate("Boss1.png", 1, 1)
+    , m_animate({ "Boss1.png" })
     , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
     , m_damageMultiplier(1.0f)
@@ -277,7 +277,7 @@ Boss3::Boss3(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
 
     sf::Vector2f screenPosition = worldToScreenPosition(m_worldPosition);
     m_shape = new RectangleSFML(200.0f, 200.0f, screenPosition);
-    m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
+    m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 
     findTarget();
 
@@ -438,8 +438,8 @@ void Boss3::Update(const float& deltaTime)
     }
 
     if (m_animationTimer.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
-        m_animate.changeToNextSprite();
-        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getTexture()));
+        m_animate.ChangeToNextPath();
+        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
     }
 
     if (m_currentState)

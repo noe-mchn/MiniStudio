@@ -83,7 +83,7 @@ private:
 	Timer m_elapsedTime;
 	Timer m_invisibility;
 
-	Animate m_animate;
+	AnimateSprite m_animate;
 	IPhysics* m_physics;
 	ITurret* m_turret;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
