@@ -25,45 +25,50 @@ private:
 	KT::Vector<std::string> m_textureContainer;
 	int m_curentTexture;
 };
-//
-//class Animate
-//{
-//public:
-//	Animate(const std::string& texturePath, int cols, int rows);
-//
-//	std::string getTexture();
-//	void divideSheet(int sheetWidth, int sheetHeight);
-//	void deadZone(float spriteWidth, float spriteHeight);
-//	void firstSprite();
-//	void changeToNextSprite();
-//
-//	sf::IntRect getTextureRect() const;
-//	void update(float deltaTime);
-//	void updateSpriteCoordinates();
-//
-//	void setAnimationRow(int row);
-//
-//private:
-//
-//	std::string m_texture;
-//	int m_curentTexture;
-//	sf::Vector2f m_start;
-//	sf::Vector2f m_end;
-//	int m_rows;
-//	int m_cols;
-//
-//	float m_widthSpriteWithDeadZone = 0.0f;
-//	float m_heightSpriteWithDeadZone = 0.0f;
-//	float m_widthDeadZone = 0.0f;
-//	float m_heightDeadZone = 0.0f;
-//
-//	float m_animationTimer = 0.0f;
-//	float m_animationSpeed = 0.1f;
-//
-//	sf::IntRect m_currentRect;
-//	int m_currentRow = 0;
-//	int m_currentCol = 0;
-//};
+
+class Animate
+{
+public:
+	Animate(const std::string& texturePath, const int& cols, const int& rows, const float& widthI, const float& heightI);
+
+	std::string getTexture();
+	void divideSheet();
+	void deadZone(float spriteWidth, float spriteHeight);
+	void firstSpriteCoord();
+	void firstSpriteRec();
+	void lastSpriteCoord();
+	void changeToNextSprite();
+
+	sf::IntRect getTextureRect() const;
+	void update(float deltaTime);
+	void updateSpriteCoordinates();
+
+	void setAnimationRow(int row);
+
+private:
+
+	std::string m_texture;
+	int m_curentTexture;
+	sf::Vector2f m_topLeft;
+	sf::Vector2f m_bottomRight;
+	int m_rows;
+	int m_cols;
+
+	float m_widthSpriteWithDeadZone = 0.0f;
+	float m_heightSpriteWithDeadZone = 0.0f;
+	float m_widthDeadZone = 0.0f;
+	float m_heightDeadZone = 0.0f;
+
+	float m_animationTimer = 0.0f;
+	float m_animationSpeed = 0.1f;
+
+	sf::IntRect m_currentRect;
+	int m_currentRow = 0;
+	int m_currentCol = 0;
+
+	float m_widthI;
+	float m_heightI;
+};
 
 
 class IShapeSFML
