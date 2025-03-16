@@ -23,6 +23,7 @@ public:
 	sf::RenderWindow* getWindow();
 
 	TextureCache* geTextureCash();
+
 private:
 	sf::RenderWindow* m_window;
 	KT::Vector<ISceneBase*> m_scene;

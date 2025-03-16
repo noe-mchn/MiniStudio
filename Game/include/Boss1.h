@@ -97,6 +97,8 @@ public:
     void HandleCollision(IGameObject* object) override;
     void ChangeLife(const float& life) override;
 
+    IShapeSFML initTexture();
+
     float getMaxLife() const { return m_maxLife; }
     float getCurrentLife() const { return m_life; }
     IComposite* getScene() const { return m_scene; }
@@ -169,6 +171,7 @@ protected:
     int m_projectileCount = 0;
     int m_maxProjectilesBeforeReload = 5;
 
+    SpriteCutter m_boss1sprite;
+    Animat2_0 m_animboss1;
 
-    Boss1* boss;
 };

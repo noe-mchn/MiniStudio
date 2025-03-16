@@ -253,6 +253,8 @@ void Boss1::FireState::update(Boss1* boss, float deltaTime)
 Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
+    , m_boss1sprite(texture->getTexture("Boss1_.png"), 6, 8, 384, 512, 19, 40)
+    , m_animboss1(&m_boss1sprite, 1, 3, 0.5f)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
     , m_offensiveBoostActive(false)
@@ -272,9 +274,12 @@ Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , m_currentState(new PatrolState())
 {
     m_entityParams = EntityParameters::getForPhase(m_currentPhase);
-
+    
     sf::Vector2f screenPosition = worldToScreenPosition(m_worldPosition);
-    m_shape = new RectangleSFML(200.0f, 200.0f, screenPosition);
+    m_shape = new RectangleSFML(200.0f, 200.0f, screenPosition); 
+    
+
+
 
     findTarget();
 
@@ -289,6 +294,7 @@ Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
 
 
 }
+
 
 Boss1::~Boss1()
 {
@@ -426,6 +432,9 @@ void Boss1::Update(const float& deltaTime)
         findTarget();
     }
 
+
+    m_animboss1.update(deltaTime, m_target);
+
     if (m_isInvulnerable) 
     {
         m_invulnerabilityTimer.NextTIck(deltaTime);
@@ -485,6 +494,7 @@ void Boss1::Update(const float& deltaTime)
     }
 
     m_shape->setPosition(worldToScreenPosition(m_worldPosition));
+    
 
     IComposite::Update(deltaTime);
 }

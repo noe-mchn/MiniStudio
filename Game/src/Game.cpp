@@ -7,6 +7,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	ISceneBase(window, framerate, texture),
 	cursor(this),
 	m_bossSpawnTimer(10.0f)
+
 {
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
 	m_Background->setTexture(m_texture->getTexture("galaxie4.png"));
@@ -34,17 +35,21 @@ void Game::Update(const float& deltatime)
 	{
 		obj->Update(deltatime);
 	}
+
 	cursor.Update(deltatime);
 	m_spawner->Spawn();
 
 	m_bossSpawnTimer.NextTIck(deltatime);
-	if (m_bossSpawnTimer.ActionIsReady()) {
+	if (m_bossSpawnTimer.ActionIsReady()) 
+	{
 		m_bossSpawner->Spawn();
 		m_bossSpawnTimer.setNewTimer(9999999999999999.0f);
 	}
 
 	auto vec = getFullTree();
 	collision.HandleCollision(vec);
+
+
 }
 
 void Game::ProssesInput(const sf::Event& event)

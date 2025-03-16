@@ -1,4 +1,4 @@
-#include "Boss1.h"
+#include "Boss2.h"
 #include "RandomNumber.h"
 #include "Ship.h"
 #include <functional>
@@ -31,7 +31,7 @@ EntityParameters2 EntityParameters2::getForPhase(EntityPhase2 phase)
 }
 
 // Patrol State
-Boss2::IState* Boss2::IdleState::handle(const State& state)
+Boss2::IState* Boss2::PatrolState::handle(const State& state)
 {
     if (state == State::CHASE)
     {
@@ -50,7 +50,7 @@ Boss2::IState* Boss2::IdleState::handle(const State& state)
     return nullptr;
 }
 
-void Boss2::IdleState::update(Boss2* boss, float deltaTime)
+void Boss2::PatrolState::update(Boss2* boss, float deltaTime)
 {
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -72,9 +72,9 @@ void Boss2::IdleState::update(Boss2* boss, float deltaTime)
 ///// Chase State
 Boss2::IState* Boss2::ChaseState::handle(const State& state)
 {
-    if (state == State::IDLE)
+    if (state == State::PATROL)
     {
-        return new IdleState();
+        return new PatrolState();
     }
 
     if (state == State::RELOAD)
@@ -98,7 +98,7 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
 
     if (distance >= 800.0f)
     {
-        boss->changeState(State::IDLE);
+        boss->changeState(State::PATROL);
         return;
     }
 
@@ -122,9 +122,9 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
 ///// Reload State
 Boss2::IState* Boss2::ReloadState::handle(const State& state)
 {
-    if (state == State::IDLE)
+    if (state == State::PATROL)
     {
-        return new IdleState();
+        return new PatrolState();
     }
 
     if (state == State::CHASE)
@@ -158,7 +158,7 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 
     if (distance >= 650.0f)
     {
-        boss->changeState(State::IDLE);
+        boss->changeState(State::PATROL);
         return;
     }
 
@@ -187,10 +187,9 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 ///// Fire State
 Boss2::IState* Boss2::FireState::handle(const State& state)
 {
-    std::cout << "en mode fire" << std::endl;
-    if (state == State::IDLE)
+    if (state == State::PATROL)
     {
-        return new IdleState();
+        return new PatrolState();
     }
 
     if (state == State::CHASE)
@@ -235,7 +234,7 @@ void Boss2::FireState::update(Boss2* boss, float deltaTime)
 
     if (distance >= 650.0f)
     {
-        boss->changeState(State::IDLE);
+        boss->changeState(State::PATROL);
         return;
     }
 
@@ -270,7 +269,7 @@ Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , m_isTrackingTarget(false)
     , m_attackTimer(2.0f)
     , m_patrolTimer(0.0f)
-    , m_currentState(new IdleState())
+    , m_currentState(new PatrolState())
 {
     m_entityParams = EntityParameters2::getForPhase(m_currentPhase);
 
@@ -437,10 +436,7 @@ void Boss2::Update(const float& deltaTime)
         }
     }
 
-    if (m_animationTimer.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
-        m_animate.ChangeToNextPath();
-        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
-    }
+    
 
     if (m_currentState)
     {
@@ -492,6 +488,7 @@ void Boss2::Update(const float& deltaTime)
     }
 
     m_shape->setPosition(worldToScreenPosition(m_worldPosition));
+  
 
     IComposite::Update(deltaTime);
 }
@@ -755,6 +752,32 @@ void Boss2::fireFastProjectile()
 {
     fireSpecialProjectile(ProjectileType::Fast);
 }
+
+//void Boss2::patrol()
+//{
+//    static bool movingRight = true;
+//    float speed = 100;
+//    float coordY = m_speed * 0.03f;
+//
+//    if (movingRight)
+//    {
+//        boss->move(0.0f, coordY);
+//
+//        if (boss->getPosition().y >= 500)
+//        {
+//            movingRight = false;
+//        }
+//    }
+//    else
+//    {
+//        boss->move(0, coordY); 
+//        if (boss->getPosition().y <= 50)
+//        {
+//            movingRight = true;
+//        }
+//    }
+//}
+
 
 void Boss2::move(const sf::Vector2f& offset)
 {

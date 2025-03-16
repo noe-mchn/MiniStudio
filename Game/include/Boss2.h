@@ -46,7 +46,7 @@ class Boss2 : public DestructibleObject, public IComposite
 protected:
     enum State
     {
-        IDLE
+        PATROL
         , CHASE
         , RELOAD
         , FIRE
@@ -58,9 +58,9 @@ protected:
         virtual IState* handle(const State& state) = 0;
         virtual void update(Boss2* boss, float deltaTime) = 0;
     };
-    struct IdleState : IState
+    struct PatrolState : IState
     {
-        ~IdleState() override = default;
+        ~PatrolState() override = default;
         IState* handle(const State& state) override;
         void update(Boss2* boss, float deltaTime) override;
     };
@@ -100,6 +100,8 @@ public:
     IComposite* getScene() const { return m_scene; }
 
     float getSpeed();
+    sf::Vector2f getPosition() { return m_worldPosition; }
+
     void setSpeed(float speed);
     void moveTowards(const sf::Vector2f& target, float deltaTime);
     void moveToPosition(const sf::Vector2f& position);
@@ -109,6 +111,8 @@ public:
 
     void fireGrowingProjectile();
     void fireFastProjectile();
+
+    void patrol();
 
     virtual void activateDefensiveAbility(float duration);
     virtual void activateOffensiveBoost(float multiplier, float duration);

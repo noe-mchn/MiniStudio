@@ -330,24 +330,17 @@ public:
 
 	void update(const float& deltatime, IShapeSFML* shape)
 	{
-		std::cout << m_counter.GetCurrentCounter() << std::endl;
 
-
-		if (m_counter.GetCurrentCounter() != m_counter.CounterMax())
+		if (m_time.getCurrentTimer() >= m_time.getTotalTimer())
 		{
 			m_time.resetTimer();
-		}
-		else
-			m_counter.resetCounter();
-
-		if (m_time.getCurrentTimer() != m_time.getTotalTimer())
-		{
-			m_time.NextTIck(deltatime);
-		}
-		else
 			m_counter.NextTIck();
-
-		shape->setTextureRect(m_spritecutt->getFrame(m_counter.CounterMax() - m_counter.getTotalCounter()));
+		}
+		else
+		{
+			shape->setTextureRect(m_spritecutt->getFrame(m_counter.GetCurrentCounter()));
+			m_time.AutoActionIsReady(deltatime);
+		}
 	}
 
 	void initTexture(IShapeSFML* shape)
@@ -355,10 +348,10 @@ public:
 		shape->setTexture(m_spritecutt->getTexture());
 	}
 
+	
 
 private:
 	SpriteCutter* m_spritecutt;
 	Timer m_time;
 	Counter m_counter;
-	int frame;
 };
