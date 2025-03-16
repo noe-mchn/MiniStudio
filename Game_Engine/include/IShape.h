@@ -26,50 +26,6 @@ private:
 	int m_curentTexture;
 };
 
-class Animate
-{
-public:
-	Animate(const std::string& texturePath, const int& cols, const int& rows, const float& widthI, const float& heightI);
-
-	std::string getTexture();
-	void divideSheet();
-	void deadZone(float spriteWidth, float spriteHeight);
-	void firstSpriteCoord();
-	void firstSpriteRec();
-	void lastSpriteCoord();
-	void changeToNextSprite();
-
-	sf::IntRect getTextureRect() const;
-	void update(float deltaTime);
-	void updateSpriteCoordinates();
-
-	void setAnimationRow(int row);
-
-private:
-
-	std::string m_texture;
-	int m_curentTexture;
-	sf::Vector2f m_topLeft;
-	sf::Vector2f m_bottomRight;
-	int m_rows;
-	int m_cols;
-
-	float m_widthSpriteWithDeadZone = 0.0f;
-	float m_heightSpriteWithDeadZone = 0.0f;
-	float m_widthDeadZone = 0.0f;
-	float m_heightDeadZone = 0.0f;
-
-	float m_animationTimer = 0.0f;
-	float m_animationSpeed = 0.1f;
-
-	sf::IntRect m_currentRect;
-	int m_currentRow = 0;
-	int m_currentCol = 0;
-
-	float m_widthI;
-	float m_heightI;
-};
-
 
 class IShapeSFML
 {
@@ -97,6 +53,7 @@ public:
 
 	RectangleSFML(float width, float height, ISceneBase* scene);
 
+
 	sf::Vector2f getPosition() override;
 
 	sf::Vector2f getSize() override;
@@ -119,7 +76,7 @@ public:
 
 	sf::RectangleShape& getShape();
 
-	 AABB GetBoundingBox()override;
+	AABB GetBoundingBox()override;
 
 protected:
 	sf::RectangleShape m_shape;
@@ -173,7 +130,7 @@ protected:
 class Timer
 {
 public:
-	Timer(const float& timer) :m_TotalTimer(timer), m_CurrentTimer(0) ,m_start(true){}
+	Timer(const float& timer) :m_TotalTimer(timer), m_CurrentTimer(0), m_start(true) {}
 	bool AutoActionIsReady(const float& framerate)
 	{
 		if (m_CurrentTimer >= m_TotalTimer)
@@ -206,12 +163,12 @@ public:
 	{
 		return m_CurrentTimer;
 	}
-	void NextTIck(const float& framerate,const float& idx = 1 )
+	void NextTIck(const float& framerate, const float& idx = 1)
 	{
 		if (!m_start)
-			return ;
+			return;
 
-		m_CurrentTimer += framerate*idx;
+		m_CurrentTimer += framerate * idx;
 		if (m_CurrentTimer >= m_TotalTimer)
 			m_CurrentTimer = m_TotalTimer;
 	}
@@ -219,7 +176,7 @@ public:
 	{
 		if (!m_start)
 			return;
-		m_CurrentTimer -= framerate*idx;
+		m_CurrentTimer -= framerate * idx;
 		if (m_CurrentTimer <= 0)
 			m_CurrentTimer = 0;
 	}
@@ -242,7 +199,7 @@ private:
 class Counter
 {
 public:
-	Counter(const float& count , const float& min = std::numeric_limits<float>::min()) :m_TotalCounter(count), m_minimalCounter(min), m_CurrentCounter(0), m_start(true) {}
+	Counter(const float& count, const float& min = std::numeric_limits<float>::min()) :m_TotalCounter(count), m_minimalCounter(min), m_CurrentCounter(0), m_start(true) {}
 	Counter() :m_TotalCounter(std::numeric_limits<float>::max()), m_minimalCounter(std::numeric_limits<float>::min()), m_CurrentCounter(0), m_start(true) {}
 
 	bool AutCounterMax()
@@ -265,7 +222,7 @@ public:
 	{
 		m_CurrentCounter = 0;
 	}
-	void setNewCounter(const float& max,const float& min)
+	void setNewCounter(const float& max, const float& min)
 	{
 		m_TotalCounter = max;
 		m_minimalCounter = min;
@@ -278,7 +235,7 @@ public:
 	{
 		return m_CurrentCounter;
 	}
-	void NextTIck( const float& idx = 1)
+	void NextTIck(const float& idx = 1)
 	{
 		if (!m_start)
 			return;
@@ -287,7 +244,7 @@ public:
 		if (m_CurrentCounter >= m_TotalCounter)
 			m_CurrentCounter = m_TotalCounter;
 	}
-	void PreviousTick( const float& idx = 1)
+	void PreviousTick(const float& idx = 1)
 	{
 		if (!m_start)
 			return;
@@ -308,4 +265,100 @@ private:
 	float m_CurrentCounter;
 	float m_minimalCounter;
 	bool m_start;
+};
+
+// to do :
+
+class SpriteCutter
+{
+public:
+	SpriteCutter(sf::Texture& texture, const unsigned int& col, const unsigned int& row, const unsigned int& widthI, const unsigned int& heightI, const unsigned int& deadZoneX, const unsigned int& deadZoneY)
+		: m_col(col)
+		, m_row(row)
+		, m_widthI(widthI)
+		, m_heightI(heightI)
+		, m_deadZoneX(deadZoneX)
+		, m_deadZoneY(deadZoneY)
+		, m_texture(texture)
+	{
+		m_widthI = (widthI - row * deadZoneX) / row;
+		m_heightI = (heightI - col * deadZoneY) / col;
+	}
+
+	sf::IntRect getFrame(const unsigned int& index)
+	{
+		if (index > (m_col * m_row))
+			throw;
+
+		auto realIndex = index - 1;
+
+		auto row = realIndex / m_col;
+		auto col = realIndex % m_col;
+
+		// nbr row et col
+		auto x = row * (m_deadZoneX + m_widthI);
+		auto y = col * (m_deadZoneY + m_heightI);
+
+		return sf::IntRect(x, y, m_widthI, m_heightI);
+	}
+
+	sf::Texture& getTexture()
+	{
+		return m_texture;
+	}
+
+
+private:
+	int m_col;
+	int m_row;
+	int m_widthI;
+	int m_heightI;
+	int m_deadZoneX;
+	int m_deadZoneY;
+	sf::Texture m_texture;
+};
+
+class Animat2_0
+{
+public:
+	Animat2_0(SpriteCutter* sprite, const unsigned int& min, const unsigned int& max, Timer time)
+		: m_spritecutt(sprite)
+		, m_counter(min, max)
+		, m_time(time)
+	{
+	}
+
+	void update(const float& deltatime, IShapeSFML* shape)
+	{
+		std::cout << m_counter.GetCurrentCounter() << std::endl;
+
+
+		if (m_counter.GetCurrentCounter() != m_counter.CounterMax())
+		{
+			m_time.resetTimer();
+		}
+		else
+			m_counter.resetCounter();
+
+		if (m_time.getCurrentTimer() != m_time.getTotalTimer())
+		{
+			m_time.NextTIck(deltatime);
+		}
+		else
+			m_counter.NextTIck();
+
+		shape->setTextureRect(m_spritecutt->getFrame(m_counter.CounterMax() - m_counter.getTotalCounter()));
+	}
+
+	void initTexture(IShapeSFML* shape)
+	{
+		shape->setTexture(m_spritecutt->getTexture());
+	}
+
+
+private:
+	SpriteCutter* m_spritecutt;
+	Timer m_time;
+	Counter m_counter;
+	int frame;
 };

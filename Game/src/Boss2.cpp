@@ -187,6 +187,7 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 ///// Fire State
 Boss2::IState* Boss2::FireState::handle(const State& state)
 {
+    std::cout << "en mode fire" << std::endl;
     if (state == State::IDLE)
     {
         return new IdleState();
@@ -201,8 +202,6 @@ Boss2::IState* Boss2::FireState::handle(const State& state)
     {
         return new ReloadState();
     }
-
-
 
     return nullptr;
 }
@@ -286,7 +285,7 @@ Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
         m_target = defaultTarget;
     }
 
-    createWeapons(70.0f);
+    createWeapons(20.0f);
 
     new Life(this, this, Color::Pink);
 

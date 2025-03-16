@@ -171,7 +171,7 @@ ITurret::ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& posit
 	, m_masShot(100, 0)
 	, m_bulletSpeed(2000)
 	, m_bulletLife(1)
-	, m_bulletSize(15)
+	, m_bulletSize(10)
 {
 
 }

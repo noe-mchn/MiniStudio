@@ -255,8 +255,6 @@ Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , IComposite(scene)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
-    , m_animate({ "Boss1_.png", 6, 8, 384, 512 })
-    , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
     , m_damageMultiplier(1.0f)
     , m_offensiveBoostTimer(0.0f)
