@@ -215,6 +215,30 @@ void Boss1::FireState::update(Boss1* boss, float deltaTime)
     if (boss->m_projectileCount == 0)
     {
         boss->m_projectileCount = 1;
+        if (boss->m_isTrackingTarget && boss->m_target)
+        {
+            float angleToTarget = boss->calculateAngleToTarget();
+            boss->m_shape->setRotation(angleToTarget);
+
+            if (boss->m_currentState && dynamic_cast<FireState*>(boss->m_currentState))
+            {
+                if (boss->m_attackTimer.ActionIsReady())
+                {
+                    boss->fireProjectiles(boss->m_entityParams.attackCount, boss->m_entityParams.spreadAngle);
+                    boss->m_attackTimer.setNewTimer(boss->m_entityParams.attackRate);
+                }
+            }
+        }
+        else
+        {
+            boss->m_patrolTimer += deltaTime;
+
+            float radius = 200.0f;
+            sf::Vector2f patrolPos;
+            patrolPos.x = sin(boss->m_patrolTimer * 0.5f) * radius;
+            patrolPos.y = cos(boss->m_patrolTimer * 0.25f) * radius;
+            boss->moveToPosition(patrolPos);
+        }
     }
     else
     {
@@ -428,8 +452,6 @@ void Boss1::Update(const float& deltaTime)
     {
         findTarget();
     }
-
-
    
 
     if (m_isInvulnerable) 
@@ -450,30 +472,7 @@ void Boss1::Update(const float& deltaTime)
 
     m_isTrackingTarget = m_target && isTargetInDetectionZone();
 
-    if (m_isTrackingTarget && m_target)
-    {
-        float angleToTarget = calculateAngleToTarget();
-        m_shape->setRotation(angleToTarget);
 
-        if (m_currentState && dynamic_cast<FireState*>(m_currentState))
-        {
-            if (m_attackTimer.ActionIsReady())
-            {
-                fireProjectiles(m_entityParams.attackCount, m_entityParams.spreadAngle);
-                m_attackTimer.setNewTimer(m_entityParams.attackRate);
-            }
-        }
-    }
-    else 
-    {
-        m_patrolTimer += deltaTime;
-
-        float radius = 200.0f;
-        sf::Vector2f patrolPos;
-        patrolPos.x = sin(m_patrolTimer * 0.5f) * radius;
-        patrolPos.y = cos(m_patrolTimer * 0.25f) * radius;
-        moveToPosition(patrolPos);
-    }
 
     if (m_offensiveBoostActive) 
     {
