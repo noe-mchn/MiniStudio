@@ -50,6 +50,7 @@ protected:
         , CHASE
         , RELOAD
         , FIRE
+        , PROTECT
     };
 
     struct IState
@@ -84,9 +85,15 @@ protected:
         void update(Boss2* boss, float deltaTime) override;
 
     };
+    struct ProtectState : IState
+    {
+        ~ProtectState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss2* boss, float deltaTime) override;
+    };
 
 public:
-    Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 5000.0f);
+    Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth = 500.0f);
     virtual ~Boss2();
 
     void ProssesInput(const sf::Event& event) override {};
@@ -173,6 +180,4 @@ protected:
     int m_projectileCount = 0;
     int m_maxProjectilesBeforeReload = 5;
 
-
-    Boss2* boss;
 };

@@ -48,7 +48,7 @@ class Boss1 : public DestructibleObject, public IComposite
 protected:
     enum State
     {
-        PATROL
+        IDLE
         , CHASE
         , RELOAD
         , FIRE
@@ -60,9 +60,9 @@ protected:
         virtual IState* handle(const State& state) = 0;
         virtual void update(Boss1* boss, float deltaTime) = 0;
     };
-    struct PatrolState : IState
+    struct IdleState : IState
     {
-        ~PatrolState() override = default;
+        ~IdleState() override = default;
         IState* handle(const State& state) override;
         void update(Boss1* boss, float deltaTime) override;
     };
@@ -96,8 +96,6 @@ public:
     void Render() override;
     void HandleCollision(IGameObject* object) override;
     void ChangeLife(const float& life) override;
-
-    IShapeSFML initTexture();
 
     float getMaxLife() const { return m_maxLife; }
     float getCurrentLife() const { return m_life; }
@@ -171,7 +169,5 @@ protected:
     int m_projectileCount = 0;
     int m_maxProjectilesBeforeReload = 5;
 
-    SpriteCutter m_boss1sprite;
-    Animat2_0 m_animboss1;
 
 };

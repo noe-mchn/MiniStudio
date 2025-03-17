@@ -55,18 +55,23 @@ void Boss2::PatrolState::update(Boss2* boss, float deltaTime)
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
+    boss->patrol();
+
     if (direction.x == 0 && direction.y == 0) 
     {
         return;
     }
 
-    if (distance < 800.0f)
+    if (distance < 400.0f)
     {
         boss->changeState(State::CHASE);
         return;
     }
 
-
+    if (boss->m_life < 5)
+    {
+        boss->changeState(State::PROTECT);
+    }
 
 }
 ///// Chase State
@@ -156,13 +161,13 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 
     }
 
-    if (distance >= 650.0f)
+    if (distance >= 400.0f)
     {
         boss->changeState(State::PATROL);
         return;
     }
 
-    if (distance < 650.0f)
+    if (distance < 400.0f)
     {
         boss->changeState(State::CHASE);
         return;
@@ -232,7 +237,7 @@ void Boss2::FireState::update(Boss2* boss, float deltaTime)
     }
 
 
-    if (distance >= 650.0f)
+    if (distance >= 400.0f)
     {
         boss->changeState(State::PATROL);
         return;
@@ -246,6 +251,42 @@ void Boss2::FireState::update(Boss2* boss, float deltaTime)
     else
         return;
 
+}
+
+// Protect state
+
+Boss2::IState* Boss2::ProtectState::handle(const State& state)
+{
+    if (state == State::PATROL)
+    {
+        return new PatrolState();
+    }
+
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+    if (state == State::FIRE)
+    {
+        return new FireState();
+    }
+
+    return nullptr;
+}
+
+void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
+{
+    /*if (boss->m_life < 5)
+    {
+        boss->destroy();
+        boss->changeState(State::FIRE);
+    }*/
+    boss->regenerateHealth(20.0f);
 }
 
 Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
@@ -753,30 +794,30 @@ void Boss2::fireFastProjectile()
     fireSpecialProjectile(ProjectileType::Fast);
 }
 
-//void Boss2::patrol()
-//{
-//    static bool movingRight = true;
-//    float speed = 100;
-//    float coordY = m_speed * 0.03f;
-//
-//    if (movingRight)
-//    {
-//        boss->move(0.0f, coordY);
-//
-//        if (boss->getPosition().y >= 500)
-//        {
-//            movingRight = false;
-//        }
-//    }
-//    else
-//    {
-//        boss->move(0, coordY); 
-//        if (boss->getPosition().y <= 50)
-//        {
-//            movingRight = true;
-//        }
-//    }
-//}
+
+void Boss2::patrol()
+{
+    static bool movingRight = true;
+
+
+    if (movingRight)
+    {
+        move(sf::Vector2f(-80, 0));
+        if (getPosition().x <= 1599)
+        {
+            movingRight = false;
+        }
+    }
+
+    else
+    {
+        move(sf::Vector2f(80, 0));
+        if (getPosition().x >= 1759)
+        {
+            movingRight = true;
+        }
+    }
+}
 
 
 void Boss2::move(const sf::Vector2f& offset)

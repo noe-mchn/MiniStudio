@@ -31,7 +31,7 @@ EntityParameters EntityParameters::getForPhase(EntityPhase phase)
 }
 
 // Patrol State
-Boss1::IState* Boss1::PatrolState::handle(const State& state)
+Boss1::IState* Boss1::IdleState::handle(const State& state)
 {
     if (state == State::CHASE)
     {
@@ -50,7 +50,7 @@ Boss1::IState* Boss1::PatrolState::handle(const State& state)
     return nullptr;
 }
 
-void Boss1::PatrolState::update(Boss1* boss, float deltaTime)
+void Boss1::IdleState::update(Boss1* boss, float deltaTime)
 {
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
@@ -72,9 +72,9 @@ void Boss1::PatrolState::update(Boss1* boss, float deltaTime)
 ///// Chase State
 Boss1::IState* Boss1::ChaseState::handle(const State& state)
 {
-    if (state == State::PATROL)
+    if (state == State::IDLE)
     {
-        return new PatrolState();
+        return new IdleState();
     }
 
     if (state == State::RELOAD)
@@ -98,7 +98,7 @@ void Boss1::ChaseState::update(Boss1* boss, float deltaTime)
 
     if (distance >= 650.0f)
     {
-        boss->changeState(State::PATROL);
+        boss->changeState(State::IDLE);
         return;
     }
 
@@ -122,9 +122,9 @@ void Boss1::ChaseState::update(Boss1* boss, float deltaTime)
 ///// Reload State
 Boss1::IState* Boss1::ReloadState::handle(const State& state)
 {
-    if (state == State::PATROL)
+    if (state == State::IDLE)
     {
-        return new PatrolState();
+        return new IdleState();
     }
 
     if (state == State::CHASE)
@@ -158,7 +158,7 @@ void Boss1::ReloadState::update(Boss1* boss, float deltaTime)
 
     if (distance >= 650.0f)
     {
-        boss->changeState(State::PATROL);
+        boss->changeState(State::IDLE);
         return;
     }
 
@@ -187,9 +187,9 @@ void Boss1::ReloadState::update(Boss1* boss, float deltaTime)
 ///// Fire State
 Boss1::IState* Boss1::FireState::handle(const State& state)
 {
-    if (state == State::PATROL)
+    if (state == State::IDLE)
     {
-        return new PatrolState();
+        return new IdleState();
     }
 
     if (state == State::CHASE)
@@ -236,7 +236,7 @@ void Boss1::FireState::update(Boss1* boss, float deltaTime)
 
     if (distance >= 650.0f)
     {
-        boss->changeState(State::PATROL);
+        boss->changeState(State::IDLE);
         return;
     }
 
@@ -253,8 +253,6 @@ void Boss1::FireState::update(Boss1* boss, float deltaTime)
 Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
-    , m_boss1sprite(texture->getTexture("Boss1_.png"), 6, 8, 384, 512, 19, 40)
-    , m_animboss1(&m_boss1sprite, 1, 3, 0.5f)
     , m_maxLife(maxHealth)
     , m_speed(100.0f)
     , m_offensiveBoostActive(false)
@@ -271,14 +269,13 @@ Boss1::Boss1(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , m_isTrackingTarget(false)
     , m_attackTimer(2.0f)
     , m_patrolTimer(0.0f)
-    , m_currentState(new PatrolState())
+    , m_currentState(new IdleState())
 {
     m_entityParams = EntityParameters::getForPhase(m_currentPhase);
     
     sf::Vector2f screenPosition = worldToScreenPosition(m_worldPosition);
     m_shape = new RectangleSFML(200.0f, 200.0f, screenPosition); 
     
-
 
 
     findTarget();
@@ -433,7 +430,7 @@ void Boss1::Update(const float& deltaTime)
     }
 
 
-    m_animboss1.update(deltaTime, m_target);
+   
 
     if (m_isInvulnerable) 
     {
