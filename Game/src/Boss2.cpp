@@ -30,8 +30,9 @@ EntityParameters2 EntityParameters2::getForPhase(EntityPhase2 phase)
     return params;
 }
 
-// Patrol State
-Boss2::IState* Boss2::PatrolState::handle(const State& state)
+//idle state
+
+Boss2::IState* Boss2::IdleState::handle(const State& state)
 {
     if (state == State::CHASE)
     {
@@ -47,39 +48,45 @@ Boss2::IState* Boss2::PatrolState::handle(const State& state)
         return new FireState();
     }
 
+    if (state == State::PROTECT)
+    {
+        return new ProtectState();
+    }
+
     return nullptr;
 }
 
-void Boss2::PatrolState::update(Boss2* boss, float deltaTime)
+void Boss2::IdleState::update(Boss2* boss, float deltaTime)
 {
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    boss->patrol();
 
-    if (direction.x == 0 && direction.y == 0) 
+    if (direction.x == 0 && direction.y == 0)
     {
         return;
     }
 
-    if (distance < 400.0f)
+    if (distance < 650.0f)
     {
         boss->changeState(State::CHASE);
         return;
     }
 
-    if (boss->m_life < 5)
+    if (boss->getCurrentLife() <= 50)
     {
         boss->changeState(State::PROTECT);
+        return;
     }
 
 }
+
 ///// Chase State
 Boss2::IState* Boss2::ChaseState::handle(const State& state)
 {
-    if (state == State::PATROL)
+    if (state == State::IDLE)
     {
-        return new PatrolState();
+        return new IdleState();
     }
 
     if (state == State::RELOAD)
@@ -92,6 +99,10 @@ Boss2::IState* Boss2::ChaseState::handle(const State& state)
         return new FireState();
     }
 
+    if (state == State::PROTECT)
+    {
+        return new ProtectState();
+    }
 
     return nullptr;
 }
@@ -101,16 +112,22 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (distance >= 800.0f)
+    if (distance >= 600.0f)
     {
-        boss->changeState(State::PATROL);
+        boss->changeState(State::IDLE);
         return;
     }
 
 
-    if (distance <= 300.0f)
+    if (distance <= 400.0f)
     {
         boss->changeState(State::FIRE);
+        return;
+    }
+
+    if (boss->getCurrentLife() <= 50)
+    {
+        boss->changeState(State::PROTECT);
         return;
     }
 
@@ -127,9 +144,9 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
 ///// Reload State
 Boss2::IState* Boss2::ReloadState::handle(const State& state)
 {
-    if (state == State::PATROL)
+    if (state == State::IDLE)
     {
-        return new PatrolState();
+        return new IdleState();
     }
 
     if (state == State::CHASE)
@@ -140,6 +157,11 @@ Boss2::IState* Boss2::ReloadState::handle(const State& state)
     if (state == State::FIRE)
     {
         return new FireState();
+    }
+
+    if (state == State::PROTECT)
+    {
+        return new ProtectState();
     }
 
     return nullptr;
@@ -163,11 +185,157 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 
     if (distance >= 400.0f)
     {
-        boss->changeState(State::PATROL);
+        boss->changeState(State::IDLE);
         return;
     }
 
     if (distance < 400.0f)
+    {
+        boss->changeState(State::CHASE);
+        return;
+    }
+
+    if (distance <= 300.0f)
+    {
+        boss->changeState(State::FIRE);
+        return;
+    }
+
+    if (boss->getCurrentLife() <= 50)
+    {
+        boss->changeState(State::PROTECT);
+        return;
+    }
+
+    if (distance > 0)
+    {
+        direction /= distance;
+        boss->move(direction * boss->getSpeed() * deltaTime);
+    }
+    else
+        return;
+
+}
+
+///// Fire State
+Boss2::IState* Boss2::FireState::handle(const State& state)
+{
+    if (state == State::IDLE)
+    {
+        return new IdleState();
+    }
+
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+
+    if (state == State::PROTECT)
+    {
+        return new ProtectState();
+    }
+
+
+    return nullptr;
+}
+
+void Boss2::FireState::update(Boss2* boss, float deltaTime)
+{
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
+    {
+        boss->changeState(State::RELOAD);
+        return;
+    }
+
+
+    if (distance > 300.0f)
+    {
+        boss->changeState(State::CHASE);
+        return;
+    }
+
+
+    if (distance >= 400.0f)
+    {
+        boss->changeState(State::IDLE);
+        return;
+    }
+
+    if (boss->getCurrentLife() <= 50)
+    {
+        boss->changeState(State::PROTECT);
+        return;
+    }
+
+    if (distance > 0)
+    {
+        direction /= distance;
+        boss->move(direction * boss->getSpeed() * deltaTime);
+    }
+    else
+        return;
+
+}
+
+// Protect state
+
+Boss2::IState* Boss2::ProtectState::handle(const State& state)
+{
+    if (state == State::IDLE)
+    {
+        return new IdleState();
+    }
+
+    if (state == State::CHASE)
+    {
+        return new ChaseState();
+    }
+
+    if (state == State::RELOAD)
+    {
+        return new ReloadState();
+    }
+    if (state == State::FIRE)
+    {
+        return new FireState();
+    }
+
+    if (state == State::DEAD)
+    {
+        return new DeadState();
+    }
+
+    return nullptr;
+}
+
+void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
+{
+
+    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
+    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+
+
+    if (boss->getCurrentLife() <= 5)
+    {
+        boss->changeState(State::DEAD);
+        return;
+    }
+
+    if (distance >= 650.0f)
+    {
+        boss->changeState(State::IDLE);
+        return;
+    }
+
+    if (distance < 650.0f)
     {
         boss->changeState(State::CHASE);
         return;
@@ -189,105 +357,18 @@ void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
 
 }
 
-///// Fire State
-Boss2::IState* Boss2::FireState::handle(const State& state)
+
+// Dead state
+Boss2::IState* Boss2::DeadState::handle(const State& state)
 {
-    if (state == State::PATROL)
-    {
-        return new PatrolState();
-    }
-
-    if (state == State::CHASE)
-    {
-        return new ChaseState();
-    }
-
-    if (state == State::RELOAD)
-    {
-        return new ReloadState();
-    }
-
     return nullptr;
 }
 
-void Boss2::FireState::update(Boss2* boss, float deltaTime)
+void Boss2::DeadState::update(Boss2* boss, float deltaTime)
 {
-    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    if (boss->m_projectileCount == 0)
-    {
-        boss->m_projectileCount = 1;
-    }
-    else
-    {
-        boss->m_projectileCount++;
-    }
-
-    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
-    {
-        boss->changeState(State::RELOAD);
-        return;
-    }
-
-    if (distance > 300.0f)
-    {
-        boss->changeState(State::CHASE);
-        return;
-    }
-
-
-    if (distance >= 400.0f)
-    {
-        boss->changeState(State::PATROL);
-        return;
-    }
-
-    if (distance > 0)
-    {
-        direction /= distance;
-        boss->move(direction * boss->getSpeed() * deltaTime);
-    }
-    else
-        return;
-
+    return;
 }
 
-// Protect state
-
-Boss2::IState* Boss2::ProtectState::handle(const State& state)
-{
-    if (state == State::PATROL)
-    {
-        return new PatrolState();
-    }
-
-    if (state == State::CHASE)
-    {
-        return new ChaseState();
-    }
-
-    if (state == State::RELOAD)
-    {
-        return new ReloadState();
-    }
-    if (state == State::FIRE)
-    {
-        return new FireState();
-    }
-
-    return nullptr;
-}
-
-void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
-{
-    /*if (boss->m_life < 5)
-    {
-        boss->destroy();
-        boss->changeState(State::FIRE);
-    }*/
-    boss->regenerateHealth(20.0f);
-}
 
 Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
@@ -310,7 +391,7 @@ Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHeal
     , m_isTrackingTarget(false)
     , m_attackTimer(2.0f)
     , m_patrolTimer(0.0f)
-    , m_currentState(new PatrolState())
+    , m_currentState(new IdleState())
 {
     m_entityParams = EntityParameters2::getForPhase(m_currentPhase);
 
@@ -461,32 +542,23 @@ void Boss2::moveToPosition(const sf::Vector2f& position)
 
 void Boss2::Update(const float& deltaTime)
 {
+
     static Timer targetSearchTimer(2.0f);
 
-    if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime)) 
+    if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime))
     {
         findTarget();
     }
 
-    if (m_isInvulnerable) 
+    if (m_isInvulnerable)
     {
         m_invulnerabilityTimer.NextTIck(deltaTime);
-        if (m_invulnerabilityTimer.ActionIsReady()) 
+        if (m_invulnerabilityTimer.ActionIsReady())
         {
             m_isInvulnerable = false;
         }
     }
 
-    
-
-    if (m_currentState)
-    {
-        m_currentState->update(this, deltaTime);
-    }
-
-    m_attackTimer.NextTIck(deltaTime);
-
-    m_isTrackingTarget = m_target && isTargetInDetectionZone();
 
     if (m_isTrackingTarget && m_target)
     {
@@ -499,10 +571,11 @@ void Boss2::Update(const float& deltaTime)
             {
                 fireProjectiles(m_entityParams.attackCount, m_entityParams.spreadAngle);
                 m_attackTimer.setNewTimer(m_entityParams.attackRate);
+                ++m_projectileCount;
             }
         }
     }
-    else 
+    else
     {
         m_patrolTimer += deltaTime;
 
@@ -513,15 +586,26 @@ void Boss2::Update(const float& deltaTime)
         moveToPosition(patrolPos);
     }
 
-    if (m_offensiveBoostActive) 
+
+    if (m_currentState)
+    {
+        m_currentState->update(this, deltaTime);
+    }
+
+    m_attackTimer.NextTIck(deltaTime);
+
+    m_isTrackingTarget = m_target && isTargetInDetectionZone();
+
+
+    if (m_offensiveBoostActive)
     {
         m_offensiveBoostTimer.NextTIck(deltaTime);
-        if (m_offensiveBoostTimer.ActionIsReady()) 
+        if (m_offensiveBoostTimer.ActionIsReady())
         {
             m_offensiveBoostActive = false;
             m_damageMultiplier = 1.0f;
 
-            for (auto& weapon : m_weapons) 
+            for (auto& weapon : m_weapons)
             {
                 weapon->setBullet(m_entityParams.projectileSize, m_entityParams.projectileSpeed, 1.0f);
             }
@@ -529,7 +613,6 @@ void Boss2::Update(const float& deltaTime)
     }
 
     m_shape->setPosition(worldToScreenPosition(m_worldPosition));
-  
 
     IComposite::Update(deltaTime);
 }
@@ -793,32 +876,6 @@ void Boss2::fireFastProjectile()
 {
     fireSpecialProjectile(ProjectileType::Fast);
 }
-
-
-void Boss2::patrol()
-{
-    static bool movingRight = true;
-
-
-    if (movingRight)
-    {
-        move(sf::Vector2f(-80, 0));
-        if (getPosition().x <= 1599)
-        {
-            movingRight = false;
-        }
-    }
-
-    else
-    {
-        move(sf::Vector2f(80, 0));
-        if (getPosition().x >= 1759)
-        {
-            movingRight = true;
-        }
-    }
-}
-
 
 void Boss2::move(const sf::Vector2f& offset)
 {

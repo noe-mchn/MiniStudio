@@ -72,14 +72,13 @@ Ship::IState* Ship::MoveState::handle(const State& state)
 
 void Ship::MoveState::update(Ship* ship, float deltaTime)
 {
-
-		if (!ship->m_strafe[trust::Left] 
-			&& !ship->m_strafe[trust::Right]
-			&& !ship->m_strafe[trust::Up] 
-			&& !ship->m_strafe[trust::Down])
-		{
-			ship->ChangeState(State::IDLE);
-		}
+	if (!ship->m_strafe[trust::Left] 
+		&& !ship->m_strafe[trust::Right]
+		&& !ship->m_strafe[trust::Up] 
+		&& !ship->m_strafe[trust::Down])
+	{
+		ship->ChangeState(State::IDLE);
+	}
 
 
 	static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(ship->m_strafe, ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
@@ -113,6 +112,7 @@ Ship::IState* Ship::HandAttackState::handle(const State& state)
 
 void Ship::HandAttackState::update(Ship* ship, float deltaTime)
 {
+	std::cout << "hand attack " << std::endl;
 	if (!ship->m_strafe[trust::Left]
 		&& !ship->m_strafe[trust::Right]
 		&& !ship->m_strafe[trust::Up]
@@ -149,6 +149,11 @@ Ship::IState* Ship::PistolAttackState::handle(const State& state)
 		return new HandAttackState();
 	}
 	
+	if (state == State::RELOAD)
+	{
+		return new ReloadState();
+	}
+
 	return nullptr;
 }
 
@@ -179,7 +184,43 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 		ship->ChangeState(State::IDLE);
 	}
 
+	std::cout << ship->m_projectileCount << std::endl;
+
+	if (ship->m_projectileCount >= ship->m_maxProjectilesBeforeReload)
+	{
+		ship->ChangeState(State::RELOAD);
+		return;
+	}
 }
+
+Ship::IState* Ship::ReloadState::handle(const State& state)
+{
+	if (state == State::PISTOL_ATTACK)
+	{
+		return new PistolAttackState();
+	}
+
+	return nullptr;
+}
+
+void Ship::ReloadState::update(Ship* ship, float deltaTime)
+{
+
+	std::cout << "recharge" << std::endl;
+	std::cout << "reload begin " << std::endl;
+	static float reloadTime = 10.0f;
+	static float reloadTimer = 0.0f;
+
+	reloadTimer += deltaTime;
+
+	if (ship->m_projectileCount >= ship->m_maxProjectilesBeforeReload)
+	{
+		ship->m_projectileCount = 0;
+		ship->ChangeState(State::PISTOL_ATTACK);
+	}
+
+}
+
 
 // fin de la state machine 
 
@@ -203,7 +244,7 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
 	m_turret->SetOverloadGun(5, 30);
 	m_turret->setBullet(0, 0, 0);
 
-	currentState = new IdleState();
+	m_currentState = new IdleState();
 }
 
 Ship::~Ship()
@@ -242,14 +283,14 @@ void Ship::physics()
 
 void Ship::Update(const float& deltatime)
 {
-
-	if (!currentState)
+	if (!m_currentState)
 		throw std::runtime_error("current state est nullptr!");
 
-	currentState->update(this, deltatime);
+	m_currentState->update(this, deltatime);
 
 	m_shape->setRotation(m_angle);
 	m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
+
 
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) 
 	{
@@ -259,7 +300,6 @@ void Ship::Update(const float& deltatime)
 
 	IComposite::Update(deltatime);
 	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-
 
 }
 
@@ -300,13 +340,13 @@ void Ship::ChangeLife(const float& life)
 
 void Ship::ChangeState(const State& newState)
 {
-	if (currentState)
+	if (m_currentState)
 	{
-		IState* state = currentState->handle(newState);
+		IState* state = m_currentState->handle(newState);
 		if (state)
 		{
-			delete currentState;
-			currentState = state;
+			delete m_currentState;
+			m_currentState = state;
 		}
 	}
 }
@@ -321,15 +361,6 @@ float Ship::DistancedetectBoss1(Ship* ship, Boss1* boss)
 }
 
 float Ship::DistancedetectBoss2(Ship* ship, Boss2* boss)
-{
-	sf::Vector2f myPos = ship->getShape()->getPosition();
-	sf::Vector2f bossPos = boss->getShape()->getPosition();
-
-	float distance;
-	return distance = std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
-}
-
-float Ship::DistancedetectBoss3(Ship* ship, Boss3* boss)
 {
 	sf::Vector2f myPos = ship->getShape()->getPosition();
 	sf::Vector2f bossPos = boss->getShape()->getPosition();

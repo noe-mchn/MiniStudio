@@ -48,10 +48,13 @@ class Boss1 : public DestructibleObject, public IComposite
 protected:
     enum State
     {
-        IDLE
+        PATROL
         , CHASE
-        , RELOAD
+        , LOAD
         , FIRE
+        , DESTRUCT
+        , HELP
+        , DEAD
     };
 
     struct IState
@@ -60,9 +63,9 @@ protected:
         virtual IState* handle(const State& state) = 0;
         virtual void update(Boss1* boss, float deltaTime) = 0;
     };
-    struct IdleState : IState
+    struct PatrolState : IState
     {
-        ~IdleState() override = default;
+        ~PatrolState() override = default;
         IState* handle(const State& state) override;
         void update(Boss1* boss, float deltaTime) override;
     };
@@ -72,16 +75,44 @@ protected:
         IState* handle(const State& state) override;
         void update(Boss1* boss, float deltaTime) override;
     };
-    struct ReloadState : IState
+    struct LoadState : IState
     {
-        ~ReloadState() override = default;
+        ~LoadState() override = default;
         IState* handle(const State& state) override;
         void update(Boss1* boss, float deltaTime) override;
+
+    private:
+        float reloadTime = 100.0f;
+        float reloadTimer = 0.0f;
 
     };
     struct FireState : IState
     {
         ~FireState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss1* boss, float deltaTime) override;
+
+    };
+
+    struct DestructState : IState
+    {
+        ~DestructState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss1* boss, float deltaTime) override;
+
+    };
+
+    struct HelpState : IState
+    {
+        ~HelpState() override = default;
+        IState* handle(const State& state) override;
+        void update(Boss1* boss, float deltaTime) override;
+
+    };
+
+    struct DeadState : IState
+    {
+        ~DeadState() override = default;
         IState* handle(const State& state) override;
         void update(Boss1* boss, float deltaTime) override;
 
@@ -103,6 +134,7 @@ public:
 
     float getSpeed();
     void setSpeed(float speed);
+    sf::Vector2f getPosition() { return m_worldPosition; }
     void moveTowards(const sf::Vector2f& target, float deltaTime);
     void moveToPosition(const sf::Vector2f& position);
 
@@ -120,6 +152,8 @@ public:
     EntityPhase getCurrentPhase() const { return m_currentPhase; }
 
     void move(const sf::Vector2f& offset);
+
+    void patrol();
 
     void changeState(const State& newState);
 
@@ -165,9 +199,6 @@ protected:
     bool isTargetInDetectionZone() const;
     bool shouldAttackTarget() const;
     bool isTargetValid() const;
-
-    int m_projectileCount = 0;
-    int m_maxProjectilesBeforeReload = 5;
 
 
 };

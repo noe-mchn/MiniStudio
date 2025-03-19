@@ -16,6 +16,7 @@ protected:
 		,MOVE
 		,HAND_ATTACK
 		,PISTOL_ATTACK
+		,RELOAD
 	};
 
 	struct IState
@@ -54,7 +55,15 @@ protected:
 
 	};
 
-	IState* currentState;
+	struct ReloadState : IState
+	{
+		~ReloadState() override = default;
+		IState* handle(const State& state) override;
+		void update(Ship* ship, float deltaTime) override;
+
+	};
+
+	IState* m_currentState;
 
 public:
 	friend BorderShip;
@@ -91,4 +100,7 @@ private:
 	std::vector<Boss1*> m_enemiesInGame;
 	float m_detectionRadius;
 
+
+	int m_projectileCount = 0;
+	int m_maxProjectilesBeforeReload = 5;
 };

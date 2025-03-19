@@ -80,7 +80,6 @@ void BossSpawner::Spawn()
 	{
         spawnPos1 = m_fixedSpawnPosition;
         spawnPos2 = m_fixedSpawnPosition + sf::Vector2f(800, 0);
-        spawnPos3 = m_fixedSpawnPosition + sf::Vector2f(-800, 0);
     }
     else 
 	{
@@ -92,18 +91,13 @@ void BossSpawner::Spawn()
 			(m_RestrictedArea.Pmin.x + 400,
              m_RestrictedArea.Pmax.x - 400);
 
-        int x3 = UseRandomNumber().getRandomNumber<int>
-			(m_RestrictedArea.Pmin.x + 600,
-             m_RestrictedArea.Pmax.x - 600);
 
         float y = m_RestrictedArea.Pmin.y + 150;
 
         spawnPos1 = sf::Vector2f(x1, y);
         spawnPos2 = sf::Vector2f(x2, y);
-        spawnPos3 = sf::Vector2f(x3, y);
     }
 
     new Boss1(this, spawnPos1, m_bossHealth);
 	new Boss2(this, spawnPos2, m_bossHealth);
-	new Boss3(this, spawnPos3, m_bossHealth);
 }

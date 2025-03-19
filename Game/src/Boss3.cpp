@@ -216,6 +216,7 @@ void Boss3::FireState::update(Boss3* boss, float deltaTime)
     {
         boss->m_projectileCount = 1;
     }
+
     else
     {
         boss->m_projectileCount++;
@@ -421,6 +422,7 @@ void Boss3::moveToPosition(const sf::Vector2f& position)
 
 void Boss3::Update(const float& deltaTime)
 {
+
     static Timer targetSearchTimer(2.0f);
 
     if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime)) 
@@ -442,15 +444,6 @@ void Boss3::Update(const float& deltaTime)
         m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
     }
 
-    if (m_currentState)
-    {
-        m_currentState->update(this, deltaTime);
-    }
-
-    m_attackTimer.NextTIck(deltaTime);
-
-    m_isTrackingTarget = m_target && isTargetInDetectionZone();
-
     if (m_isTrackingTarget && m_target)
     {
         float angleToTarget = calculateAngleToTarget();
@@ -465,7 +458,7 @@ void Boss3::Update(const float& deltaTime)
             }
         }
     }
-    else 
+    else
     {
         m_patrolTimer += deltaTime;
 
@@ -475,7 +468,18 @@ void Boss3::Update(const float& deltaTime)
         patrolPos.y = cos(m_patrolTimer * 0.25f) * radius;
         moveToPosition(patrolPos);
     }
+    
 
+    if (m_currentState)
+    {
+        m_currentState->update(this, deltaTime);
+    }
+
+    m_attackTimer.NextTIck(deltaTime);
+
+    m_isTrackingTarget = m_target && isTargetInDetectionZone();
+
+    
     if (m_offensiveBoostActive) 
     {
         m_offensiveBoostTimer.NextTIck(deltaTime);
