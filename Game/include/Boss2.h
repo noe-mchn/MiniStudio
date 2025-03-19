@@ -48,8 +48,7 @@ protected:
     {
         IDLE
         , CHASE
-        , RELOAD
-        , FIRE
+        , HAND
         , PROTECT
         , DEAD
     };
@@ -72,18 +71,13 @@ protected:
         IState* handle(const State& state) override;
         void update(Boss2* boss, float deltaTime) override;
     };
-    struct ReloadState : IState
+    struct HandState : IState
     {
-        ~ReloadState() override = default;
+        ~HandState() override = default;
         IState* handle(const State& state) override;
         void update(Boss2* boss, float deltaTime) override;
 
-    };
-    struct FireState : IState
-    {
-        ~FireState() override = default;
-        IState* handle(const State& state) override;
-        void update(Boss2* boss, float deltaTime) override;
+        IGameObject* ship;
 
     };
 
@@ -92,6 +86,7 @@ protected:
         ~ProtectState() override = default;
         IState* handle(const State& state) override;
         void update(Boss2* boss, float deltaTime) override;
+
     };
 
     struct DeadState : IState
@@ -185,7 +180,5 @@ protected:
     bool shouldAttackTarget() const;
     bool isTargetValid() const;
 
-    int m_projectileCount = 0;
-    int m_maxProjectilesBeforeReload = 5;
 
 };

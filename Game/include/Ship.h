@@ -45,6 +45,8 @@ protected:
 		~HandAttackState() override = default;
 		IState* handle(const State& state) override;
 		void update(Ship* ship, float deltaTime) override;
+
+		IGameObject* m_boss2;
 	};
 
 	struct PistolAttackState : IState
@@ -61,6 +63,9 @@ protected:
 		IState* handle(const State& state) override;
 		void update(Ship* ship, float deltaTime) override;
 
+	private:
+		float reloadTime = 100.0f;
+		float reloadTimer = 0.0f;
 	};
 
 	IState* m_currentState;
@@ -84,10 +89,11 @@ public:
 	void ChangeState(const State& newState);
 	float DistancedetectBoss1(Ship* ship, Boss1* boss);
 	float DistancedetectBoss2(Ship* ship, Boss2* boss);
-	float DistancedetectBoss3(Ship* ship, Boss3* boss);
 
 private:
 	IShapeSFML* m_background;
+	IShapeSFML* m_target;
+
 	float m_angle;
 	Timer m_elapsedTime;
 	Timer m_invisibility;
@@ -100,7 +106,4 @@ private:
 	std::vector<Boss1*> m_enemiesInGame;
 	float m_detectionRadius;
 
-
-	int m_projectileCount = 0;
-	int m_maxProjectilesBeforeReload = 5;
 };

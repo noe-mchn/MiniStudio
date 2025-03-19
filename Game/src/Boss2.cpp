@@ -39,13 +39,9 @@ Boss2::IState* Boss2::IdleState::handle(const State& state)
         return new ChaseState();
     }
 
-    if (state == State::RELOAD)
+    if (state == State::HAND)
     {
-        return new ReloadState();
-    }
-    if (state == State::FIRE)
-    {
-        return new FireState();
+        return new HandState();
     }
 
     if (state == State::PROTECT)
@@ -67,7 +63,7 @@ void Boss2::IdleState::update(Boss2* boss, float deltaTime)
         return;
     }
 
-    if (distance < 650.0f)
+    if (distance < 400.0f)
     {
         boss->changeState(State::CHASE);
         return;
@@ -89,14 +85,9 @@ Boss2::IState* Boss2::ChaseState::handle(const State& state)
         return new IdleState();
     }
 
-    if (state == State::RELOAD)
+    if (state == State::HAND)
     {
-        return new ReloadState();
-    }
-
-    if (state == State::FIRE)
-    {
-        return new FireState();
+        return new HandState();
     }
 
     if (state == State::PROTECT)
@@ -119,9 +110,9 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
     }
 
 
-    if (distance <= 400.0f)
+    if (distance <= 10.0f)
     {
-        boss->changeState(State::FIRE);
+        boss->changeState(State::HAND);
         return;
     }
 
@@ -141,8 +132,8 @@ void Boss2::ChaseState::update(Boss2* boss, float deltaTime)
 
 }
 
-///// Reload State
-Boss2::IState* Boss2::ReloadState::handle(const State& state)
+///// Hand State
+Boss2::IState* Boss2::HandState::handle(const State& state)
 {
     if (state == State::IDLE)
     {
@@ -154,87 +145,6 @@ Boss2::IState* Boss2::ReloadState::handle(const State& state)
         return new ChaseState();
     }
 
-    if (state == State::FIRE)
-    {
-        return new FireState();
-    }
-
-    if (state == State::PROTECT)
-    {
-        return new ProtectState();
-    }
-
-    return nullptr;
-}
-
-void Boss2::ReloadState::update(Boss2* boss, float deltaTime)
-{
-    sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
-    float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
-
-    static float reloadTime = 3.0f; 
-    static float reloadTimer = 0.0f;
-
-    reloadTimer += deltaTime;
-
-    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
-    {
-        boss->m_projectileCount = 0;
-
-    }
-
-    if (distance >= 400.0f)
-    {
-        boss->changeState(State::IDLE);
-        return;
-    }
-
-    if (distance < 400.0f)
-    {
-        boss->changeState(State::CHASE);
-        return;
-    }
-
-    if (distance <= 300.0f)
-    {
-        boss->changeState(State::FIRE);
-        return;
-    }
-
-    if (boss->getCurrentLife() <= 50)
-    {
-        boss->changeState(State::PROTECT);
-        return;
-    }
-
-    if (distance > 0)
-    {
-        direction /= distance;
-        boss->move(direction * boss->getSpeed() * deltaTime);
-    }
-    else
-        return;
-
-}
-
-///// Fire State
-Boss2::IState* Boss2::FireState::handle(const State& state)
-{
-    if (state == State::IDLE)
-    {
-        return new IdleState();
-    }
-
-    if (state == State::CHASE)
-    {
-        return new ChaseState();
-    }
-
-    if (state == State::RELOAD)
-    {
-        return new ReloadState();
-    }
-
     if (state == State::PROTECT)
     {
         return new ProtectState();
@@ -244,28 +154,17 @@ Boss2::IState* Boss2::FireState::handle(const State& state)
     return nullptr;
 }
 
-void Boss2::FireState::update(Boss2* boss, float deltaTime)
+void Boss2::HandState::update(Boss2* boss, float deltaTime)
 {
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    if (boss->m_projectileCount >= boss->m_maxProjectilesBeforeReload)
-    {
-        boss->changeState(State::RELOAD);
-        return;
-    }
-
+    boss->ChangeLife(50);
+    boss->HandleCollision(ship);
 
     if (distance > 300.0f)
     {
         boss->changeState(State::CHASE);
-        return;
-    }
-
-
-    if (distance >= 400.0f)
-    {
-        boss->changeState(State::IDLE);
         return;
     }
 
@@ -299,13 +198,9 @@ Boss2::IState* Boss2::ProtectState::handle(const State& state)
         return new ChaseState();
     }
 
-    if (state == State::RELOAD)
+    if (state == State::HAND)
     {
-        return new ReloadState();
-    }
-    if (state == State::FIRE)
-    {
-        return new FireState();
+        return new HandState();
     }
 
     if (state == State::DEAD)
@@ -322,6 +217,9 @@ void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
+     boss->setSpeed(2000.0f);
+     boss->move(sf::Vector2f(-20.0f, 34.0f));
+     
 
     if (boss->getCurrentLife() <= 5)
     {
@@ -335,7 +233,7 @@ void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
         return;
     }
 
-    if (distance < 650.0f)
+    if (distance < 650.0f && distance > 300)
     {
         boss->changeState(State::CHASE);
         return;
@@ -343,7 +241,7 @@ void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
 
     if (distance <= 300.0f)
     {
-        boss->changeState(State::FIRE);
+        boss->changeState(State::HAND);
         return;
     }
 
@@ -354,9 +252,7 @@ void Boss2::ProtectState::update(Boss2* boss, float deltaTime)
     }
     else
         return;
-
 }
-
 
 // Dead state
 Boss2::IState* Boss2::DeadState::handle(const State& state)
@@ -369,12 +265,11 @@ void Boss2::DeadState::update(Boss2* boss, float deltaTime)
     return;
 }
 
-
 Boss2::Boss2(IComposite* scene, const sf::Vector2f& spawnPosition, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
     , m_maxLife(maxHealth)
-    , m_speed(100.0f)
+    , m_speed(400.0f)
     , m_animate({ "Boss1.png" })
     , m_animationTimer(0.3)
     , m_offensiveBoostActive(false)
@@ -565,13 +460,12 @@ void Boss2::Update(const float& deltaTime)
         float angleToTarget = calculateAngleToTarget();
         m_shape->setRotation(angleToTarget);
 
-        if (m_currentState && dynamic_cast<FireState*>(m_currentState))
+        if (m_currentState && dynamic_cast<HandState*>(m_currentState))
         {
             if (m_attackTimer.ActionIsReady())
             {
                 fireProjectiles(m_entityParams.attackCount, m_entityParams.spreadAngle);
                 m_attackTimer.setNewTimer(m_entityParams.attackRate);
-                ++m_projectileCount;
             }
         }
     }

@@ -98,6 +98,6 @@ void BossSpawner::Spawn()
         spawnPos2 = sf::Vector2f(x2, y);
     }
 
-    new Boss1(this, spawnPos1, m_bossHealth);
+    //new Boss1(this, spawnPos1, m_bossHealth);
 	new Boss2(this, spawnPos2, m_bossHealth);
 }

@@ -120,14 +120,14 @@ void Ship::HandAttackState::update(Ship* ship, float deltaTime)
 	{
 		ship->ChangeState(State::IDLE);
 	}
-		
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
 		ship->ChangeState(State::PISTOL_ATTACK);
 	}
-
 	
+	m_boss2->HandleCollision(ship);
+
 }
 
 // Pistol Attack
@@ -183,15 +183,13 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 	{
 		ship->ChangeState(State::IDLE);
 	}
-
-	std::cout << ship->m_projectileCount << std::endl;
-
-	if (ship->m_projectileCount >= ship->m_maxProjectilesBeforeReload)
+	else
 	{
 		ship->ChangeState(State::RELOAD);
 		return;
 	}
 }
+
 
 Ship::IState* Ship::ReloadState::handle(const State& state)
 {
@@ -205,18 +203,21 @@ Ship::IState* Ship::ReloadState::handle(const State& state)
 
 void Ship::ReloadState::update(Ship* ship, float deltaTime)
 {
+	sf::Vector2f direction = ship->m_target->getPosition() - ship->getShape()->getPosition();
+	float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-	std::cout << "recharge" << std::endl;
-	std::cout << "reload begin " << std::endl;
-	static float reloadTime = 10.0f;
-	static float reloadTimer = 0.0f;
-
-	reloadTimer += deltaTime;
-
-	if (ship->m_projectileCount >= ship->m_maxProjectilesBeforeReload)
+	if (reloadTimer < reloadTime)
 	{
-		ship->m_projectileCount = 0;
+		reloadTimer += 1;
+
+	}
+
+
+	if (reloadTimer >= reloadTime)
+	{
+		reloadTimer = 0.f;
 		ship->ChangeState(State::PISTOL_ATTACK);
+		return;
 	}
 
 }

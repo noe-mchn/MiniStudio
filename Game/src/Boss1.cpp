@@ -823,9 +823,8 @@ void Boss1::patrol()
 
     if (movingRight)
     {
-        std::cout << getPosition().x << " " << getPosition().y << std::endl;
-        moveToPosition(sf::Vector2f(958.345, 239.801));
-        if (getPosition().x <= 958.345)
+        move(sf::Vector2f(-1059, 0));
+        if (getPosition().x <= 1400)
         {
             movingRight = false;
         }
@@ -833,8 +832,8 @@ void Boss1::patrol()
 
     else
     {
-        moveToPosition(sf::Vector2f(1759.22, 346.71));
-        if (getPosition().x >= 1759.22)
+        move(sf::Vector2f(1059, 0));
+        if (getPosition().x >= 1759)
         {
             movingRight = true;
         }
