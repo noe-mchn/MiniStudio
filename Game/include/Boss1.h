@@ -9,13 +9,12 @@ namespace BossAI
     class RandomMovementSelector;
 }
 
-// Type de mode du boss
 enum class BossMode
 {
-    Type1,  // Comportement du Boss1
-    Type2,  // Comportement du Boss2
-    Type3,  // Comportement du Boss3
-    Combined // Combinaison des trois comportements
+    Type1,
+    Type2,
+    Type3,
+    Combined
 };
 
 enum class MovementPattern
@@ -61,11 +60,11 @@ protected:
         CHASE,      // Poursuite de la cible
         LOAD,       // Chargement des attaques
         FIRE,       // Attaque
-        HAND,       // Attaque spéciale (main)
-        PROTECT,    // Mode défensif
-        DESTRUCT,   // Séquence destructive
-        HELP,       // Mode d'appel à l'aide
-        DEAD        // État mort
+        HAND,       // Attaque spÃ©ciale (main)
+        PROTECT,    // Mode dÃ©fensif
+        DESTRUCT,   // SÃ©quence destructive
+        HELP,       // Mode d'appel Ã  l'aide
+        DEAD        // Ã‰tat mort
     };
 
     struct IState
@@ -75,7 +74,7 @@ protected:
         virtual void update(MegaBoss* boss, float deltaTime) = 0;
     };
 
-    // États
+    // Ã‰tats
     struct PatrolState : IState
     {
         ~PatrolState() override = default;
@@ -121,7 +120,7 @@ protected:
         IState* handle(const State& state) override;
         void update(MegaBoss* boss, float deltaTime) override;
 
-        float maxProtectionTime = 10.0f;  // 10 secondes max de protection
+        float maxProtectionTime = 10.0f;
         float protectionTimer = 0.0f;
     };
 
@@ -168,7 +167,7 @@ public:
     void moveToPosition(const sf::Vector2f& position);
     void move(const sf::Vector2f& offset);
 
-    // Méthodes d'attaque
+    // MÃ©thodes d'attaque
     void fireProjectiles(int count, float spreadAngle);
     void fireSpecialProjectile(ProjectileType type);
     void fireGrowingProjectile();
@@ -176,7 +175,7 @@ public:
     void fireCircularPattern();
     void fireWavePattern();
 
-    // Méthodes de capacités
+    // MÃ©thodes de capacitÃ©s
     void activateDefensiveAbility(float duration);
     void activateOffensiveBoost(float multiplier, float duration);
     void regenerateHealth(float amount);
@@ -188,7 +187,7 @@ public:
     void updateParameters();
     BossPhase getCurrentPhase() const { return m_currentPhase; }
 
-    // Changement d'état
+    // Changement d'Ã©tat
     void changeState(const State& newState);
 
 protected:
@@ -208,7 +207,7 @@ protected:
     AnimateSprite m_animate;
     Timer m_animationTimer;
 
-    // Paramètres selon la phase
+    // ParamÃ¨tres selon la phase
     BossParameters m_bossParams;
     BossPhase m_currentPhase;
 
@@ -217,7 +216,7 @@ protected:
     float m_damageMultiplier;
     Timer m_offensiveBoostTimer;
 
-    // Invulnérabilité
+    // InvulnÃ©rabilitÃ©
     Timer m_invulnerabilityTimer;
     bool m_isInvulnerable;
     bool m_isInvulnerableToCollisions;
