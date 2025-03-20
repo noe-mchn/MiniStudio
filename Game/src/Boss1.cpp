@@ -9,7 +9,7 @@ BossParameters BossParameters::getForPhase(BossPhase phase, BossMode mode)
 {
     BossParameters params;
 
-    // Paramètres de base
+    // ParamÄtres de base
     switch (phase)
     {
     case BossPhase::One:
@@ -58,7 +58,7 @@ BossParameters BossParameters::getForPhase(BossPhase phase, BossMode mode)
     return params;
 }
 
-// État Patrouille
+// Ã‰tat Patrouille
 MegaBoss::IState* MegaBoss::PatrolState::handle(const State& state)
 {
     switch (state)
@@ -80,7 +80,6 @@ void MegaBoss::PatrolState::update(MegaBoss* boss, float deltaTime)
 
     boss->patrol();
 
-    // Transitions d'état selon le mode et les conditions
     switch (boss->m_currentMode)
     {
     case BossMode::Type1:
@@ -107,7 +106,7 @@ void MegaBoss::PatrolState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Poursuite
+// Ã‰tat Poursuite
 MegaBoss::IState* MegaBoss::ChaseState::handle(const State& state)
 {
     switch (state)
@@ -127,7 +126,6 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    // Transitions d'état selon le mode et les conditions
     switch (boss->m_currentMode)
     {
     case BossMode::Type1:
@@ -157,7 +155,6 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
         break;
     }
 
-    // Mouvement de poursuite
     if (distance > 0)
     {
         direction /= distance;
@@ -165,7 +162,7 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Chargement
+// Ã‰tat Chargement
 MegaBoss::IState* MegaBoss::LoadState::handle(const State& state)
 {
     switch (state)
@@ -202,7 +199,7 @@ void MegaBoss::LoadState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Tir
+// Ã‰tat Tir
 MegaBoss::IState* MegaBoss::FireState::handle(const State& state)
 {
     switch (state)
@@ -269,7 +266,6 @@ void MegaBoss::FireState::update(MegaBoss* boss, float deltaTime)
         boss->changeState(State::LOAD);
 }
 
-// État Main (attaque spéciale du Boss2)
 MegaBoss::IState* MegaBoss::HandState::handle(const State& state)
 {
     switch (state)
@@ -286,7 +282,6 @@ void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
-    // Comportement spécifique de l'attaque "main"
     if (boss->m_attackTimer.ActionIsReady())
     {
         if (distance < 350.0f)
@@ -309,7 +304,7 @@ void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Protection
+// Ã‰tat Protection
 MegaBoss::IState* MegaBoss::ProtectState::handle(const State& state)
 {
     switch (state)
@@ -324,17 +319,14 @@ MegaBoss::IState* MegaBoss::ProtectState::handle(const State& state)
 
 void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
 {
-    // Incrémenter le timer
     protectionTimer += deltaTime;
 
-    // Régénération plus lente
-    boss->regenerateHealth(0.1f); // 0.1 au lieu de 0.5
+    boss->regenerateHealth(0.1f);
 
-    // Forcer la sortie de l'état après un certain temps
     if (protectionTimer >= maxProtectionTime) {
         boss->changeState(State::CHASE);
         protectionTimer = 0.0f;
-        boss->m_isInvulnerable = false; // S'assurer que l'invulnérabilité est désactivée
+        boss->m_isInvulnerable = false;
         return;
     }
 
@@ -351,18 +343,14 @@ void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
         return;
     }
 
-    // Modification du seuil pour sortir plus facilement de l'état de protection
-    // 40% au lieu de 35%
     if (boss->getCurrentLife() >= boss->getMaxLife() * 0.40)
     {
         boss->changeState(State::PATROL);
         return;
     }
 
-    // Protection active
     boss->m_isInvulnerable = true;
 
-    // Attaque défensive
     if (boss->m_attackTimer.ActionIsReady())
     {
         boss->fireCircularPattern();
@@ -370,7 +358,7 @@ void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Destruction
+// Ã‰tat Destruction
 MegaBoss::IState* MegaBoss::DestructState::handle(const State& state)
 {
     switch (state)
@@ -389,7 +377,6 @@ void MegaBoss::DestructState::update(MegaBoss* boss, float deltaTime)
         return;
     }
 
-    // Comportement de destruction - attaques désespérées
     if (boss->m_attackTimer.ActionIsReady())
     {
         int attackType = UseRandomNumber().getRandomNumber<int>(0, 3);
@@ -404,7 +391,6 @@ void MegaBoss::DestructState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Aide
 MegaBoss::IState* MegaBoss::HelpState::handle(const State& state)
 {
     switch (state)
@@ -422,7 +408,6 @@ void MegaBoss::HelpState::update(MegaBoss* boss, float deltaTime)
         return;
     }
 
-    // Appel à l'aide - invocation de minions
     static Timer minionTimer(5.0f);
     if (minionTimer.AutoActionIsReady(deltaTime))
     {
@@ -430,7 +415,7 @@ void MegaBoss::HelpState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Mort
+// Ã‰tat Mort
 MegaBoss::IState* MegaBoss::DeadState::handle(const State& state)
 {
     return nullptr;
@@ -440,7 +425,6 @@ void MegaBoss::DeadState::update(MegaBoss* boss, float deltaTime)
 {
     boss->m_isInvulnerable = true;
 
-    // Logique d'animation de mort
     static float deathTimer = 0.0f;
     deathTimer += deltaTime;
 
@@ -450,7 +434,6 @@ void MegaBoss::DeadState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// Constructeur du MegaBoss
 MegaBoss::MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMode mode, float maxHealth)
     : DestructibleObject(scene, maxHealth)
     , IComposite(scene)
@@ -479,29 +462,24 @@ MegaBoss::MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMod
     , m_animate({ "BossSprite1.png", "BossSprite2.png", "BossSprite3.png" })
     , m_animationTimer(0.2f)
 {
-    // Initialisation des paramètres selon le mode et la phase
+
     m_bossParams = BossParameters::getForPhase(m_currentPhase, m_currentMode);
     m_speed = m_bossParams.speed;
     m_isInvulnerableToCollisions = m_bossParams.invulnerableToCollisions;
 
-    // Création de la forme
     sf::Vector2f screenPosition = worldToScreenPosition(m_worldPosition);
     m_shape = new RectangleSFML(200.0f, 200.0f, screenPosition);
 
-    // Trouver la cible
     findTarget();
     if (!m_target) {
         IShapeSFML* defaultTarget = new SquareSFML(1, m_scene->getRoot()->getScene()->GetCenterWindow());
         m_target = defaultTarget;
     }
 
-    // Création des armes
     createWeapons(70.0f);
 
-    // Ajout d'un indicateur de vie
     new Life(this, this, Color::Pink);
 
-    // Texture initiale
     m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 }
 
@@ -512,7 +490,6 @@ MegaBoss::~MegaBoss()
 
 void MegaBoss::createWeapons(float weaponOffset)
 {
-    // 6 armes pour plus de puissance de feu
     auto weapon1 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset, -weaponOffset / 2), 0);
     auto weapon2 = new FixTurret(this, getShape(), sf::Vector2f(weaponOffset, -weaponOffset / 2), 0);
     auto weapon3 = new FixTurret(this, getShape(), sf::Vector2f(-weaponOffset, weaponOffset / 2), 0);
@@ -549,7 +526,6 @@ void MegaBoss::Update(const float& deltaTime)
 {
     static Timer targetSearchTimer(2.0f);
 
-    // Recherche de cible périodique
     if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime))
     {
         findTarget();
@@ -561,19 +537,16 @@ void MegaBoss::Update(const float& deltaTime)
         if (m_invulnerabilityTimer.ActionIsReady())
         {
             m_isInvulnerable = false;
-            // S'assurer que le timer est réinitialisé
             m_invulnerabilityTimer.resetTimer();
         }
     }
 
-    // Animation du sprite
     if (m_animationTimer.AutoActionIsReady(deltaTime))
     {
         m_animate.ChangeToNextPath();
         m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
     }
 
-    // Suivi de cible
     if (m_isTrackingTarget && m_target)
     {
         float angleToTarget = calculateAngleToTarget();
@@ -591,12 +564,10 @@ void MegaBoss::Update(const float& deltaTime)
     }
     else
     {
-        // Comportement en l'absence de cible
         m_patrolTimer += deltaTime;
 
         if (m_currentMode == BossMode::Combined)
         {
-            // Mouvement circulaire complexe
             float radius = 300.0f;
             sf::Vector2f patrolPos;
             patrolPos.x = sin(m_patrolTimer * 0.5f) * radius;
@@ -605,17 +576,14 @@ void MegaBoss::Update(const float& deltaTime)
         }
     }
 
-    // Mise à jour de l'état courant
     if (m_currentState)
     {
         m_currentState->update(this, deltaTime);
     }
 
-    // Mise à jour des temporisateurs
     m_attackTimer.NextTIck(deltaTime);
     m_isTrackingTarget = m_target && isTargetInDetectionZone();
 
-    // Gestion du boost offensif
     if (m_offensiveBoostActive)
     {
         m_offensiveBoostTimer.NextTIck(deltaTime);
@@ -631,53 +599,39 @@ void MegaBoss::Update(const float& deltaTime)
         }
     }
 
-    // Mettre à jour la position de la forme
     m_shape->setPosition(worldToScreenPosition(m_worldPosition));
 
-    // Mettre à jour les composants enfants
     IComposite::Update(deltaTime);
 }
 
 void MegaBoss::Render()
 {
-    // Rendu du boss
     m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
-
-    // Rendu des composants enfants
     IComposite::Render();
 }
 
 void MegaBoss::HandleCollision(IGameObject* object)
 {
-    // Toujours vérifier si c'est un destructible
     if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
         return;
 
-    // Vérifier si c'est un projectile de nos propres armes
     IBullet* bullet = getObj<IBullet*>(object);
     if (bullet) {
-        // Si c'est un de nos projectiles, ignorer
         for (auto& weapon : m_weapons) {
             if (bullet->getTurret() == weapon) {
                 return;
             }
         }
-
-        // C'est un projectile du joueur - traiter normalement
     }
     else if (m_isInvulnerableToCollisions) {
-        // Si ce n'est pas un projectile et qu'on est invulnérable aux collisions physiques
         return;
     }
 
-    // Si invulnérabilité temporaire active, ignorer les dégâts
     if (m_isInvulnerable)
         return;
 
-    // Appliquer les dégâts
     ChangeLife(-1.0f);
 
-    // Activer l'invulnérabilité temporaire après avoir pris un coup
     m_isInvulnerable = true;
     m_invulnerabilityTimer.setNewTimer(0.5f);
     m_invulnerabilityTimer.resetTimer();
@@ -685,29 +639,20 @@ void MegaBoss::HandleCollision(IGameObject* object)
 
 void MegaBoss::ChangeLife(const float& life)
 {
-    // Vérification problématique : elle bloque TOUS les dégâts si m_isInvulnerableToCollisions est vrai
-    // if (life < 0 && (m_isInvulnerable || m_isInvulnerableToCollisions))
-    //    return;
-
-    // Nouvelle logique : ne bloque que pour l'invulnérabilité temporaire
     if (life < 0 && m_isInvulnerable)
         return;
 
-    // Appliquer le changement de vie
     DestructibleObject::ChangeLife(life);
 
-    // Calculer le pourcentage de vie restant
     float healthPercentage = getCurrentLife() / m_maxLife;
     BossPhase newPhase;
 
-    // Déterminer la nouvelle phase en fonction du pourcentage de vie
     if (healthPercentage <= 0.2f) newPhase = BossPhase::Five;
     else if (healthPercentage <= 0.4f) newPhase = BossPhase::Four;
     else if (healthPercentage <= 0.6f) newPhase = BossPhase::Three;
     else if (healthPercentage <= 0.8f) newPhase = BossPhase::Two;
     else newPhase = BossPhase::One;
 
-    // Si changement de phase, mettre à jour les paramètres
     if (newPhase != m_currentPhase) {
         m_currentPhase = newPhase;
         updateParameters();
@@ -785,7 +730,6 @@ void MegaBoss::patrol()
     switch (m_currentMode)
     {
     case BossMode::Type1:
-        // Patrouille horizontale
         if (movingRight)
         {
             move(sf::Vector2f(-1059, 0));
@@ -805,7 +749,6 @@ void MegaBoss::patrol()
         break;
 
     case BossMode::Type2:
-        // Patrouille en mouvement circulaire
     {
         float radius = 200.0f;
         float angle = m_patrolTimer * 0.5f;
@@ -818,7 +761,6 @@ void MegaBoss::patrol()
     break;
 
     case BossMode::Type3:
-        // Patrouille en zigzag
         if (movingRight)
         {
             move(sf::Vector2f(0.5f, movingDown ? 0.3f : -0.3f));
@@ -836,7 +778,6 @@ void MegaBoss::patrol()
             }
         }
 
-        // Changement de direction verticale
         if (getPosition().y >= 1000)
             movingDown = false;
         else if (getPosition().y <= 500)
@@ -844,7 +785,6 @@ void MegaBoss::patrol()
         break;
 
     case BossMode::Combined:
-        // Combinaison de mouvements
     {
         float radius = 250.0f;
         float angle = m_patrolTimer * 0.4f;
@@ -1027,11 +967,10 @@ void MegaBoss::fireCircularPattern()
 {
     float baseAngle = UseRandomNumber().getRandomNumber<int>(0, 360);
 
-    // Tir en cercle complet
     for (int i = 0; i < 12; i++) {
         float angle = baseAngle + (i * 30.0f);
 
-        for (size_t j = 0; j < m_weapons.size(); j += 2) {  // Utilise une arme sur deux
+        for (size_t j = 0; j < m_weapons.size(); j += 2) { 
             m_weapons[j]->getShape()->setRotation(angle);
             m_weapons[j]->Fire();
         }
@@ -1043,7 +982,6 @@ void MegaBoss::fireWavePattern()
     const int WAVE_COUNT = 3;
     const float WAVE_DELAY = 0.2f;
 
-    // Tir en vagues
     for (int i = 0; i < WAVE_COUNT; i++) {
         for (auto& weapon : m_weapons) {
             float baseAngle = calculateAngleToTarget();
@@ -1067,7 +1005,6 @@ void MegaBoss::activateDefensiveAbility(float duration)
     m_invulnerabilityTimer.setNewTimer(duration);
     m_invulnerabilityTimer.resetTimer();
 
-    // Régénération de vie
     regenerateHealth(m_maxLife * 0.05f);
 }
 
@@ -1093,8 +1030,6 @@ void MegaBoss::regenerateHealth(float amount)
 
 void MegaBoss::summonMinions(int count)
 {
-    // Cette méthode serait implémentée pour créer de nouveaux ennemis
-    // selon l'environnement spécifique du jeu (non implémenté ici car dépendant du reste du code)
 }
 
 void MegaBoss::updateParameters()
