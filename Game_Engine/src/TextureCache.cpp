@@ -3,7 +3,8 @@
 #include <filesystem>
 
 TextureCache::TextureCache(const std::string& execFilePath) : m_execFilePath(execFilePath)
-{}
+{
+}
 
 TextureCache::~TextureCache()
 {
@@ -32,7 +33,7 @@ sf::Texture& TextureCache::getTexture(const std::string& filename)
     ti.path = path;
     ti.texture = new sf::Texture;
     ti.texture->loadFromFile(path);
-    m_allTextureInfos.pushBack(ti);
+    m_allTextureInfos.push_back(ti);
 
     return *ti.texture;
 }

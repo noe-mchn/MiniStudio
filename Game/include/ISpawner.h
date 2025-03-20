@@ -8,11 +8,11 @@
 class ISpawner : public IComposite
 {
 public:
-	ISpawner(IComposite* scene , const size_t& maxEntity);
-	void ProssesInput(const sf::Event& event) override{}
+	ISpawner(IComposite* scene, const size_t& maxEntity);
+	void ProssesInput(const sf::Event& event) override {}
 	void Render() override;
 
-	void Update(const float& deltatime) override;
+	void Update(const float& deltatime);
 	virtual void Spawn() = 0;
 
 
@@ -27,7 +27,7 @@ protected:
 class AsteroidSpawner : public ISpawner
 {
 public:
-	AsteroidSpawner(IComposite* scene, const size_t& maxEntity):ISpawner(scene, maxEntity){}
+	AsteroidSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
 	void Spawn() override;
 };
 

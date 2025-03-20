@@ -11,6 +11,7 @@ set(HEADERS
  ${HEADER_DIR}/RandomNumber.h
  ${HEADER_DIR}/IGameObject.h
  ${HEADER_DIR}/IShape.h
+ ${HEADER_DIR}/VectorND.h
 )
 set(SOURCES
 ${SOURCE_DIR}/TextureCache.cpp
@@ -20,6 +21,7 @@ ${SOURCE_DIR}/RandomNumber.cpp
 ${SOURCE_DIR}/IGameObject.cpp
 ${SOURCE_DIR}/IShape.cpp
 )
+
 add_library(${PROJECT_NAME}
 
 ${SOURCES}

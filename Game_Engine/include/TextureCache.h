@@ -1,5 +1,5 @@
 #pragma once
-#include "KT_Vector.h"
+#include <vector>
 #include <string>
 
 namespace sf { class Texture; }
@@ -8,11 +8,11 @@ class TextureCache
 {
 public:
 
-	TextureCache(const std::string& execFilePath);
+    TextureCache(const std::string& execFilePath);
 
-	sf::Texture& getTexture(const std::string& filename);
+    sf::Texture& getTexture(const std::string& filename);
 
-	~TextureCache();
+    ~TextureCache();
 
 private:
     struct TextureInfo
@@ -23,8 +23,6 @@ private:
 
     std::string getAbsoluteFilepath(const std::string& filename);
 
-    KT::Vector<TextureInfo> m_allTextureInfos;
+    std::vector<TextureInfo> m_allTextureInfos;
     std::string m_execFilePath;
 };
-
-

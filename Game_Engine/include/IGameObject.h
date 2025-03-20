@@ -1,184 +1,184 @@
 #pragma once
-#include <KT_Vector.h>
-#include "IGameObject.h"
-#include "IGameObject.h"
 #include "SFML/Graphics.hpp"
+#include <vector>
+#include <memory>
 
-struct AABB
-{
-	AABB(sf::Vector2f Amin_, sf::Vector2f Amax);
-	sf::Vector2f Amin;
-	sf::Vector2f Amax;
+struct AABB {
+    AABB(sf::Vector2f amin, sf::Vector2f amax) : Amin(amin), Amax(amax) {}
+    sf::Vector2f Amin;
+    sf::Vector2f Amax;
+
+    bool Intersects(const AABB& other) const {
+        return !(Amax.x < other.Amin.x || Amin.x > other.Amax.x ||
+            Amax.y < other.Amin.y || Amin.y > other.Amax.y);
+    }
 };
 
+// Fonctions utilitaires en inline
+inline float convertRadToDeg(const float& rad) { return (180.0f * rad) / 3.14159f; }
+inline float convertDegToRad(const float& deg) { return (deg * 3.14159f) / 180.0f; }
 
-float convertRadToDeg(const float& rad);
-float convertDegToRad(const float& deg);
-
+// Forward declarations
 class IShapeSFML;
 class RootScene;
 class ISceneBase;
 class IComposite;
 
-enum class Component
-{
-	IComposite
-	,ILeaf
-	,IGameObject
+enum class Component {
+    IComposite,
+    ILeaf,
+    IGameObject
 };
 
-
-class IComponent
-{
+class IComponent {
 public:
-	IComponent(IComposite* parent );
-	virtual ~IComponent();
-	IComponent* getParent();
-	 const IComponent* getParent() const;
+    IComponent(IComposite* parent);
+    virtual ~IComponent();
 
-	virtual void Update(const float& deltatime) = 0;
-	virtual void ProssesInput(const sf::Event& event) = 0;
-	virtual void Render() = 0;
-	virtual Component GetComponentType() = 0;
-	virtual const Component GetComponentType() const = 0;
-	 RootScene* getRoot();
-	 const RootScene* getRoot() const;
+    IComponent* getParent();
+    const IComponent* getParent() const;
 
-	void setParent(IComposite* parent);
+    virtual void Update(const float& deltatime) = 0;
+    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void Render() = 0;
+    virtual Component GetComponentType() = 0;
+    virtual const Component GetComponentType() const = 0;
+
+    RootScene* getRoot();
+    const RootScene* getRoot() const;
+
+    void setParent(IComposite* parent);
+
 protected:
-	
-	IComposite* m_parent;
+    IComposite* m_parent;
 };
 
-
-class IComposite : public IComponent
-{
+class IComposite : public IComponent {
 public:
-	friend IComponent;
+    friend class IComponent;
 
-	IComposite(IComposite* parent );
-	~IComposite();
+    IComposite(IComposite* parent);
+    ~IComposite();
 
-	 void Update(const float& deltatime)override;
-	 void ProssesInput(const sf::Event& event)override;
-	 void Render()override;
-	 KT::Vector<IComponent*> getChildren();
-	 const KT::Vector<IComponent*> getChildren() const;
-	 KT::Vector<IComponent*> getFullTree();
+    void Update(const float& deltatime) override;
+    void ProssesInput(const sf::Event& event) override;
+    void Render() override;
+
+    std::vector<IComponent*> getChildren();
+    const std::vector<IComponent*> getChildren() const;
+    std::vector<IComponent*> getFullTree();
+
 protected:
+    Component GetComponentType() override {
+        return Component::IComposite;
+    }
+    const Component GetComponentType() const override {
+        return Component::IComposite;
+    }
 
-	//KT::Vector<IComponant*> IterateAllComposite();
-	//const KT::Vector<IComponant*> IterateAllComposite() const;
-
-	Component GetComponentType() override
-	 {
-		 return Component::IComposite;
-	 }
-	 const Component GetComponentType() const override
-	{
-		 return Component::IComposite;
-	}
 private:
-	void add(IComponent* data);
-	void remove(IComponent* data);
-	void AddFullTree(KT::Vector<IComponent*>& toAdd, KT::Vector<IComponent*> iterate);
-	KT::Vector<IComponent*> m_children;
+    void add(IComponent* data);
+    void remove(IComponent* data);
+    void AddFullTree(std::vector<IComponent*>& toAdd, std::vector<IComponent*> iterate);
+
+    std::vector<IComponent*> m_children;
 };
 
-class RootScene : public IComposite
-{
+class RootScene : public IComposite {
 public:
-	RootScene(ISceneBase* scene);
-	
-	ISceneBase* getScene();
+    RootScene(ISceneBase* scene);
+    ISceneBase* getScene();
+    const ISceneBase* getScene() const { return m_scene; }
+
 private:
-
-	ISceneBase* m_scene;
+    ISceneBase* m_scene;
 };
 
-class ILeaf : public IComponent
-{
+class ILeaf : public IComponent {
 public:
-	ILeaf(IComposite* parent);
+    ILeaf(IComposite* parent);
 
-	virtual void Update(const float& deltatime) = 0;
-	virtual void ProssesInput(const sf::Event& event) = 0;
-	virtual void Render() = 0;
+    // Gardez ces méthodes abstraites pour maintenir la compatibilité
+    virtual void Update(const float& deltatime) = 0;
+    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void Render() = 0;
 
-	Component GetComponentType() override
-	{
-		return Component::ILeaf;
-	}
-	const Component GetComponentType() const override
-	{
-		return Component::ILeaf;
-	}
-};
-enum class GameObjectType
-{
-	DestructibleObject
-	,NonDestructibleObject
+    Component GetComponentType() override {
+        return Component::ILeaf;
+    }
+    const Component GetComponentType() const override {
+        return Component::ILeaf;
+    }
 };
 
-class IGameObject 
-{
+enum class GameObjectType {
+    DestructibleObject,
+    NonDestructibleObject
+};
+
+class IGameObject {
 public:
-	IGameObject(IComposite* scene);
-	virtual ~IGameObject();
+    IGameObject(IComposite* scene);
+    virtual ~IGameObject();
 
-	virtual void Update(const float& deltatime) = 0;
-	virtual void ProssesInput(const sf::Event& event) = 0;
-	virtual void Render() = 0;
-	virtual AABB GetBoundingBox();
-	IShapeSFML* getShape();
-	virtual GameObjectType globalGameObjectType() = 0;
-	virtual void HandleCollision(IGameObject* object){}
-	bool NeedDestroy();
+    // Gardez ces méthodes abstraites
+    virtual void Update(const float& deltatime) = 0;
+    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void Render() = 0;
 
-	void destroy();
+    virtual AABB GetBoundingBox();
+    IShapeSFML* getShape();
+    const IShapeSFML* getShape() const { return m_shape; }
+
+    virtual GameObjectType globalGameObjectType() = 0;
+    virtual void HandleCollision(IGameObject* object) {}
+
+    bool NeedDestroy();
+    void destroy();
 
 protected:
-	IComposite* m_scene;
-	IShapeSFML* m_shape;
+    IComposite* m_scene;
+    IShapeSFML* m_shape;
+
 private:
-	bool m_needDestroy;
+    bool m_needDestroy;
 };
 
-class DestructibleObject : public IGameObject
-{
+class DestructibleObject : public IGameObject {
 public:
-	DestructibleObject(IComposite* scene, const float& life);
+    DestructibleObject(IComposite* scene, const float& life);
 
-	void Update(const float& deltatime) override = 0;
-	void ProssesInput(const sf::Event& event) override = 0;
-	void Render() = 0;
+    // Gardez ces méthodes abstraites
+    virtual void Update(const float& deltatime) override = 0;
+    virtual void ProssesInput(const sf::Event& event) override = 0;
+    virtual void Render() override = 0;
 
-	virtual void ChangeLife(const float& life)
-	{
-		m_life += life;
-		if (m_life <= 0)
-			destroy();
-	}
-	float getCurrentLife() { return m_life; }
-	
-	 GameObjectType globalGameObjectType() override;
+    virtual void ChangeLife(const float& life) {
+        m_life += life;
+        if (m_life <= 0)
+            destroy();
+    }
+
+    float getCurrentLife() { return m_life; }
+    GameObjectType globalGameObjectType() override;
+
 protected:
-	float m_life;
+    float m_life;
 };
 
-class NonDestructibleObject : public IGameObject
-{
+class NonDestructibleObject : public IGameObject {
 public:
-	NonDestructibleObject(IComposite* scene);
+    NonDestructibleObject(IComposite* scene);
 
-	void Update(const float& deltatime) override = 0;
-	void ProssesInput(const sf::Event& event) override = 0;
-	void Render() = 0;
-	 GameObjectType globalGameObjectType() override;
+    // Gardez ces méthodes abstraites
+    virtual void Update(const float& deltatime) override = 0;
+    virtual void ProssesInput(const sf::Event& event) override = 0;
+    virtual void Render() override = 0;
+
+    GameObjectType globalGameObjectType() override;
 };
 
-template<typename type , typename type2>
-type getObj(type2* obj)
-{
-	return dynamic_cast<type>(obj);
+template<typename type, typename type2>
+type getObj(type2* obj) {
+    return dynamic_cast<type>(obj);
 }

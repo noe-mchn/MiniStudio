@@ -61,7 +61,7 @@ bool EntityProjectileBase::shouldIgnoreCollision(IGameObject* object) const
 }
 
 EntityProjectile::EntityProjectile(IComposite* scene, ITurret* gun, float angle, float speed, float size)
-    : EntityProjectileBase({ "PlayerBullet.png", "PlayerBullet2.png" }, scene, gun, angle, speed, size, 1.0f)
+    : EntityProjectileBase({ "PlayerBullet.png" }, scene, gun, angle, speed, size, 1.0f)
 {
     m_shape = new CircleSFML(size, m_gunPosition);
     m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
@@ -74,7 +74,7 @@ void EntityProjectile::Render()
 }
 
 LargeProjectile::LargeProjectile(IComposite* scene, ITurret* gun, float angle, float speed, float size, float damage)
-    : EntityProjectileBase({ "PlayerBullet.png", "PlayerBullet2.png" }, scene, gun, angle, speed, size, damage)
+    : EntityProjectileBase({ "PlayerBullet.png" }, scene, gun, angle, speed, size, damage)
     , m_lifetimeTimer(3.0f)
     , m_damage(damage)
 {
@@ -127,7 +127,7 @@ ShieldProjectile::ShieldProjectile(IComposite* scene, IShapeSFML* owner, float d
     : DestructibleObject(scene, 100.0f)
     , ILeaf(scene)
     , m_owner(owner)
-    , m_animate({ "PlayerBulle.png", "PlayerBulle.png" })
+    , m_animate({ "PlayerBulle.png" })
     , m_duration(duration)
     , m_pulseTimer(0.2)
     , m_radius(radius)

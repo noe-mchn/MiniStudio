@@ -1,7 +1,6 @@
 #pragma once
 #include<string>
 #include <SFML/Graphics.hpp>
-#include "KT_Vector.h"
 #include "TextureCache.h"
 
 class ISceneBase;
@@ -16,16 +15,17 @@ public:
 	~SceneManager();
 	void Exe();
 
-	void AddScene( ISceneBase* scene);
+	void AddScene(ISceneBase* scene);
 
 	void SetScene(const int& idx);
 
 	sf::RenderWindow* getWindow();
 
 	TextureCache* geTextureCash();
+
 private:
 	sf::RenderWindow* m_window;
-	KT::Vector<ISceneBase*> m_scene;
+	std::vector<ISceneBase*> m_scene;
 	ISceneBase* m_currentScene;
 	sf::Event m_event;
 	TextureCache* m_texture;

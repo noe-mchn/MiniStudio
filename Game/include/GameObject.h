@@ -1,10 +1,9 @@
 #pragma once
 #include "IGameObject.h"
+#include "VectorND.h"
 #include "SceneBase.h"
 #include "IShape.h"
-#include "KT_Math_Algorithm.h"
-#include "KT_Array.h"
-#include "KT_VectorND.h"
+#include <array>
 
 class Ship;
 enum trust
@@ -16,13 +15,13 @@ enum trust
 	, Default = 4
 };
 
-class Cursor : public NonDestructibleObject ,public ILeaf
+class Cursor : public NonDestructibleObject, public ILeaf
 {
 public:
 	Cursor(IComposite* scene);
 	void ProssesInput(const sf::Event& event) override;
 
-	void Update(const float& deltatime) override;
+	void Update(const float& deltatime);
 
 	void Render() override;
 
@@ -34,7 +33,7 @@ class MovementInSpace : public IPhysics
 {
 public:
 	MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& decceleration);
-	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing , float framerate);
+	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float framerate);
 
 	sf::Vector2f calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate);
 	float getMaxVelocity()
@@ -45,16 +44,16 @@ private:
 	float m_maxVelocity;
 	float m_acceleration;
 	float m_decceleration;
-	KT::Array<float, 4>velocity;
+	std::array<float, 4>velocity;
 };
 
-class IBorder : public NonDestructibleObject , public ILeaf
+class IBorder : public NonDestructibleObject, public ILeaf
 {
 public:
 
 	IBorder(IComposite* scene, IShapeSFML* object);
 	void ProssesInput(const sf::Event& event) override = 0;
-	void Update(const float& deltatime) override = 0;
+	void Update(const float& deltatime);
 	void Render() override = 0;
 protected:
 	IShapeSFML* m_ObjectToProtect;
@@ -65,7 +64,7 @@ class BorderShip : public IBorder
 public:
 	BorderShip(IComposite* scene, IShapeSFML* game_object, Ship* ship);
 	void ProssesInput(const sf::Event& event) override {}
-	void Update(const float& deltatime) override;
+	void Update(const float& deltatime);
 	void Render() override;
 
 private:
@@ -89,7 +88,7 @@ class ExternBorder : public IBorder
 public:
 	ExternBorder(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize);
 	void ProssesInput(const sf::Event& event) override {}
-	void Update(const float& deltatime) override;
+	void Update(const float& deltatime);
 	void Render() override;
 protected:
 	sf::Vector2f m_diffposition;
@@ -117,7 +116,7 @@ public:
 	virtual ~ITurret() = default;
 	void ProssesInput(const sf::Event& event) override = 0;
 	void setBullet(float Size, float Speed, float hp);
-	void Update(const float& deltatime) override = 0;
+	void Update(const float& deltatime);
 	void Render() override = 0;
 	virtual void Fire() = 0;
 	void SetFireRate(const float& fireRate);
@@ -145,9 +144,9 @@ public:
 class FixTurret : public  ITurret
 {
 public:
-	FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff,float angle);
-	void ProssesInput(const sf::Event& event) override{}
-	void Update(const float& deltatime) override;
+	FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff, float angle);
+	void ProssesInput(const sf::Event& event) override {}
+	void Update(const float& deltatime);
 	void Render() override;
 	void Fire() override;
 private:
@@ -158,15 +157,15 @@ private:
 class AutoTurret : public ITurret
 {
 public:
-	AutoTurret(IComposite* scene, IShapeSFML* game_object,IShapeSFML* Target, sf::Vector2f& positiondiff);
+	AutoTurret(IComposite* scene, IShapeSFML* game_object, IShapeSFML* Target, sf::Vector2f& positiondiff);
 	void ProssesInput(const sf::Event& event) override {}
-	void Update(const float& deltatime) override;
+	void Update(const float& deltatime);
 	void Render() override;
 	void Fire() override;
 private:
 	SquareSFML BaseShape;
 	IShapeSFML* m_Target;
-	
+
 };
 
 class IBullet : public DestructibleObject, public ILeaf
@@ -175,7 +174,7 @@ public:
 	IBullet(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp);
 	void Render() override = 0;
 	void ProssesInput(const sf::Event& event) = 0;
-	void Update(const float& deltatime) = 0;
+	void Update(const float& deltatime);
 
 	ITurret* getTurret() const { return m_gun; }
 
@@ -204,14 +203,14 @@ private:
 enum class Color
 {
 	Blue
-	,Pink
-	,Orange
+	, Pink
+	, Orange
 };
 
-class Life : public NonDestructibleObject , public ILeaf
+class Life : public NonDestructibleObject, public ILeaf
 {
 public:
-	Life(IComposite* scene, DestructibleObject* game_object,Color color);
+	Life(IComposite* scene, DestructibleObject* game_object, Color color);
 	~Life();
 private:
 	void Render() override;
@@ -225,15 +224,15 @@ protected:
 	float m_sizeDiff;
 };
 
-class Asteroid : public  DestructibleObject ,public  IComposite
+class Asteroid : public  DestructibleObject, public  IComposite
 {
 public:
-	Asteroid( IComposite* scene, const sf::Vector2f& Spawnposition , const sf::Vector2f& Size ,const float& angle , const float& speed , const float& life);
+	Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
 	void Render() override;
 	void ProssesInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
-	void ChangeLife(const float& life) override
+	void ChangeLife(const float& life)
 	{
 		if (!m_invisibility.ActionIsReady())
 			return;
@@ -261,7 +260,7 @@ public:
 	void ProssesInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
-	void ChangeLife(const float& life) override
+	void ChangeLife(const float& life)
 	{
 		if (!m_invisibility.ActionIsReady())
 			return;

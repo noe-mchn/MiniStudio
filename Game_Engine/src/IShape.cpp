@@ -4,18 +4,18 @@ AnimateSprite::AnimateSprite(std::initializer_list<std::string> init) : m_curent
 {
 	for (auto& idx : init)
 	{
-		m_textureContainer.pushBack(idx);
+		m_textureContainer.push_back(idx);
 	}
 }
 
 void AnimateSprite::add(std::string toBeAdded)
 {
-	m_textureContainer.pushBack(toBeAdded);
+	m_textureContainer.push_back(toBeAdded);
 }
 
 std::string AnimateSprite::getPath(const std::string& check)
 {
-	if (m_textureContainer.Empty())
+	if (m_textureContainer.empty())
 		throw std::out_of_range("Vector is empty");
 	for (auto& idx : m_textureContainer)
 	{
@@ -27,9 +27,9 @@ std::string AnimateSprite::getPath(const std::string& check)
 
 std::string AnimateSprite::getPath(const int& idx)
 {
-	if (m_textureContainer.Empty())
+	if (m_textureContainer.empty())
 		throw std::out_of_range("Vector is empty");
-	if (idx >= m_textureContainer.Size())
+	if (idx >= m_textureContainer.size())
 		throw std::out_of_range("Out of range");
 	return m_textureContainer[idx];
 }
@@ -47,9 +47,9 @@ void AnimateSprite::resetTexture()
 
 void AnimateSprite::ChangeToNextPath()
 {
-	if (m_textureContainer.Empty())
+	if (m_textureContainer.empty())
 		throw std::out_of_range("Vector is empty");
-	if (m_curentTexture == m_textureContainer.Size() - 1)
+	if (m_curentTexture == m_textureContainer.size() - 1)
 		m_curentTexture = 0;
 	else
 		++m_curentTexture;
@@ -57,20 +57,21 @@ void AnimateSprite::ChangeToNextPath()
 
 void AnimateSprite::ChangePath(const int& idx)
 {
-	if (idx < 0 || idx >= m_textureContainer.Size())
+	if (idx < 0 || idx >= m_textureContainer.size())
 		throw std::runtime_error("Out of range");
 	m_curentTexture = idx;
 }
 
 void AnimateSprite::ChangeToPreviousPath()
 {
-	if (m_textureContainer.Empty())
+	if (m_textureContainer.empty())
 		throw std::out_of_range("Vector is empty");
 	if (m_curentTexture == 0)
-		m_curentTexture = m_textureContainer.Size() - 1;
+		m_curentTexture = m_textureContainer.size() - 1;
 	else
 		--m_curentTexture;
 }
+
 
 RectangleSFML::RectangleSFML(float width, float height, sf::Vector2f position, sf::Vector2f Origin) :m_shape(sf::Vector2f(width, height))
 {
@@ -78,13 +79,13 @@ RectangleSFML::RectangleSFML(float width, float height, sf::Vector2f position, s
 	m_shape.setOrigin(Origin);
 }
 
-RectangleSFML::RectangleSFML(float width, float heignt, sf::Vector2f position) :m_shape(sf::Vector2f(width, heignt))
+RectangleSFML::RectangleSFML(float width, float height, sf::Vector2f position) :m_shape(sf::Vector2f(width, height))
 {
 	m_shape.setPosition(position);
 	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
 }
 
-RectangleSFML::RectangleSFML(float width, float heignt, ISceneBase* scene) :m_shape(sf::Vector2f(width, heignt))
+RectangleSFML::RectangleSFML(float width, float height, ISceneBase* scene) :m_shape(sf::Vector2f(width, height))
 {
 	m_shape.setPosition(scene->getWindow()->getSize().x / 2, scene->getWindow()->getSize().y / 2);
 	m_shape.setOrigin(m_shape.getSize().x / 2, m_shape.getSize().y / 2);
@@ -97,14 +98,14 @@ sf::RectangleShape& RectangleSFML::getShape()
 
 AABB RectangleSFML::GetBoundingBox()
 {
-	AABB boundingbox{sf::Vector2f(0,0),sf::Vector2f(0,0) };
+	AABB boundingbox{ sf::Vector2f(0,0),sf::Vector2f(0,0) };
 	boundingbox.Amin.x = m_shape.getPosition().x - m_shape.getSize().x / 2;
 	boundingbox.Amin.y = m_shape.getPosition().y - m_shape.getSize().y / 2;
 
 	boundingbox.Amax.x = m_shape.getPosition().x + m_shape.getSize().x / 2;
 	boundingbox.Amax.y = m_shape.getPosition().y + m_shape.getSize().y / 2;
 
-	
+
 	return boundingbox;
 }
 
@@ -126,6 +127,11 @@ float RectangleSFML::getangle()
 void RectangleSFML::setTexture(const sf::Texture& texture)
 {
 	m_shape.setTexture(&texture);
+}
+
+void RectangleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
 }
 
 void RectangleSFML::setPosition(const sf::Vector2f& position)
@@ -226,6 +232,11 @@ float CircleSFML::getangle()
 void CircleSFML::setTexture(const sf::Texture& texture)
 {
 	m_shape.setTexture(&texture);
+}
+
+void CircleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
 }
 
 void CircleSFML::setPosition(const sf::Vector2f& position)

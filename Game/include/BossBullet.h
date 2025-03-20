@@ -2,7 +2,8 @@
 #include "GameObject.h"
 #include "RandomNumber.h"
 
-enum class ProjectileType {
+enum class ProjectileType
+{
     Normal,
     Large,
     Fast,
@@ -14,7 +15,7 @@ class EntityProjectileBase : public IBullet
 {
 public:
     EntityProjectileBase(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp);
-    virtual void Update(const float& deltatime) override;
+    virtual void Update(const float& deltatime);
     virtual void HandleCollision(IGameObject* object) override;
 
 protected:
@@ -66,7 +67,7 @@ public:
     ShieldProjectile(IComposite* scene, IShapeSFML* owner, float duration, float radius);
     virtual void Render() override;
     virtual void ProssesInput(const sf::Event& event) override {};
-    virtual void Update(const float& deltatime) override;
+    virtual void Update(const float& deltatime);
     virtual void HandleCollision(IGameObject* object) override;
 
 private:

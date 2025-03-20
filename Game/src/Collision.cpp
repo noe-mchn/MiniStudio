@@ -10,25 +10,25 @@ bool Collision(AABB A, AABB B)
 		return true;
 }
 
-void Colision::HandleCollision(KT::Vector<IComponent*> objects)
+void Colision::HandleCollision(std::vector <IComponent*> objects)
 {
-	for (std::make_signed_t<size_t> i = objects.Size() - 1; i >= 0; --i)
+	for (std::make_signed_t<size_t> i = objects.size() - 1; i >= 0; --i)
 	{
 		for (std::make_signed_t<size_t> y = i - 1; y >= 0; --y)
 		{
-				if (auto* obj1 = getObj<IGameObject*>(objects[i]))
+			if (auto* obj1 = getObj<IGameObject*>(objects[i]))
+			{
+				if (auto obj2 = getObj<IGameObject*>(objects[y]))
 				{
-					if (auto obj2 = getObj<IGameObject*>(objects[y]))
+					if (Collision(obj1->GetBoundingBox(), obj2->GetBoundingBox()))
 					{
-						if (Collision(obj1->GetBoundingBox(), obj2->GetBoundingBox()))
-						{
-							if (Compose(objects[i], objects[y]))
-								continue;
-							obj1->HandleCollision(obj2);
-							obj2->HandleCollision(obj1);
-						}
+						if (Compose(objects[i], objects[y]))
+							continue;
+						obj1->HandleCollision(obj2);
+						obj2->HandleCollision(obj1);
 					}
 				}
+			}
 		}
 	}
 
@@ -62,9 +62,9 @@ bool Colision::Compose(IComponent* lhs, IComponent* rhs)
 	return false;
 }
 
-void Colision::destroy(KT::Vector<IComponent*> objects)
+void Colision::destroy(std::vector<IComponent*> objects)
 {
-	for (std::make_signed_t<size_t> i = objects.Size() - 1; i >= 0; --i)
+	for (std::make_signed_t<size_t> i = objects.size() - 1; i >= 0; --i)
 	{
 		if (auto obj = getObj<IGameObject*>(objects[i]))
 		{

@@ -1,19 +1,20 @@
 #include "SceneManager.h"
 #include "SceneBase.h"
 
-SceneManager::SceneManager(const std::string& execFilePath,const size_t& width, const size_t& height, const std::string& title, const sfStyle& style) :
-m_window(new sf::RenderWindow(sf::VideoMode(width, height)
-	, title, style))
-, m_currentScene(nullptr)
-,m_texture(new TextureCache(execFilePath))
-{}
+SceneManager::SceneManager(const std::string& execFilePath, const size_t& width, const size_t& height, const std::string& title, const sfStyle& style) :
+	m_window(new sf::RenderWindow(sf::VideoMode(width, height)
+		, title, style))
+	, m_currentScene(nullptr)
+	, m_texture(new TextureCache(execFilePath))
+{
+}
 
 SceneManager::~SceneManager()
 {
 	delete m_window;
 	m_window = nullptr;
 
-	for (std::make_signed_t<size_t> idx = m_scene.Size() - 1 ; idx >= 0; --idx)
+	for (std::make_signed_t<size_t> idx = m_scene.size() - 1; idx >= 0; --idx)
 	{
 		delete m_scene[idx];
 		m_scene[idx] = nullptr;
@@ -71,23 +72,23 @@ void SceneManager::Exe()
 
 void SceneManager::AddScene(ISceneBase* scene)
 {
-	m_scene.pushBack(scene);
-	m_scene.back()->setSceneIdx(m_scene.Size() - 1);
-	if (m_scene.Size() == 1)
+	m_scene.push_back(scene);
+	m_scene.back()->setSceneIdx(m_scene.size() - 1);
+	if (m_scene.size() == 1)
 	{
 		SetScene(0);
 	}
 }
 
 void SceneManager::SetScene(const int& idx)
-{ 
+{
 
 	m_currentScene = m_scene[idx];
 }
 
-sf::RenderWindow* SceneManager::getWindow() 
+sf::RenderWindow* SceneManager::getWindow()
 {
-	return m_window; 
+	return m_window;
 }
 
 TextureCache* SceneManager::geTextureCash()

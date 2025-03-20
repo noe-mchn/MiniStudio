@@ -3,12 +3,12 @@
 #include"IShape.h"
 
 ISceneBase::ISceneBase(sf::RenderWindow* window, const float& framerate, TextureCache* texture) :
-RootScene(this),
-m_Window(window)
-, m_FefreshTime(sf::seconds(1.f /framerate))
-, m_Sceneidx(0)
-,m_Background(nullptr)
-, m_texture(texture)
+	RootScene(this),
+	m_Window(window)
+	, m_FefreshTime(sf::seconds(1.f / framerate))
+	, m_Sceneidx(0)
+	, m_Background(nullptr)
+	, m_texture(texture)
 {
 }
 
@@ -51,8 +51,8 @@ sf::Vector2f ISceneBase::getBackgroundSize()
 sf::Vector2f ISceneBase::getLeftTopCorner()
 {
 	sf::Vector2f result;
-	result.x =( m_Background->getPosition().x -( m_Background->getSize().x / 2));
-	result.y = (m_Background->getPosition().y -( m_Background->getSize().y / 2));
+	result.x = (m_Background->getPosition().x - (m_Background->getSize().x / 2));
+	result.y = (m_Background->getPosition().y - (m_Background->getSize().y / 2));
 	return result;
 }
 
