@@ -13,6 +13,7 @@ set(HEADERS
  ${HEADER_DIR}/ISpawner.h
  ${HEADER_DIR}/Boss1.h
  ${HEADER_DIR}/Boss2.h
+ ${HEADER_DIR}/map.h
  ${HEADER_DIR}/BossBullet.h
 )
 set(SOURCES
@@ -23,6 +24,7 @@ ${SOURCE_DIR}/Collision.cpp
 ${SOURCE_DIR}/ISpawner.cpp
 ${SOURCE_DIR}/Boss1.cpp
 ${SOURCE_DIR}/Boss2.cpp
+${SOURCE_DIR}/map.cpp
 ${SOURCE_DIR}/BossBullet.cpp
 )
 

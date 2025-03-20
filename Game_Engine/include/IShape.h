@@ -26,7 +26,6 @@ private:
 	int m_curentTexture;
 };
 
-
 class IShapeSFML
 {
 public:
@@ -44,6 +43,9 @@ public:
 
 	virtual AABB GetBoundingBox() = 0;
 };
+
+
+
 class RectangleSFML : public IShapeSFML
 {
 public:
@@ -267,7 +269,6 @@ private:
 	bool m_start;
 };
 
-// to do :
 
 class SpriteCutter
 {
