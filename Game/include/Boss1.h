@@ -120,8 +120,10 @@ protected:
         IState* handle(const State& state) override;
         void update(MegaBoss* boss, float deltaTime) override;
 
-        float maxProtectionTime = 10.0f;
+        float maxProtectionTime = 5.0f;
         float protectionTimer = 0.0f;
+
+        float regenerationRate = 0.02f;
     };
 
     struct DestructState : IState
@@ -167,7 +169,6 @@ public:
     void moveToPosition(const sf::Vector2f& position);
     void move(const sf::Vector2f& offset);
 
-    // Méthodes d'attaque
     void fireProjectiles(int count, float spreadAngle);
     void fireSpecialProjectile(ProjectileType type);
     void fireGrowingProjectile();
@@ -175,19 +176,16 @@ public:
     void fireCircularPattern();
     void fireWavePattern();
 
-    // Méthodes de capacités
     void activateDefensiveAbility(float duration);
     void activateOffensiveBoost(float multiplier, float duration);
     void regenerateHealth(float amount);
     void summonMinions(int count);
 
-    // Changement de mode et phase
     void setMode(BossMode mode);
     BossMode getMode() const { return m_currentMode; }
     void updateParameters();
     BossPhase getCurrentPhase() const { return m_currentPhase; }
 
-    // Changement d'état
     void changeState(const State& newState);
 
 protected:
@@ -197,54 +195,56 @@ protected:
     sf::Vector2f screenToWorldPosition(const sf::Vector2f& screenPos) const;
     void patrol();
 
-    // Informations de base
     float m_maxLife;
     float m_speed;
     BossMode m_currentMode;
     IState* m_currentState;
 
-    // Animation
     AnimateSprite m_animate;
     Timer m_animationTimer;
 
-    // Paramètres selon la phase
     BossParameters m_bossParams;
     BossPhase m_currentPhase;
 
-    // Gestion des boosts
     bool m_offensiveBoostActive;
     float m_damageMultiplier;
     Timer m_offensiveBoostTimer;
 
-    // Invulnérabilité
     Timer m_invulnerabilityTimer;
     bool m_isInvulnerable;
     bool m_isInvulnerableToCollisions;
 
-    // Suivi de cible
     IShapeSFML* m_target;
     float m_detectionRadius;
     bool m_isTrackingTarget;
 
-    // Armes et attaques
     std::array<ITurret*, 6> m_weapons;
     Timer m_attackTimer;
     float m_patrolTimer;
     int m_projectileCount;
     int m_maxProjectilesBeforeReload;
 
-    // Position et mouvement
     sf::Vector2f m_worldPosition;
     float m_movementAngle;
     MovementPattern m_movementPattern;
 
-    // Assistants IA
     BossAI::RandomAttackSelector* m_specialAttackSelector = nullptr;
     BossAI::RandomMovementSelector* m_movementSelector = nullptr;
 
-    // Utilitaires
     float calculateAngleToTarget() const;
     bool isTargetInDetectionZone() const;
     bool shouldAttackTarget() const;
     bool isTargetValid() const;
+    float getCurrentPhaseDistance() const;
+
+    bool m_canEnterProtectState = true;
+    Timer m_protectStateCooldown{ 20.0f };
+    int m_maxProtectionUses = 3;
+    int m_protectionUsesRemaining = 3;
+
+    const float PHASE_ONE_DISTANCE = 800.0f;
+    const float PHASE_TWO_DISTANCE = 650.0f;
+    const float PHASE_THREE_DISTANCE = 500.0f;
+    const float PHASE_FOUR_DISTANCE = 350.0f;
+    const float PHASE_FIVE_DISTANCE = 200.0f;
 };

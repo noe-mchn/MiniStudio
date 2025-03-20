@@ -9,27 +9,25 @@ BossParameters BossParameters::getForPhase(BossPhase phase, BossMode mode)
 {
     BossParameters params;
 
-    // Paramčtres de base
     switch (phase)
     {
     case BossPhase::One:
-        params = { 300.0f, 2.0f, 1, 0.0f, 20.0f, 500.0f, 1.0f, false };
+        params = { 300.0f, 1.0f, 10, -90.0f, 20.0f, 500.0f, 1.0f, false };
         break;
     case BossPhase::Two:
-        params = { 400.0f, 1.8f, 2, 20.0f, 20.0f, 600.0f, 1.0f, false };
+        params = { 400.0f, 1.0f, 20, 0.0f, 25.0f, 750.0f, 1.5f, false };
         break;
     case BossPhase::Three:
-        params = { 500.0f, 1.5f, 3, 40.0f, 25.0f, 700.0f, 1.0f, false };
+        params = { 500.0f, 1.0f, 30, 0.0f, 30.0f, 1000.0f, 2.0f, false };
         break;
     case BossPhase::Four:
-        params = { 600.0f, 1.2f, 4, 60.0f, 30.0f, 800.0f, 1.0f, false };
+        params = { 600.0f, 1.0f, 40, 0.0f, 35.0f, 1250.0f, 2.5f, false };
         break;
     case BossPhase::Five:
-        params = { 700.0f, 0.9f, 5, 90.0f, 35.0f, 900.0f, 1.2f, false };
+        params = { 700.0f, 0.5f, 50, 0.0f, 40.0f, 1500.0f, 3.0f, false };
         break;
     }
 
-    // Ajustements selon le mode
     switch (mode)
     {
     case BossMode::Type1:
@@ -45,7 +43,6 @@ BossParameters BossParameters::getForPhase(BossPhase phase, BossMode mode)
         params.projectileSpeed *= 1.3f;
         break;
     case BossMode::Combined:
-        // Au maximum de puissance
         params.speed *= 1.1f;
         params.attackRate *= 0.9f;
         params.projectileSize *= 1.2f;
@@ -58,7 +55,7 @@ BossParameters BossParameters::getForPhase(BossPhase phase, BossMode mode)
     return params;
 }
 
-// État Patrouille
+
 MegaBoss::IState* MegaBoss::PatrolState::handle(const State& state)
 {
     switch (state)
@@ -104,9 +101,26 @@ void MegaBoss::PatrolState::update(MegaBoss* boss, float deltaTime)
             boss->changeState(State::CHASE);
         break;
     }
+
+    static Timer specialAttackTimer(8.0f);
+    if (specialAttackTimer.AutoActionIsReady(deltaTime))
+    {
+        int attackChoice = UseRandomNumber().getRandomNumber<int>(0, 2);
+        switch (attackChoice) {
+        case 0: boss->changeState(State::HAND); break;
+        case 1: boss->changeState(State::FIRE); break;
+        case 2:
+            if (boss->getCurrentLife() < boss->getMaxLife() * 0.8 &&
+                boss->m_canEnterProtectState)
+                boss->changeState(State::PROTECT);
+            else
+                boss->changeState(State::FIRE);
+            break;
+        }
+    }
 }
 
-// État Poursuite
+
 MegaBoss::IState* MegaBoss::ChaseState::handle(const State& state)
 {
     switch (state)
@@ -121,26 +135,42 @@ MegaBoss::IState* MegaBoss::ChaseState::handle(const State& state)
     }
 }
 
+float MegaBoss::getCurrentPhaseDistance() const
+{
+    switch (m_currentPhase)
+    {
+    case BossPhase::One:   return PHASE_ONE_DISTANCE;
+    case BossPhase::Two:   return PHASE_TWO_DISTANCE;
+    case BossPhase::Three: return PHASE_THREE_DISTANCE;
+    case BossPhase::Four:  return PHASE_FOUR_DISTANCE;
+    case BossPhase::Five:  return PHASE_FIVE_DISTANCE;
+    default:               return PHASE_THREE_DISTANCE;
+    }
+}
+
 void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
 {
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
+    float targetDistance = boss->getCurrentPhaseDistance();
+    float detectionDistance = targetDistance + 150.0f;
+    float attackDistance = targetDistance - 50.0f;
 
     switch (boss->m_currentMode)
     {
     case BossMode::Type1:
         if (boss->getCurrentLife() <= boss->getMaxLife() * 0.05)
             boss->changeState(State::DESTRUCT);
-        else if (distance >= 650.0f)
+        else if (distance >= detectionDistance)
             boss->changeState(State::PATROL);
-        else if (distance <= 300.0f)
+        else if (distance <= attackDistance)
             boss->changeState(State::LOAD);
         break;
 
     case BossMode::Type2:
         if (boss->getCurrentLife() <= boss->getMaxLife() * 0.3)
             boss->changeState(State::PROTECT);
-        else if (distance <= 250.0f)
+        else if (distance <= (boss->getCurrentPhase() == BossPhase::Five ? 300.0f : attackDistance))
             boss->changeState(State::HAND);
         break;
 
@@ -148,9 +178,9 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
     case BossMode::Combined:
         if (boss->getCurrentLife() <= boss->getMaxLife() * 0.15)
             boss->changeState(State::PROTECT);
-        else if (distance <= 350.0f)
+        else if (distance <= attackDistance)
             boss->changeState(State::LOAD);
-        else if (distance >= 800.0f)
+        else if (distance >= detectionDistance)
             boss->changeState(State::PATROL);
         break;
     }
@@ -158,11 +188,26 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
     if (distance > 0)
     {
         direction /= distance;
-        boss->move(direction * boss->getSpeed() * deltaTime);
+
+        if (boss->getCurrentPhase() != BossPhase::Five && distance < targetDistance - 75.0f)
+        {
+            boss->move(-direction * boss->getSpeed() * 0.5f * deltaTime);
+        }
+
+        else if (distance > targetDistance + 25.0f)
+        {
+            boss->move(direction * boss->getSpeed() * deltaTime);
+        }
+
+        else
+        {
+            float angle = std::atan2(direction.y, direction.x) * 180 / 3.14159f;
+            boss->getShape()->setRotation(angle);
+        }
     }
 }
 
-// État Chargement
+
 MegaBoss::IState* MegaBoss::LoadState::handle(const State& state)
 {
     switch (state)
@@ -199,7 +244,7 @@ void MegaBoss::LoadState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Tir
+
 MegaBoss::IState* MegaBoss::FireState::handle(const State& state)
 {
     switch (state)
@@ -230,27 +275,44 @@ void MegaBoss::FireState::update(MegaBoss* boss, float deltaTime)
         break;
     case BossPhase::Two:
         boss->fireProjectiles(2, 20.0f);
+
+        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 8)
+            boss->fireCircularPattern();
         break;
     case BossPhase::Three:
-        boss->fireProjectiles(3, 40.0f);
+
+        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 6)
+            boss->fireWavePattern();
+        else
+            boss->fireProjectiles(3, 40.0f);
         break;
     case BossPhase::Four:
-        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 7)
+
+        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 3)
             boss->fireGrowingProjectile();
         else
             boss->fireProjectiles(4, 60.0f);
         break;
     case BossPhase::Five:
-        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 5)
+
+        if (UseRandomNumber().getRandomNumber<int>(0, 10) > 2)
         {
-            if (UseRandomNumber().getRandomNumber<int>(0, 1) == 0)
+            if (UseRandomNumber().getRandomNumber<int>(0, 2) == 0)
                 boss->fireGrowingProjectile();
-            else
+            else if (UseRandomNumber().getRandomNumber<int>(0, 2) == 1)
                 boss->fireFastProjectile();
+            else
+                boss->fireCircularPattern();
         }
         else
             boss->fireProjectiles(5, 90.0f);
         break;
+    }
+
+    if (boss->getCurrentPhase() >= BossPhase::Three &&
+        UseRandomNumber().getRandomNumber<int>(0, 10) > 5)
+    {
+        boss->fireCircularPattern();
     }
 
     if (boss->m_currentMode == BossMode::Combined &&
@@ -284,7 +346,7 @@ void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
 
     if (boss->m_attackTimer.ActionIsReady())
     {
-        if (distance < 350.0f)
+        if (distance < 650.0f)
         {
             boss->fireWavePattern();
             boss->m_attackTimer.resetTimer();
@@ -304,7 +366,7 @@ void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Protection
+
 MegaBoss::IState* MegaBoss::ProtectState::handle(const State& state)
 {
     switch (state)
@@ -321,30 +383,36 @@ void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
 {
     protectionTimer += deltaTime;
 
-    boss->regenerateHealth(0.1f);
+    boss->regenerateHealth(regenerationRate * deltaTime);
 
     if (protectionTimer >= maxProtectionTime) {
+        boss->m_isInvulnerable = false;
         boss->changeState(State::CHASE);
         protectionTimer = 0.0f;
-        boss->m_isInvulnerable = false;
+
+        boss->m_canEnterProtectState = false;
+        boss->m_protectStateCooldown.resetTimer();
         return;
     }
 
     if (boss->m_currentMode == BossMode::Type1 &&
         boss->getCurrentLife() <= boss->getMaxLife() * 0.05)
     {
+        boss->m_isInvulnerable = false;
         boss->changeState(State::DESTRUCT);
         return;
     }
 
     if (boss->getCurrentLife() <= boss->getMaxLife() * 0.02)
     {
+        boss->m_isInvulnerable = false;
         boss->changeState(State::DEAD);
         return;
     }
 
     if (boss->getCurrentLife() >= boss->getMaxLife() * 0.40)
     {
+        boss->m_isInvulnerable = false;
         boss->changeState(State::PATROL);
         return;
     }
@@ -358,7 +426,7 @@ void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Destruction
+
 MegaBoss::IState* MegaBoss::DestructState::handle(const State& state)
 {
     switch (state)
@@ -415,7 +483,7 @@ void MegaBoss::HelpState::update(MegaBoss* boss, float deltaTime)
     }
 }
 
-// État Mort
+
 MegaBoss::IState* MegaBoss::DeadState::handle(const State& state)
 {
     return nullptr;
@@ -522,13 +590,36 @@ sf::Vector2f MegaBoss::screenToWorldPosition(const sf::Vector2f& screenPos) cons
     );
 }
 
+
 void MegaBoss::Update(const float& deltaTime)
 {
-    static Timer targetSearchTimer(2.0f);
+    static Timer targetSearchTimer(1.0f);
 
-    if (!m_target || targetSearchTimer.AutoActionIsReady(deltaTime))
-    {
+    if (targetSearchTimer.AutoActionIsReady(deltaTime)) {
         findTarget();
+    }
+
+    if (!m_target) {
+        if (!(dynamic_cast<PatrolState*>(m_currentState))) {
+            changeState(State::PATROL);
+        }
+
+        patrol();
+
+        if (m_currentState) {
+            m_currentState->update(this, deltaTime);
+        }
+        m_attackTimer.NextTIck(deltaTime);
+
+        if (m_animationTimer.AutoActionIsReady(deltaTime)) {
+            m_animate.ChangeToNextPath();
+            m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+        }
+
+        m_shape->setPosition(worldToScreenPosition(m_worldPosition));
+
+        IComposite::Update(deltaTime);
+        return;
     }
 
     if (m_isInvulnerable)
@@ -538,6 +629,15 @@ void MegaBoss::Update(const float& deltaTime)
         {
             m_isInvulnerable = false;
             m_invulnerabilityTimer.resetTimer();
+        }
+    }
+
+    if (!m_canEnterProtectState)
+    {
+        m_protectStateCooldown.NextTIck(deltaTime);
+        if (m_protectStateCooldown.ActionIsReady())
+        {
+            m_canEnterProtectState = true;
         }
     }
 
@@ -805,13 +905,18 @@ float MegaBoss::calculateAngleToTarget() const
     if (!m_target) return m_movementAngle;
 
     try {
-        sf::Vector2f targetWorldPos = screenToWorldPosition(m_target->getPosition());
+        sf::Vector2f targetPos = m_target->getPosition();
+        sf::Vector2f myPos = m_shape->getPosition();
 
-        float xCorrection = 50.0f * static_cast<float>(m_currentPhase) / 3.0f;
-        targetWorldPos.x += xCorrection;
+        if (std::isnan(targetPos.x) || std::isnan(targetPos.y) ||
+            std::isinf(targetPos.x) || std::isinf(targetPos.y) ||
+            std::isnan(myPos.x) || std::isnan(myPos.y) ||
+            std::isinf(myPos.x) || std::isinf(myPos.y)) {
+            return m_movementAngle;
+        }
 
-        sf::Vector2f direction = targetWorldPos - m_worldPosition;
-        return atan2(direction.y, direction.x) * 180.0f / 3.14159f;
+        sf::Vector2f direction = targetPos - myPos;
+        return std::atan2(direction.y, direction.x) * 180.0f / 3.14159f;
     }
     catch (...) {
         return m_movementAngle;
@@ -859,42 +964,37 @@ bool MegaBoss::shouldAttackTarget() const
 
 void MegaBoss::fireProjectiles(int count, float spreadAngle)
 {
-    if (!m_target || !m_isTrackingTarget) return;
+    if (!m_target) {
+        float angle = m_shape->getangle();
 
-    float targetingAngle;
-    try {
-        targetingAngle = calculateAngleToTarget();
-    }
-    catch (...) {
-        targetingAngle = m_shape->getangle();
-    }
+        for (auto& weapon : m_weapons) {
+            weapon->SetOverloadGun(0.1f, count);
+            weapon->setBullet(
+                m_bossParams.projectileSize,
+                m_bossParams.projectileSpeed,
+                m_damageMultiplier
+            );
 
-    for (auto& weapon : m_weapons) {
-        weapon->SetOverloadGun(0.1f, count);
-        weapon->setBullet(
-            m_bossParams.projectileSize,
-            m_bossParams.projectileSpeed,
-            m_damageMultiplier
-        );
+            weapon->getShape()->setRotation(angle);
 
-        weapon->getShape()->setRotation(targetingAngle);
-
-        if (count == 1) {
-            weapon->Fire();
-        }
-        else {
-            float totalSpread = spreadAngle;
-            float angleStep = totalSpread / (count - 1);
-            float startAngle = targetingAngle - totalSpread / 2.0f;
-
-            for (int i = 0; i < count; ++i) {
-                float bulletAngle = startAngle + i * angleStep;
-                weapon->getShape()->setRotation(bulletAngle);
+            if (count == 1) {
                 weapon->Fire();
             }
+            else {
+                float totalSpread = spreadAngle;
+                float angleStep = totalSpread / (count - 1);
+                float startAngle = angle - totalSpread / 2.0f;
 
-            weapon->getShape()->setRotation(targetingAngle);
+                for (int i = 0; i < count; ++i) {
+                    float bulletAngle = startAngle + i * angleStep;
+                    weapon->getShape()->setRotation(bulletAngle);
+                    weapon->Fire();
+                }
+
+                weapon->getShape()->setRotation(angle);
+            }
         }
+        return;
     }
 
     m_projectileCount += count;
@@ -970,9 +1070,20 @@ void MegaBoss::fireCircularPattern()
     for (int i = 0; i < 12; i++) {
         float angle = baseAngle + (i * 30.0f);
 
-        for (size_t j = 0; j < m_weapons.size(); j += 2) { 
-            m_weapons[j]->getShape()->setRotation(angle);
-            m_weapons[j]->Fire();
+        for (auto& weapon : m_weapons) {
+            weapon->getShape()->setRotation(angle);
+            weapon->Fire();
+        }
+    }
+
+    if (m_currentPhase >= BossPhase::Four) {
+        float secondaryBaseAngle = baseAngle + 15.0f;
+        for (int i = 0; i < 12; i++) {
+            float angle = secondaryBaseAngle + (i * 30.0f);
+            for (size_t j = 0; j < m_weapons.size(); j += 2) {
+                m_weapons[j]->getShape()->setRotation(angle);
+                m_weapons[j]->Fire();
+            }
         }
     }
 }
@@ -1055,6 +1166,7 @@ void MegaBoss::setMode(BossMode mode)
 void MegaBoss::findTarget()
 {
     auto root = m_scene->getRoot();
+    IShapeSFML* oldTarget = m_target;
     m_target = nullptr;
 
     std::function<bool(IComposite*)> findShipInChildren = [&](IComposite* node) -> bool {
@@ -1087,10 +1199,26 @@ void MegaBoss::findTarget()
     }
 
     findShipInChildren(root);
+
+    if (!m_target && oldTarget) {
+        changeState(State::PATROL);
+    }
 }
 
 void MegaBoss::changeState(const State& newState)
 {
+    if (newState == State::PROTECT &&
+        (!m_canEnterProtectState || m_protectionUsesRemaining <= 0))
+    {
+        changeState(State::CHASE);
+        return;
+    }
+
+    if (newState == State::PROTECT && m_canEnterProtectState && m_protectionUsesRemaining > 0)
+    {
+        m_protectionUsesRemaining--;
+    }
+
     if (m_currentState)
     {
         IState* state = m_currentState->handle(newState);
