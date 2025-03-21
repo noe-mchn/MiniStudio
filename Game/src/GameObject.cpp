@@ -492,7 +492,7 @@ Cursor::Cursor(IComposite* scene) :
 
 }
 
-void Cursor::ProssesInput(const sf::Event& event)
+void Cursor::ProcessInput(const sf::Event& event)
 {
 }
 

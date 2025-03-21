@@ -9,7 +9,7 @@ class ISpawner : public IComposite
 {
 public:
 	ISpawner(IComposite* scene, const size_t& maxEntity);
-	void ProssesInput(const sf::Event& event) override {}
+	void ProcessInput(const sf::Event& event) override {}
 	void Render() override;
 
 	void Update(const float& deltatime);

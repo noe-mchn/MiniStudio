@@ -11,9 +11,7 @@ set(HEADERS
  ${HEADER_DIR}/Ship.h
  ${HEADER_DIR}/Collision.h
  ${HEADER_DIR}/ISpawner.h
- ${HEADER_DIR}/Boss1.h
- ${HEADER_DIR}/Boss2.h
- ${HEADER_DIR}/Boss3.h
+ ${HEADER_DIR}/MegaBoss.h
  ${HEADER_DIR}/BossBullet.h
 )
 set(SOURCES
@@ -22,9 +20,7 @@ ${SOURCE_DIR}/GameObject.cpp
 ${SOURCE_DIR}/Ship.cpp
 ${SOURCE_DIR}/Collision.cpp
 ${SOURCE_DIR}/ISpawner.cpp
-${SOURCE_DIR}/Boss1.cpp
-${SOURCE_DIR}/Boss2.cpp
-${SOURCE_DIR}/Boss3.cpp
+${SOURCE_DIR}/MegaBoss.cpp
 ${SOURCE_DIR}/BossBullet.cpp
 )
 

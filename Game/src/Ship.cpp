@@ -1,5 +1,6 @@
 #include "Ship.h"
 #include "IGameObject.h"
+#include "Animation.h"
 #include <iostream>
 
 //=========== IDLE STATE ===========//
@@ -24,6 +25,12 @@ Ship::IState* Ship::IdleState::handle(const State& state)
 
 void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
+    if (ship->m_animationComponent->getCurrentAnimation() != "idle")
+    {
+        ship->m_animationComponent->playAnimation("idle");
+        ship->m_animationComponent->getAnimations()["idle"].setOrientation(ship->m_currentOrientation);
+    }
+
     if (ship->m_strafe[trust::Left]
         || ship->m_strafe[trust::Right]
         || ship->m_strafe[trust::Up]
@@ -66,6 +73,12 @@ Ship::IState* Ship::MoveState::handle(const State& state)
 
 void Ship::MoveState::update(Ship* ship, float deltaTime)
 {
+    if (ship->m_animationComponent->getCurrentAnimation() != "move")
+    {
+        ship->m_animationComponent->playAnimation("move");
+        ship->m_animationComponent->getAnimations()["move"].setOrientation(ship->m_currentOrientation);
+    }
+
     if (!ship->m_strafe[trust::Left]
         && !ship->m_strafe[trust::Right]
         && !ship->m_strafe[trust::Up]
@@ -107,6 +120,12 @@ Ship::IState* Ship::HandAttackState::handle(const State& state)
 
 void Ship::HandAttackState::update(Ship* ship, float deltaTime)
 {
+    if (ship->m_animationComponent->getCurrentAnimation() != "attack")
+    {
+        ship->m_animationComponent->playAnimation("attack");
+        ship->m_animationComponent->getAnimations()["attack"].setOrientation(ship->m_currentOrientation);
+    }
+
     if (attackTimer == 0.0f)
     {
         ship->createMeleeHitbox(ship->m_angle, 100.0f);
@@ -180,6 +199,10 @@ Ship::IState* Ship::PistolAttackState::handle(const State& state)
 
 void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 {
+    // Jouer l'animation d'attaque au pistolet
+    if (ship->m_animationComponent->getCurrentAnimation() != "pistol")
+        ship->m_animationComponent->playAnimation("pistol");
+
     if (!ship->m_turret)
         throw std::runtime_error("ship est nullptr!");
 
@@ -218,6 +241,10 @@ Ship::IState* Ship::ReloadState::handle(const State& state)
 
 void Ship::ReloadState::update(Ship* ship, float deltaTime)
 {
+    // Jouer l'animation de rechargement
+    if (ship->m_animationComponent->getCurrentAnimation() != "reload")
+        ship->m_animationComponent->playAnimation("reload");
+
     if (reloadTimer < reloadTime)
     {
         reloadTimer += 1;
@@ -238,16 +265,26 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
     , m_background(background)
     , m_angle(0)
     , m_elapsedTime(0.2)
-    , m_animate({ "SpaceHero.png" })
+    , m_animate({ "Hero.png" })
     , m_physics(new MovementInSpace(1000, 400, 200))
     , m_invisibility(2.5)
     , m_detectionRadius(30.0f)
     , m_meleeDamage(0.01f)
     , m_meleeAttackCooldown(0.5f)
     , m_meleeAttackTimer(2.0f)
+    , m_currentOrientation(Orientation::DOWN)
 {
     m_shape = new SquareSFML(150, scene->getRoot()->getScene());
     m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+
+    // Créer et configurer le composant d'animation
+    m_animationComponent = new AnimationComponent(this);
+    setupAnimations();
+
+    // Mettre à jour la position initiale du composant d'animation
+    m_animationComponent->updatePosition(m_shape->getPosition());
+
+    // Configurer le reste du vaisseau
     new Life(this, this, Color::Blue);
     m_turret = new FixTurret(this, m_shape, sf::Vector2f(35, -25), 0.75);
     m_turret->SetFireRate(0.2f);
@@ -255,20 +292,56 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
     m_turret->setBullet(0, 0, 0);
 
     m_currentState = new IdleState();
+
+    // Démarrer avec l'animation d'idle
+    m_animationComponent->playAnimation("idle");
 }
 
 Ship::~Ship()
 {
     delete m_physics;
     delete m_currentState;
+    // Le composant d'animation sera détruit avec le ship grâce à la hiérarchie de composants
 }
+
+void Ship::setupAnimations()
+{
+    // S'assurer que le TextureManager a été initialisé et a chargé les textures
+    TextureManager::getInstance().initialize();
+
+    // Vérifier si les textures sont chargées, sinon les charger
+    if (!TextureManager::getInstance().hasTexture("Hero"))
+        TextureManager::getInstance().loadTexture("Hero", "Hero.png");
+
+    // Créer les animations pour chaque état
+    // Animation d'idle - 6 frames
+    Animation idleAnim("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    idleAnim.setFrameSize(sf::Vector2i(64, 64));
+    idleAnim.setStartPosition(sf::Vector2i(0, 0), 4);
+
+    // Animation de mouvement - 5 frames
+    Animation moveAnim("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    moveAnim.setFrameSize(sf::Vector2i(64, 64));
+    moveAnim.setStartPosition(sf::Vector2i(6 * 64, 0), 4);
+
+    // Animation d'attaque - 6 frames
+    Animation attackAnim("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    attackAnim.setFrameSize(sf::Vector2i(64, 64));
+    attackAnim.setStartPosition(sf::Vector2i((6 + 5) * 64, 0), 4);
+
+    // Ajouter les animations au composant
+    m_animationComponent->addAnimation("idle", idleAnim);
+    m_animationComponent->addAnimation("move", moveAnim);
+    m_animationComponent->addAnimation("attack", attackAnim);
+}
+
 
 bool Ship::IsDestroyed()
 {
-	return m_life <= 0;
+    return m_life <= 0;
 }
 
-void Ship::ProssesInput(const sf::Event& event)
+void Ship::ProcessInput(const sf::Event& event)
 {
     m_strafe = { false, false, false, false };
 
@@ -294,16 +367,33 @@ void Ship::Update(const float& deltatime)
     if (!m_currentState)
         throw std::runtime_error("current state est nullptr!");
 
+    // Appeler la méthode update de l'état courant - CETTE LIGNE MANQUE!
     m_currentState->update(this, deltatime);
 
+    // Appliquer la rotation et la position - CES LIGNES MANQUENT!
     m_shape->setRotation(m_angle);
     m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
 
-    if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
+    // Mettre à jour la position du sprite d'animation - CETTE LIGNE MANQUE!
+    m_animationComponent->updatePosition(m_shape->getPosition());
+
+    // Mettre à jour l'orientation basée sur l'angle
+    Orientation newOrientation = determineOrientation(m_angle);
+    if (newOrientation != m_currentOrientation)
     {
-        m_animate.ChangeToNextPath();
-        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+        m_currentOrientation = newOrientation;
+
+        // Mettre à jour l'orientation des animations actives
+        if (m_animationComponent->getCurrentAnimation() != "")
+        {
+            auto& animations = m_animationComponent->getAnimations();
+            auto& currentAnim = animations[m_animationComponent->getCurrentAnimation()];
+            currentAnim.setOrientation(m_currentOrientation);
+        }
     }
+
+    // Mettre à jour l'animation
+    m_animationComponent->Update(deltatime);
 
     m_meleeAttackTimer.NextTIck(deltatime);
 
@@ -313,7 +403,8 @@ void Ship::Update(const float& deltatime)
 
 void Ship::Render()
 {
-    m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
+    // Rendre le sprite d'animation au lieu du sprite de forme
+    m_animationComponent->Render();
 
     HandAttackState* state = dynamic_cast<HandAttackState*>(m_currentState);
     if (state && state->meleeHitbox)
@@ -364,6 +455,24 @@ void Ship::ChangeState(const State& newState)
             m_currentState = state;
         }
     }
+}
+
+Orientation Ship::determineOrientation(float angle)
+{
+    // Convertir l'angle en une orientation principale
+    // angle est en degrés où 0 = droite, 90 = bas, 180 = gauche, 270 = haut
+
+    // Normaliser l'angle entre 0 et 360
+    angle = std::fmod(angle + 360.0f, 360.0f);
+
+    if (angle >= 315.0f || angle < 45.0f)
+        return Orientation::RIGHT;
+    else if (angle >= 45.0f && angle < 135.0f)
+        return Orientation::DOWN;
+    else if (angle >= 135.0f && angle < 225.0f)
+        return Orientation::LEFT;
+    else
+        return Orientation::UP;
 }
 
 float Ship::distanceToBoss(MegaBoss* boss)
@@ -419,7 +528,6 @@ void Ship::checkMeleeCollisions(RectangleSFML* attackHitbox)
             if (collision)
             {
                 boss->ChangeLife(-m_meleeDamage);
-
                 std::cout << "Melee hit on boss! Damage: " << m_meleeDamage << std::endl;
             }
         }

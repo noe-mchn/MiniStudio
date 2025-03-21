@@ -14,11 +14,9 @@ struct AABB {
     }
 };
 
-// Fonctions utilitaires en inline
 inline float convertRadToDeg(const float& rad) { return (180.0f * rad) / 3.14159f; }
 inline float convertDegToRad(const float& deg) { return (deg * 3.14159f) / 180.0f; }
 
-// Forward declarations
 class IShapeSFML;
 class RootScene;
 class ISceneBase;
@@ -39,7 +37,7 @@ public:
     const IComponent* getParent() const;
 
     virtual void Update(const float& deltatime) = 0;
-    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void ProcessInput(const sf::Event& event) = 0;
     virtual void Render() = 0;
     virtual Component GetComponentType() = 0;
     virtual const Component GetComponentType() const = 0;
@@ -61,7 +59,7 @@ public:
     ~IComposite();
 
     void Update(const float& deltatime) override;
-    void ProssesInput(const sf::Event& event) override;
+    void ProcessInput(const sf::Event& event) override;
     void Render() override;
 
     std::vector<IComponent*> getChildren();
@@ -98,9 +96,8 @@ class ILeaf : public IComponent {
 public:
     ILeaf(IComposite* parent);
 
-    // Gardez ces méthodes abstraites pour maintenir la compatibilité
     virtual void Update(const float& deltatime) = 0;
-    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void ProcessInput(const sf::Event& event) = 0;
     virtual void Render() = 0;
 
     Component GetComponentType() override {
@@ -121,9 +118,8 @@ public:
     IGameObject(IComposite* scene);
     virtual ~IGameObject();
 
-    // Gardez ces méthodes abstraites
     virtual void Update(const float& deltatime) = 0;
-    virtual void ProssesInput(const sf::Event& event) = 0;
+    virtual void ProcessInput(const sf::Event& event) = 0;
     virtual void Render() = 0;
 
     virtual AABB GetBoundingBox();
@@ -148,9 +144,8 @@ class DestructibleObject : public IGameObject {
 public:
     DestructibleObject(IComposite* scene, const float& life);
 
-    // Gardez ces méthodes abstraites
     virtual void Update(const float& deltatime) override = 0;
-    virtual void ProssesInput(const sf::Event& event) override = 0;
+    virtual void ProcessInput(const sf::Event& event) override = 0;
     virtual void Render() override = 0;
 
     virtual void ChangeLife(const float& life) {
@@ -170,9 +165,8 @@ class NonDestructibleObject : public IGameObject {
 public:
     NonDestructibleObject(IComposite* scene);
 
-    // Gardez ces méthodes abstraites
     virtual void Update(const float& deltatime) override = 0;
-    virtual void ProssesInput(const sf::Event& event) override = 0;
+    virtual void ProcessInput(const sf::Event& event) override = 0;
     virtual void Render() override = 0;
 
     GameObjectType globalGameObjectType() override;

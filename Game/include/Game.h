@@ -12,7 +12,7 @@ public:
 	Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture);
 	virtual ~Game()override = default;
 	virtual void Update(const float& deltatime) override;
-	virtual void ProssesInput(const sf::Event& event)override;
+	virtual void ProcessInput(const sf::Event& event)override;
 	virtual void Render() override;
 
 private:

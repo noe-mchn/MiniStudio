@@ -151,7 +151,7 @@ public:
     MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMode mode = BossMode::Combined, float maxHealth = 10000.0f);
     virtual ~MegaBoss();
 
-    void ProssesInput(const sf::Event& event) override {};
+    void ProcessInput(const sf::Event& event) override {};
     void Update(const float& deltatime) override;
     void Render() override;
     void HandleCollision(IGameObject* object) override;

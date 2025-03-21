@@ -15,7 +15,7 @@ public:
     ~MainMenuScene() override;
 
     void Update(const float& deltatime) override;
-    void ProssesInput(const sf::Event& event) override;
+    void ProcessInput(const sf::Event& event) override;
     void Render() override;
 
 private:
@@ -39,7 +39,7 @@ public:
     ~PauseMenuScene() override;
 
     void Update(const float& deltatime) override;
-    void ProssesInput(const sf::Event& event) override;
+    void ProcessInput(const sf::Event& event) override;
     void Render() override;
 
 private:
@@ -64,7 +64,7 @@ public:
     ~GameOverScene() override;
 
     void Update(const float& deltatime) override;
-    void ProssesInput(const sf::Event& event) override;
+    void ProcessInput(const sf::Event& event) override;
     void Render() override;
 
 private:

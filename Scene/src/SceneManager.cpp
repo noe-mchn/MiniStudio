@@ -55,7 +55,7 @@ void SceneManager::Exe()
 			sf::Vector2i mousePos = sf::Mouse::getPosition(*m_window);
 			if (mousePos.x >= 0 && mousePos.x < m_window->getSize().x && mousePos.y >= 0 && mousePos.y < m_window->getSize().y)
 			{
-				m_currentScene->ProssesInput(m_event);
+				m_currentScene->ProcessInput(m_event);
 			}
 		}
 

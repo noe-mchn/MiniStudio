@@ -1,4 +1,4 @@
-#include "Boss1.h"
+#include "MegaBoss.h"
 #include "RandomNumber.h"
 #include "Ship.h"
 #include <functional>

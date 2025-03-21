@@ -10,14 +10,14 @@ set(HEADERS
  ${HEADER_DIR}/IGameObject.h
  ${HEADER_DIR}/IShape.h
  ${HEADER_DIR}/VectorND.h
- ${HEADER_DIR}/SpriteSheet.h
+ ${HEADER_DIR}/Animation.h
 )
 set(SOURCES
 ${SOURCE_DIR}/TextureCache.cpp
 ${SOURCE_DIR}/RandomNumber.cpp
 ${SOURCE_DIR}/IGameObject.cpp
 ${SOURCE_DIR}/IShape.cpp
-${SOURCE_DIR}/SpriteSheet.cpp
+${SOURCE_DIR}/Animation.cpp
 )
 
 add_library(${PROJECT_NAME}

@@ -1,6 +1,7 @@
 #pragma once
 #include "IGameObject.h"
-#include "Boss1.h"
+#include "MegaBoss.h"
+#include "Animation.h"
 
 class Ship : public DestructibleObject, public IComposite
 {
@@ -73,7 +74,7 @@ public:
     Ship(IComposite* scene, IShapeSFML* background);
     ~Ship() override;
 
-    void ProssesInput(const sf::Event& event) override;
+    void ProcessInput(const sf::Event& event) override;
     void physics();
     void Update(const float& deltatime) override;
     void Render() override;
@@ -100,6 +101,9 @@ private:
     Timer m_meleeAttackTimer;
 
     AnimateSprite m_animate;
+
+    AnimationComponent* m_animationComponent;
+
     IPhysics* m_physics;
     ITurret* m_turret;
     KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
@@ -109,4 +113,8 @@ private:
 
     float m_meleeDamage;
     float m_meleeAttackCooldown;
+
+    void setupAnimations();
+    Orientation determineOrientation(float angle);
+    Orientation m_currentOrientation;
 };

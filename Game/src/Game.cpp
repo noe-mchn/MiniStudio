@@ -10,7 +10,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 
 {
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
-	m_Background->setTexture(m_texture->getTexture("galaxie4.png"));
+	m_Background->setTexture(m_texture->getTexture("Map.png"));
 	m_ship = new Ship(this, m_Background);
 	new BorderShip(m_ship, m_Background, static_cast<Ship*>(m_ship));
 	new GameBorder(this, m_Background, Position::Down, 5);
@@ -52,13 +52,13 @@ void Game::Update(const float& deltatime)
 
 }
 
-void Game::ProssesInput(const sf::Event& event)
+void Game::ProcessInput(const sf::Event& event)
 {
 	for (auto& obj : getChildren())
 	{
-		obj->ProssesInput(event);
+		obj->ProcessInput(event);
 	}
-	cursor.ProssesInput(event);
+	cursor.ProcessInput(event);
 
 }
 

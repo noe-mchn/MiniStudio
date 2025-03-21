@@ -3,7 +3,6 @@
 #include "IShape.h"
 #include <algorithm>
 
-// Constructeur de AABB est déjà dans le header
 
 IComponent::IComponent(IComposite* parent) : m_parent(nullptr)
 {
@@ -27,7 +26,6 @@ const IComponent* IComponent::getParent() const
 
 void IComponent::setParent(IComposite* parent)
 {
-    // Évite le travail inutile si c'est le même parent
     if (m_parent == parent)
         return;
 
@@ -66,10 +64,8 @@ IComposite::IComposite(IComposite* parent) : IComponent(parent)
 
 IComposite::~IComposite()
 {
-    // Utilisation d'une approche plus sûre pour la destruction
-    // Copier d'abord la liste pour éviter les problèmes pendant l'itération
     auto childrenCopy = m_children;
-    m_children.clear(); // Évite les suppressions en cascade
+    m_children.clear();
 
     for (auto* child : childrenCopy)
     {
@@ -79,30 +75,26 @@ IComposite::~IComposite()
 
 void IComposite::Update(const float& deltatime)
 {
-    // Copie de sécurité pour permettre les modifications pendant l'itération
     auto childrenCopy = m_children;
     for (auto& child : childrenCopy)
     {
-        // Vérifie si l'enfant existe encore (pourrait avoir été supprimé par un autre enfant)
         if (std::find(m_children.begin(), m_children.end(), child) != m_children.end())
             child->Update(deltatime);
     }
 }
 
-void IComposite::ProssesInput(const sf::Event& event)
+void IComposite::ProcessInput(const sf::Event& event)
 {
-    // Même approche sécurisée pour l'input
     auto childrenCopy = m_children;
     for (auto& child : childrenCopy)
     {
         if (std::find(m_children.begin(), m_children.end(), child) != m_children.end())
-            child->ProssesInput(event);
+            child->ProcessInput(event);
     }
 }
 
 void IComposite::Render()
 {
-    // Même approche sécurisée pour le rendu
     auto childrenCopy = m_children;
     for (auto& child : childrenCopy)
     {
@@ -124,14 +116,13 @@ const std::vector<IComponent*> IComposite::getChildren() const
 std::vector<IComponent*> IComposite::getFullTree()
 {
     std::vector<IComponent*> result;
-    result.reserve(m_children.size() * 2); // Réservation d'espace pour optimiser
+    result.reserve(m_children.size() * 2);
     AddFullTree(result, getChildren());
     return result;
 }
 
 void IComposite::add(IComponent* data)
 {
-    // Évite les doublons pour plus de sécurité
     if (std::find(m_children.begin(), m_children.end(), data) == m_children.end())
     {
         m_children.push_back(data);

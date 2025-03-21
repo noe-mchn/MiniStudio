@@ -15,7 +15,7 @@ public:
 
 	virtual void Update(const float& deltatime) = 0;
 
-	virtual void ProssesInput(const sf::Event& event) = 0;
+	virtual void ProcessInput(const sf::Event& event) = 0;
 
 	virtual void Render() = 0;
 

@@ -19,7 +19,7 @@ class Cursor : public NonDestructibleObject, public ILeaf
 {
 public:
 	Cursor(IComposite* scene);
-	void ProssesInput(const sf::Event& event) override;
+	void ProcessInput(const sf::Event& event) override;
 
 	void Update(const float& deltatime);
 
@@ -52,7 +52,7 @@ class IBorder : public NonDestructibleObject, public ILeaf
 public:
 
 	IBorder(IComposite* scene, IShapeSFML* object);
-	void ProssesInput(const sf::Event& event) override = 0;
+	void ProcessInput(const sf::Event& event) override = 0;
 	void Update(const float& deltatime);
 	void Render() override = 0;
 protected:
@@ -63,7 +63,7 @@ class BorderShip : public IBorder
 {
 public:
 	BorderShip(IComposite* scene, IShapeSFML* game_object, Ship* ship);
-	void ProssesInput(const sf::Event& event) override {}
+	void ProcessInput(const sf::Event& event) override {}
 	void Update(const float& deltatime);
 	void Render() override;
 
@@ -87,7 +87,7 @@ class ExternBorder : public IBorder
 {
 public:
 	ExternBorder(IComposite* scene, IShapeSFML* game_object, Position pos, float BorderSize);
-	void ProssesInput(const sf::Event& event) override {}
+	void ProcessInput(const sf::Event& event) override {}
 	void Update(const float& deltatime);
 	void Render() override;
 protected:
@@ -114,7 +114,7 @@ class ITurret : public NonDestructibleObject, public IComposite
 public:
 	ITurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff);
 	virtual ~ITurret() = default;
-	void ProssesInput(const sf::Event& event) override = 0;
+	void ProcessInput(const sf::Event& event) override = 0;
 	void setBullet(float Size, float Speed, float hp);
 	void Update(const float& deltatime);
 	void Render() override = 0;
@@ -145,7 +145,7 @@ class FixTurret : public  ITurret
 {
 public:
 	FixTurret(IComposite* scene, IShapeSFML* game_object, sf::Vector2f& positiondiff, float angle);
-	void ProssesInput(const sf::Event& event) override {}
+	void ProcessInput(const sf::Event& event) override {}
 	void Update(const float& deltatime);
 	void Render() override;
 	void Fire() override;
@@ -158,7 +158,7 @@ class AutoTurret : public ITurret
 {
 public:
 	AutoTurret(IComposite* scene, IShapeSFML* game_object, IShapeSFML* Target, sf::Vector2f& positiondiff);
-	void ProssesInput(const sf::Event& event) override {}
+	void ProcessInput(const sf::Event& event) override {}
 	void Update(const float& deltatime);
 	void Render() override;
 	void Fire() override;
@@ -173,7 +173,7 @@ class IBullet : public DestructibleObject, public ILeaf
 public:
 	IBullet(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp);
 	void Render() override = 0;
-	void ProssesInput(const sf::Event& event) = 0;
+	void ProcessInput(const sf::Event& event) = 0;
 	void Update(const float& deltatime);
 
 	ITurret* getTurret() const { return m_gun; }
@@ -192,7 +192,7 @@ class ClassicBullet : public IBullet
 public:
 	ClassicBullet(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp);
 	void Render() override;
-	void ProssesInput(const sf::Event& event) {};
+	void ProcessInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
 
@@ -214,7 +214,7 @@ public:
 	~Life();
 private:
 	void Render() override;
-	void ProssesInput(const sf::Event& event) {};
+	void ProcessInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 protected:
 	DestructibleObject* m_object;
@@ -229,7 +229,7 @@ class Asteroid : public  DestructibleObject, public  IComposite
 public:
 	Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
 	void Render() override;
-	void ProssesInput(const sf::Event& event) {};
+	void ProcessInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
 	void ChangeLife(const float& life)
@@ -257,7 +257,7 @@ class Comete : public  DestructibleObject, public  IComposite
 public:
 	Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
 	void Render() override;
-	void ProssesInput(const sf::Event& event) {};
+	void ProcessInput(const sf::Event& event) {};
 	void Update(const float& deltatime);
 	void HandleCollision(IGameObject* object) override;
 	void ChangeLife(const float& life)

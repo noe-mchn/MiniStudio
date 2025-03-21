@@ -1,8 +1,6 @@
 #include "ISpawner.h"
 #include "GameObject.h"
-#include "Boss1.h"
-#include "Boss2.h"
-#include "Boss3.h"
+#include "MegaBoss.h"
 
 ISpawner::ISpawner(IComposite* scene, const size_t& maxEntity) :IComposite(scene), m_Scene(scene), m_maxEntity(maxEntity), m_SpawnZone(sf::Vector2f(0, 0), sf::Vector2f(0, 0)), m_RestrictedArea(sf::Vector2f(0, 0), sf::Vector2f(0, 0))
 {

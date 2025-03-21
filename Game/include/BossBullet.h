@@ -31,7 +31,7 @@ class EntityProjectile : public EntityProjectileBase
 public:
     EntityProjectile(IComposite* scene, ITurret* gun, float angle, float speed, float size);
     virtual void Render() override;
-    virtual void ProssesInput(const sf::Event& event) override {};
+    virtual void ProcessInput(const sf::Event& event) override {};
 };
 
 class LargeProjectile : public EntityProjectileBase
@@ -39,7 +39,7 @@ class LargeProjectile : public EntityProjectileBase
 public:
     LargeProjectile(IComposite* scene, ITurret* gun, float angle, float speed, float size, float damage);
     virtual void Render() override;
-    virtual void ProssesInput(const sf::Event& event) override {};
+    virtual void ProcessInput(const sf::Event& event) override {};
     virtual void Update(const float& deltatime) override;
 
 protected:
@@ -55,7 +55,7 @@ class FastProjectile : public EntityProjectileBase
 public:
     FastProjectile(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp);
     virtual void Render() override;
-    virtual void ProssesInput(const sf::Event& event) override {};
+    virtual void ProcessInput(const sf::Event& event) override {};
 
 protected:
     virtual bool shouldIgnoreCollision(IGameObject* object) const override;
@@ -66,7 +66,7 @@ class ShieldProjectile : public DestructibleObject, public ILeaf
 public:
     ShieldProjectile(IComposite* scene, IShapeSFML* owner, float duration, float radius);
     virtual void Render() override;
-    virtual void ProssesInput(const sf::Event& event) override {};
+    virtual void ProcessInput(const sf::Event& event) override {};
     virtual void Update(const float& deltatime);
     virtual void HandleCollision(IGameObject* object) override;
 
