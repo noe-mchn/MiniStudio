@@ -35,7 +35,9 @@ private:
 	Timer m_elapsedTime;
 	Timer m_invisibility;
 
-	AnimateSprite m_animate;
+	SpriteCutter m_sprite;
+	Animat2_0 m_animate;
+
 	IPhysics* m_physics;
 	KT::Array<ITurret*,2> m_turrets;
 	KT::VectorND<bool, 4> m_strafe{ false,false,false,false };
