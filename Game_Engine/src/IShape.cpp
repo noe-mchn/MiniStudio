@@ -128,6 +128,12 @@ void RectangleSFML::setTexture(const sf::Texture& texture)
 	m_shape.setTexture(&texture);
 }
 
+void RectangleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
+}
+
+
 void RectangleSFML::setPosition(const sf::Vector2f& position)
 {
 	m_shape.setPosition(position);
@@ -226,6 +232,11 @@ float CircleSFML::getangle()
 void CircleSFML::setTexture(const sf::Texture& texture)
 {
 	m_shape.setTexture(&texture);
+}
+
+void CircleSFML::setTextureRect(const sf::IntRect& texture)
+{
+	m_shape.setTextureRect(texture);
 }
 
 void CircleSFML::setPosition(const sf::Vector2f& position)

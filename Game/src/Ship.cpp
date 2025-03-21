@@ -8,13 +8,14 @@ Ship::Ship(IComposite* scene, IShapeSFML* background) :
 	, m_background(background)
 	, m_angle(0)
 	, m_elapsedTime(0.2)
-	, m_animate({ "SpaceHero.png", "SpaceHero2.png" })
+	, m_sprite(m_cache->GetTexture("PPM_0-11.png"), 6, 12, 384, 728, 20, 52)
+	, m_animate(&m_sprite, 1.0f, 3.0f, 3.0f)
 	, m_physics(new MovementInSpace(1000, 400, 200))
 , m_invisibility(2.5)
 
 {
 	m_shape = new SquareSFML(150, scene->getRoot()->getScene());
-	m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	m_animate.initTexture(m_shape);
 	new Life(this, this, Color::Blue);
 	m_turrets[0] = new FixTurret(this, m_shape, sf::Vector2f(35, -25), 0.75);
 	m_turrets[1] = new FixTurret(this, m_shape, sf::Vector2f(35, 25), -0.75);
@@ -73,8 +74,7 @@ void Ship::Update(const float& deltatime)
 	m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
 	
 	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds())) {
-		m_animate.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+		m_animate.update(deltatime, m_shape);
 	}
 
 	IComposite::Update(deltatime);

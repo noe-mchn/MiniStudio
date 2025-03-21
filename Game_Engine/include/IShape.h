@@ -44,6 +44,7 @@ public:
 	virtual void setSize(const sf::Vector2f&) = 0;
 	virtual void setRotation(const float& angle) = 0;
 	virtual void setTexture(const sf::Texture& texture) = 0;
+	virtual void setTextureRect(const sf::IntRect& rect) = 0;
 	virtual void setCenter(sf::Vector2f) = 0;
 	virtual sf::Vector2f getCenter() = 0;
 
@@ -65,6 +66,8 @@ public:
 	float getangle() override;
 
 	void setTexture(const sf::Texture& texture) override;
+
+	void setTextureRect(const sf::IntRect& rect) override;
 
 	void setPosition(const sf::Vector2f& position) override;
 
@@ -109,6 +112,8 @@ public:
 	float getangle() override;
 
 	void setTexture(const sf::Texture& texture) override;
+
+	void setTextureRect(const sf::IntRect& rect) override;
 
 	void setPosition(const sf::Vector2f& position) override;
 
@@ -264,4 +269,89 @@ private:
 	float m_CurrentCounter;
 	float m_minimalCounter;
 	bool m_start;
+};
+
+class SpriteCutter
+{
+public:
+	SpriteCutter(sf::Texture& texture, const unsigned int& col, const unsigned int& row, const unsigned int& widthI, const unsigned int& heightI, const unsigned int& deadZoneX, const unsigned int& deadZoneY)
+		: m_col(col)
+		, m_row(row)
+		, m_widthI(widthI)
+		, m_heightI(heightI)
+		, m_deadZoneX(deadZoneX)
+		, m_deadZoneY(deadZoneY)
+		, m_texture(texture)
+	{
+		m_widthI = (widthI - row * deadZoneX) / row;
+		m_heightI = (heightI - col * deadZoneY) / col;
+	}
+
+	sf::IntRect getFrame(const unsigned int& index)
+	{
+		if (index > (m_col * m_row))
+			throw;
+
+		auto realIndex = index - 1;
+
+		auto row = realIndex / m_col;
+		auto col = realIndex % m_col;
+
+		// nbr row et col
+		auto x = row * (m_deadZoneX + m_widthI);
+		auto y = col * (m_deadZoneY + m_heightI);
+
+		return sf::IntRect(x, y, m_widthI, m_heightI);
+	}
+
+	sf::Texture& getTexture()
+	{
+		return m_texture;
+	}
+
+private:
+	int m_col;
+	int m_row;
+	int m_widthI;
+	int m_heightI;
+	int m_deadZoneX;
+	int m_deadZoneY;
+	sf::Texture m_texture;
+};
+
+class Animat2_0
+{
+public:
+	Animat2_0(SpriteCutter* sprite, const unsigned int& min, const unsigned int& max, Timer time)
+		: m_spritecutt(sprite)
+		, m_counter(min, max)
+		, m_time(time)
+	{
+	}
+
+	void update(const float& deltatime, IShapeSFML* shape)
+	{
+
+		if (m_time.getCurrentTimer() >= m_time.getTotalTimer())
+		{
+			m_time.resetTimer();
+			m_counter.NextTIck();
+		}
+		else
+		{
+			shape->setTextureRect(m_spritecutt->getFrame(m_counter.GetCurrentCounter()));
+			m_time.AutoActionIsReady(deltatime);
+		}
+	}
+
+	void initTexture(IShapeSFML* shape)
+	{
+		shape->setTexture(m_spritecutt->getTexture());
+	}
+
+
+private:
+	SpriteCutter* m_spritecutt;
+	Timer m_time;
+	Counter m_counter;
 };
