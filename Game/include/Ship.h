@@ -91,6 +91,9 @@ public:
 
     bool IsDestroyed();
 
+    std::string getOrientationString() const;
+
+
 private:
     IShapeSFML* m_background;
     IShapeSFML* m_target;

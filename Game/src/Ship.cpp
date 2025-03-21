@@ -25,10 +25,11 @@ Ship::IState* Ship::IdleState::handle(const State& state)
 
 void Ship::IdleState::update(Ship* ship, float deltaTime)
 {
-    if (ship->m_animationComponent->getCurrentAnimation() != "idle")
+    std::string animationName = "idle_" + ship->getOrientationString();
+    if (ship->m_animationComponent->getCurrentAnimation() != animationName)
     {
-        ship->m_animationComponent->playAnimation("idle");
-        ship->m_animationComponent->getAnimations()["idle"].setOrientation(ship->m_currentOrientation);
+        ship->m_animationComponent->playAnimation(animationName);
+        ship->m_animationComponent->getAnimations()[animationName].setOrientation(ship->m_currentOrientation);
     }
 
     if (ship->m_strafe[trust::Left]
@@ -73,10 +74,11 @@ Ship::IState* Ship::MoveState::handle(const State& state)
 
 void Ship::MoveState::update(Ship* ship, float deltaTime)
 {
-    if (ship->m_animationComponent->getCurrentAnimation() != "move")
+    std::string animationName = "move_" + ship->getOrientationString();
+    if (ship->m_animationComponent->getCurrentAnimation() != animationName)
     {
-        ship->m_animationComponent->playAnimation("move");
-        ship->m_animationComponent->getAnimations()["move"].setOrientation(ship->m_currentOrientation);
+        ship->m_animationComponent->playAnimation(animationName);
+        ship->m_animationComponent->getAnimations()[animationName].setOrientation(ship->m_currentOrientation);
     }
 
     if (!ship->m_strafe[trust::Left]
@@ -99,6 +101,7 @@ void Ship::MoveState::update(Ship* ship, float deltaTime)
         ship->ChangeState(State::PISTOL_ATTACK);
     }
 }
+
 
 //=========== HAND ATTACK STATE ===========//
 Ship::IState* Ship::HandAttackState::handle(const State& state)
@@ -294,8 +297,9 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
     m_currentState = new IdleState();
 
     // Démarrer avec l'animation d'idle
-    m_animationComponent->playAnimation("idle");
+    m_animationComponent->playAnimation("idle_down");
 }
+
 
 Ship::~Ship()
 {
@@ -313,27 +317,74 @@ void Ship::setupAnimations()
     if (!TextureManager::getInstance().hasTexture("Hero"))
         TextureManager::getInstance().loadTexture("Hero", "Hero.png");
 
-    // Créer les animations pour chaque état
+    // Créer les animations pour chaque état et chaque direction
     // Animation d'idle - 6 frames
-    Animation idleAnim("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
-    idleAnim.setFrameSize(sf::Vector2i(64, 64));
-    idleAnim.setStartPosition(sf::Vector2i(0, 0), 4);
+    Animation idleAnimDown("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    idleAnimDown.setFrameSize(sf::Vector2i(128, 128));
+    idleAnimDown.setStartPosition(sf::Vector2i(0, 0), 4);
+
+    Animation idleAnimUp("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    idleAnimUp.setFrameSize(sf::Vector2i(32, 32));
+    idleAnimUp.setStartPosition(sf::Vector2i(0, 64), 4);
+
+    Animation idleAnimLeft("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    idleAnimLeft.setFrameSize(sf::Vector2i(32, 32));
+    idleAnimLeft.setStartPosition(sf::Vector2i(0, 192), 4);
+
+    Animation idleAnimRight("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    idleAnimRight.setFrameSize(sf::Vector2i(32, 32));
+    idleAnimRight.setStartPosition(sf::Vector2i(0, 128), 4);
 
     // Animation de mouvement - 5 frames
-    Animation moveAnim("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
-    moveAnim.setFrameSize(sf::Vector2i(64, 64));
-    moveAnim.setStartPosition(sf::Vector2i(6 * 64, 0), 4);
+    Animation moveAnimDown("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    moveAnimDown.setFrameSize(sf::Vector2i(32, 32));
+    moveAnimDown.setStartPosition(sf::Vector2i(64, 0), 4);
+
+    Animation moveAnimUp("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    moveAnimUp.setFrameSize(sf::Vector2i(32, 32));
+    moveAnimUp.setStartPosition(sf::Vector2i(6 * 64, 64), 4);
+
+    Animation moveAnimLeft("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    moveAnimLeft.setFrameSize(sf::Vector2i(32, 32));
+    moveAnimLeft.setStartPosition(sf::Vector2i(6 * 64, 128), 4);
+
+    Animation moveAnimRight("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    moveAnimRight.setFrameSize(sf::Vector2i(32, 32));
+    moveAnimRight.setStartPosition(sf::Vector2i(6 * 64, 192), 4);
 
     // Animation d'attaque - 6 frames
-    Animation attackAnim("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
-    attackAnim.setFrameSize(sf::Vector2i(64, 64));
-    attackAnim.setStartPosition(sf::Vector2i((6 + 5) * 64, 0), 4);
+    Animation attackAnimDown("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    attackAnimDown.setFrameSize(sf::Vector2i(32, 32));
+    attackAnimDown.setStartPosition(sf::Vector2i((6 + 5) * 64, 0), 4);
 
-    // Ajouter les animations au composant
-    m_animationComponent->addAnimation("idle", idleAnim);
-    m_animationComponent->addAnimation("move", moveAnim);
-    m_animationComponent->addAnimation("attack", attackAnim);
+    Animation attackAnimUp("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    attackAnimUp.setFrameSize(sf::Vector2i(32, 32));
+    attackAnimUp.setStartPosition(sf::Vector2i((6 + 5) * 64, 64), 4);
+
+    Animation attackAnimLeft("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    attackAnimLeft.setFrameSize(sf::Vector2i(32, 32));
+    attackAnimLeft.setStartPosition(sf::Vector2i((6 + 5) * 64, 128), 4);
+
+    Animation attackAnimRight("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    attackAnimRight.setFrameSize(sf::Vector2i(32, 32));
+    attackAnimRight.setStartPosition(sf::Vector2i((6 + 5) * 64, 192), 4);
+
+    m_animationComponent->addAnimation("idle_down", idleAnimDown);
+    m_animationComponent->addAnimation("idle_up", idleAnimUp);
+    m_animationComponent->addAnimation("idle_left", idleAnimLeft);
+    m_animationComponent->addAnimation("idle_right", idleAnimRight);
+
+    m_animationComponent->addAnimation("move_down", moveAnimDown);
+    m_animationComponent->addAnimation("move_up", moveAnimUp);
+    m_animationComponent->addAnimation("move_left", moveAnimLeft);
+    m_animationComponent->addAnimation("move_right", moveAnimRight);
+
+    m_animationComponent->addAnimation("attack_down", attackAnimDown);
+    m_animationComponent->addAnimation("attack_up", attackAnimUp);
+    m_animationComponent->addAnimation("attack_left", attackAnimLeft);
+    m_animationComponent->addAnimation("attack_right", attackAnimRight);
 }
+
 
 
 bool Ship::IsDestroyed()
@@ -367,14 +418,11 @@ void Ship::Update(const float& deltatime)
     if (!m_currentState)
         throw std::runtime_error("current state est nullptr!");
 
-    // Appeler la méthode update de l'état courant - CETTE LIGNE MANQUE!
     m_currentState->update(this, deltatime);
 
-    // Appliquer la rotation et la position - CES LIGNES MANQUENT!
     m_shape->setRotation(m_angle);
     m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
 
-    // Mettre à jour la position du sprite d'animation - CETTE LIGNE MANQUE!
     m_animationComponent->updatePosition(m_shape->getPosition());
 
     // Mettre à jour l'orientation basée sur l'angle
@@ -531,5 +579,22 @@ void Ship::checkMeleeCollisions(RectangleSFML* attackHitbox)
                 std::cout << "Melee hit on boss! Damage: " << m_meleeDamage << std::endl;
             }
         }
+    }
+}
+
+std::string Ship::getOrientationString() const
+{
+    switch (m_currentOrientation)
+    {
+    case Orientation::UP:
+        return "up";
+    case Orientation::DOWN:
+        return "down";
+    case Orientation::LEFT:
+        return "left";
+    case Orientation::RIGHT:
+        return "right";
+    default:
+        return "down";
     }
 }

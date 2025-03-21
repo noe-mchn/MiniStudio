@@ -91,6 +91,7 @@ void Animation::setStartPosition(const sf::Vector2i& startPos, int rowCount)
     m_currentRow = 0;
 }
 
+
 bool Animation::isFinished() const
 {
     return m_finished;
