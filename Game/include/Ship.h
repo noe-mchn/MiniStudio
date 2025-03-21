@@ -88,6 +88,8 @@ public:
     void createMeleeHitbox(float angle, float offsetDistance);
     void checkMeleeCollisions(RectangleSFML* attackHitbox);
 
+    bool IsDestroyed();
+
 private:
     IShapeSFML* m_background;
     IShapeSFML* m_target;

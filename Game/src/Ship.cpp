@@ -263,6 +263,11 @@ Ship::~Ship()
     delete m_currentState;
 }
 
+bool Ship::IsDestroyed()
+{
+	return m_life <= 0;
+}
+
 void Ship::ProssesInput(const sf::Event& event)
 {
     m_strafe = { false, false, false, false };

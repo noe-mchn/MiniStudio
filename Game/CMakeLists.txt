@@ -48,6 +48,7 @@ link_directories(${SFML_LIB_DIR})
 target_link_libraries(${PROJECT_NAME}
     PUBLIC
     Game_Engine
+    Scene
     PRIVATE
         sfml-graphics-d
         sfml-window-d
