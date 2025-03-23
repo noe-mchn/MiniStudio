@@ -71,3 +71,21 @@ void Game::Render()
 	}
 	cursor.Render();
 }
+
+void Game::ResetGame()
+{
+	
+}
+
+void Game::SetPaused(bool paused)
+{
+	if (paused)
+	{
+		getWindow()->setMouseCursorVisible(true);
+		paused = m_paused = true;
+	}
+	else
+	{
+		getWindow()->setMouseCursorVisible(false);
+	}
+}

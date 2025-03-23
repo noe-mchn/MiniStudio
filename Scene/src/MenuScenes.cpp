@@ -1,117 +1,129 @@
-//#include "MenuScenes.h"
-//#include "SceneManager.h"
-//#include "Game.h"
-//#include <iostream>
-//#include <sstream>
-//
-////===== IMPLÉMENTATION DU MENU PRINCIPAL =====//
-//
-//MainMenuScene::MainMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager)
-//    : ISceneBase(window, framerate, texture)
-//    , m_sceneManager(sceneManager)
-//{
-//    // Charger la police
-//    if (!m_font.loadFromFile("resources/fonts/arial.ttf")) {
-//        // Utiliser une police par défaut de SFML si le chargement échoue
-//        std::cerr << "Couldn't load font!" << std::endl;
-//    }
-//
-//    // Créer l'arrière-plan avec sf::RectangleShape directement
-//    m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
-//    m_backgroundShape.setPosition(0, 0);
-//    m_backgroundShape.setFillColor(sf::Color(20, 20, 50));
-//
-//    setupTitle();
-//    setupButtons();
-//}
-//
-//MainMenuScene::~MainMenuScene() {
-//    for (auto button : m_buttons) {
-//        delete button;
-//    }
-//    m_buttons.clear();
-//}
-//
-//void MainMenuScene::Update(const float& deltatime) {
-//    // Mise à jour des boutons avec la position de la souris
-//    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
-//    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-//
-//    for (auto button : m_buttons) {
-//        button->update(mousePosF);
-//    }
-//}
-//
-//void MainMenuScene::ProssesInput(const sf::Event& event) {
-//    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
-//    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-//
-//    for (auto button : m_buttons) {
-//        button->handleEvent(event, mousePosF);
-//    }
-//}
-//
-//void MainMenuScene::Render() {
-//    sf::RenderWindow* window = getWindow();
-//
-//    window->draw(m_backgroundShape);
-//    window->draw(m_titleText);
-//
-//    for (auto button : m_buttons) {
-//        button->draw(*window);
-//    }
-//}
-//
-//void MainMenuScene::setupTitle() {
-//    m_titleText.setFont(m_font);
-//    m_titleText.setString("SPACE SHOOTER");
-//    m_titleText.setCharacterSize(72);
-//    m_titleText.setFillColor(sf::Color::White);
-//    m_titleText.setStyle(sf::Text::Bold);
-//
-//    sf::FloatRect titleBounds = m_titleText.getLocalBounds();
-//    m_titleText.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
-//        titleBounds.top + titleBounds.height / 2.0f);
-//    m_titleText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
-//}
-//
-//void MainMenuScene::setupButtons() {
-//    sf::Vector2f buttonSize(300, 60);
-//    float startY = getWindow()->getSize().y / 2.0f;
-//    float spacing = 80.0f;
-//
-//    // Bouton Jouer
-//    Button* playButton = new Button(
-//        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY),
-//        buttonSize,
-//        "JOUER",
-//        m_font,
-//        32
-//    );
-//    playButton->setCallback([this]() {
-//        // Passer à la scène de jeu (index 1)
-//        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-//        if (gameScene) {
-//            gameScene->ResetGame();
-//            getWindow()->setMouseCursorVisible(false);
-//        }
-//        m_sceneManager->SetScene(1);
-//        });
-//    m_buttons.push_back(playButton);
-//
-//    // Bouton Quitter
-//    Button* quitButton = new Button(
-//        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY + spacing),
-//        buttonSize,
-//        "QUITTER",
-//        m_font,
-//        32
-//    );
-//    quitButton->setCallback([this]() {
-//        getWindow()->close();
-//        });
-//    m_buttons.push_back(quitButton);
-//}
+#include "MenuScenes.h"
+#include "SceneManager.h"
+#include "Game.h"
+#include <iostream>
+#include <sstream>
+
+//===== IMPLÉMENTATION DU MENU PRINCIPAL =====//
+
+MainMenuScene::MainMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager)
+    : ISceneBase(window, framerate, texture)
+    , m_sceneManager(sceneManager)
+{
+    if (!m_font.loadFromFile("arial.ttf")) 
+    {
+        std::cerr << "Couldn't load font!" << std::endl;
+    }
+
+    m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
+    m_backgroundShape.setPosition(0, 0);
+    m_backgroundShape.setFillColor(sf::Color(20, 20, 50));
+
+    getWindow()->setMouseCursorVisible(true);
+
+    setupTitle();
+    setupButtons();
+}
+
+MainMenuScene::~MainMenuScene() 
+{
+    for (auto button : m_buttons) 
+    {
+        delete button;
+    }
+    m_buttons.clear();
+}
+
+void MainMenuScene::Update(const float& deltatime) 
+{
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
+    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+    for (auto button : m_buttons) 
+    {
+        button->update(mousePosF);
+    }
+    getWindow()->setMouseCursorVisible(true);
+}
+
+void MainMenuScene::ProcessInput(const sf::Event& event) 
+{
+    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
+    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+    for (auto button : m_buttons) 
+    {
+        button->handleEvent(event, mousePosF);
+    }
+}
+
+void MainMenuScene::Render() 
+{
+    sf::RenderWindow* window = getWindow();
+
+    window->draw(m_backgroundShape);
+    window->draw(m_titleText);
+
+    for (auto button : m_buttons) 
+    {
+        button->draw(*window);
+    }
+}
+
+void MainMenuScene::setupTitle() 
+{
+    m_titleText.setFont(m_font);
+    m_titleText.setString("CYBERPUNK SHOOTER");
+    m_titleText.setCharacterSize(72);
+    m_titleText.setFillColor(sf::Color::White);
+    m_titleText.setStyle(sf::Text::Bold);
+
+    sf::FloatRect titleBounds = m_titleText.getLocalBounds();
+    m_titleText.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
+        titleBounds.top + titleBounds.height / 2.0f);
+    m_titleText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
+}
+
+void MainMenuScene::setupButtons() 
+{
+    sf::Vector2f buttonSize(300, 60);
+    float startY = getWindow()->getSize().y / 2.0f;
+    float spacing = 80.0f;
+
+
+    Button* playButton = new Button(
+        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY),
+        buttonSize,
+        "JOUER",
+        m_font,
+        32
+    );
+    playButton->setCallback([this]() 
+        {
+        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+        if (gameScene) 
+        {
+            gameScene->ResetGame();
+            getWindow()->setMouseCursorVisible(false);
+        }
+        m_sceneManager->SetScene(1);
+        });
+    m_buttons.push_back(playButton);
+
+    // Bouton Quitter
+    Button* quitButton = new Button(
+        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY + spacing),
+        buttonSize,
+        "QUITTER",
+        m_font,
+        32
+    );
+    quitButton->setCallback([this]() 
+        {
+        getWindow()->close();
+        });
+    m_buttons.push_back(quitButton);
+}
 //
 ////===== IMPLÉMENTATION DU MENU PAUSE =====//
 //

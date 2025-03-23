@@ -9,7 +9,8 @@ class SceneManager;
 class Game;
 
 //===== MENU PRINCIPAL =====//
-class MainMenuScene : public ISceneBase {
+class MainMenuScene : public ISceneBase 
+{
 public:
     MainMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~MainMenuScene() override;
@@ -23,7 +24,6 @@ private:
     sf::Text m_titleText;
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
@@ -33,7 +33,8 @@ private:
 };
 
 //===== MENU PAUSE =====//
-class PauseMenuScene : public ISceneBase {
+class PauseMenuScene : public ISceneBase 
+{
 public:
     PauseMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~PauseMenuScene() override;
