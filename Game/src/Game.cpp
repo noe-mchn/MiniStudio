@@ -54,23 +54,16 @@ void Game::Update(const float& deltatime)
 
 void Game::ProcessInput(const sf::Event& event)
 {
-	std::cout << ">> Game ProcessInput" << std::endl;
-	if (event.type == sf::Event::KeyPressed)
+	
+	if (event.type == sf::Event::KeyPressed &&
+		event.key.code == sf::Keyboard::P)
 	{
-		if (event.key.code == sf::Keyboard::P)
-		{
-			std::cout << ">> P pressed in Game" << std::endl;
-
-			if (m_sceneManager == nullptr)
-				std::cout << "m_sceneManager est NULL !" << std::endl;
-			else
-				std::cout << " m_sceneManager OK" << std::endl;
-			m_sceneManager->SetScene(2);
-			SetPaused(true);
-			getWindow()->setMouseCursorVisible(true);
-			return;
-		}
+		m_sceneManager->SetScene(2);
+		SetPaused(true);
+		getWindow()->setMouseCursorVisible(true);
+		return;
 	}
+
 
 	for (auto& obj : getChildren())
 	{

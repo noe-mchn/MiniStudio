@@ -177,7 +177,7 @@ void PauseMenuScene::ProcessInput(const sf::Event& event)
     sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
 
-    if (event.type == sf::Event::KeyPressed) 
+    if (event.type == sf::Event::KeyPressed)
     {
         if (event.key.code == sf::Keyboard::P || event.key.code == sf::Keyboard::Escape) 
         {
