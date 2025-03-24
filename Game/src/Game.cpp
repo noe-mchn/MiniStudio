@@ -3,10 +3,11 @@
 #include "IGameObject.h"
 #include <iostream>
 
-Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture) :
+Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* manager) :
 	ISceneBase(window, framerate, texture),
 	cursor(this),
-	m_bossSpawnTimer(10.0f)
+	m_bossSpawnTimer(10.0f),
+	m_sceneManager(manager)
 
 {
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
@@ -49,11 +50,28 @@ void Game::Update(const float& deltatime)
 	auto vec = getFullTree();
 	collision.HandleCollision(vec);
 
-
 }
 
 void Game::ProcessInput(const sf::Event& event)
 {
+	std::cout << ">> Game ProcessInput" << std::endl;
+	if (event.type == sf::Event::KeyPressed)
+	{
+		if (event.key.code == sf::Keyboard::P)
+		{
+			std::cout << ">> P pressed in Game" << std::endl;
+
+			if (m_sceneManager == nullptr)
+				std::cout << "m_sceneManager est NULL !" << std::endl;
+			else
+				std::cout << " m_sceneManager OK" << std::endl;
+			m_sceneManager->SetScene(2);
+			SetPaused(true);
+			getWindow()->setMouseCursorVisible(true);
+			return;
+		}
+	}
+
 	for (auto& obj : getChildren())
 	{
 		obj->ProcessInput(event);
@@ -88,4 +106,9 @@ void Game::SetPaused(bool paused)
 	{
 		getWindow()->setMouseCursorVisible(false);
 	}
+}
+
+void Game::SetSceneManager(SceneManager* manager)
+{
+	m_sceneManager = manager;
 }

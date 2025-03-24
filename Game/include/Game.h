@@ -2,6 +2,7 @@
 #include "Collision.h"
 #include "SceneBase.h"
 #include "GameObject.h"
+#include "SceneManager.h"
 #include "ISpawner.h"
 
 bool Collision(AABB a, AABB b);
@@ -9,7 +10,7 @@ bool Collision(AABB a, AABB b);
 class Game : public ISceneBase
 {
 public:
-	Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture);
+	Game(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* manager);
 	virtual ~Game()override = default;
 	virtual void Update(const float& deltatime) override;
 	virtual void ProcessInput(const sf::Event& event)override;
@@ -17,7 +18,8 @@ public:
 
 	void ResetGame();
 	void SetPaused(bool paused);
-	void ButtonIsClicked();
+
+	void SetSceneManager(SceneManager* manager);
 
 private:
 	sf::RectangleShape m_Ship;
@@ -27,6 +29,8 @@ private:
 	BossSpawner* m_bossSpawner;
 	Timer m_bossSpawnTimer;
 
+	SceneManager* m_sceneManager;
 	Ship* m_ship;
 	bool m_paused = false;
+
 };

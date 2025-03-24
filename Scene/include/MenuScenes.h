@@ -49,7 +49,6 @@ private:
     sf::RectangleShape m_overlay;
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
