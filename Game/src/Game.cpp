@@ -10,6 +10,11 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	m_sceneManager(manager)
 
 {
+	Init();
+}
+
+void Game::Init()
+{
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
 	m_Background->setTexture(m_texture->getTexture("Map.png"));
 	m_ship = new Ship(this, m_Background);
@@ -32,6 +37,13 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 
 void Game::Update(const float& deltatime)
 {
+
+	if (m_paused)
+	{
+		return;
+	}
+
+
 	for (auto& obj : getChildren())
 	{
 		obj->Update(deltatime);
@@ -54,13 +66,17 @@ void Game::Update(const float& deltatime)
 
 void Game::ProcessInput(const sf::Event& event)
 {
+	if (m_paused)
+	{
+		return;
+	}
 	
 	if (event.type == sf::Event::KeyPressed &&
 		event.key.code == sf::Keyboard::P)
 	{
-		m_sceneManager->SetScene(2);
 		SetPaused(true);
 		getWindow()->setMouseCursorVisible(true);
+		m_sceneManager->SetScene(2);
 		return;
 	}
 
@@ -84,16 +100,19 @@ void Game::Render()
 }
 
 void Game::ResetGame()
-{
-	
+{/*
+	m_score->resetCurrentScore();*/
+	getChildren().clear();
+
+	Init();
 }
 
 void Game::SetPaused(bool paused)
 {
 	if (paused)
 	{
+		paused = m_paused;
 		getWindow()->setMouseCursorVisible(true);
-		paused = m_paused = true;
 	}
 	else
 	{

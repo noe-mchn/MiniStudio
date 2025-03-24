@@ -171,6 +171,22 @@ void PauseMenuScene::Update(const float& deltatime)
     }
 }
 
+void PauseMenuScene::ButtonPressed()
+{
+    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+    if (gameScene)
+    {
+        gameScene->SetPaused(false);
+        getWindow()->setMouseCursorVisible(false);
+    }
+    else
+    {
+        std::cout << "Cast échoué dans ButtonPressed()" << std::endl;
+    }
+
+    m_sceneManager->SetScene(1);
+}
+
 void PauseMenuScene::ProcessInput(const sf::Event& event) 
 {
     sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
@@ -236,17 +252,10 @@ void PauseMenuScene::setupButtons()
         buttonSize,
         "REPRENDRE",
         m_font,
-        32
-    );
-    resumeButton->setCallback([this]() 
-        {
-        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-        if (gameScene) {
-            gameScene->SetPaused(false);
-            getWindow()->setMouseCursorVisible(false);
-        }
-        m_sceneManager->SetScene(1);
-        });
+        32 );
+    
+    resumeButton->setCallback(std::bind(&PauseMenuScene::ButtonPressed, this));
+
     m_buttons.push_back(resumeButton);
 
     Button* restartButton = new Button(

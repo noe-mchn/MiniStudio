@@ -41,6 +41,7 @@ public:
 
     void Update(const float& deltatime) override;
     void ProcessInput(const sf::Event& event) override;
+    void ButtonPressed();
     void Render() override;
 
 private:

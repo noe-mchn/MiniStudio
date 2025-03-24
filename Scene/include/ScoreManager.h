@@ -9,15 +9,18 @@ struct HighScore {
     int score;
 
     HighScore(const std::string& name = "Player", int value = 0)
-        : playerName(name), score(value) {
+        : playerName(name), score(value) 
+    {
     }
 
-    bool operator<(const HighScore& other) const {
+    bool operator<(const HighScore& other) const 
+    {
         return score > other.score;
     }
 };
 
-class ScoreManager {
+class ScoreManager 
+{
 public:
     ScoreManager(const std::string& saveFilePath = "highscores.dat");
     ~ScoreManager();
