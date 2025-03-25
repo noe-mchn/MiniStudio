@@ -80,6 +80,7 @@ void MainMenuScene::Render()
     window->draw(m_HistorySprite);
     window->draw(m_QuitSprite);
 
+
     for (auto button : m_buttons) 
     {
         button->draw(*window);
@@ -102,15 +103,15 @@ void MainMenuScene::setupTitle()
 
 void MainMenuScene::setupButtons()
 {
-    if (!m_PlayTexture.loadFromFile("ressource/jouer.png")) 
+    if (!m_PlayTexture.loadFromFile("ressource/jouer2.png")) 
     {
         std::cerr << "Erreur chargement boutton play" << std::endl;
     }
-    if (!m_HistoryTexture.loadFromFile("ressource/Histoire.png")) 
+    if (!m_HistoryTexture.loadFromFile("ressource/Histoire2.png")) 
     {
         std::cerr << "Erreur chargement boutton histoire" << std::endl;
     }
-    if (!m_QuitTexture.loadFromFile("ressource/quitter_debut.png"))
+    if (!m_QuitTexture.loadFromFile("ressource/quitter_debut2.png"))
     {
         std::cerr << "Erreur chargement boutton quitte" << std::endl;
     }
@@ -120,9 +121,9 @@ void MainMenuScene::setupButtons()
     m_QuitSprite.setTexture(m_QuitTexture);
 
 
-    m_PlaySprite.setPosition(getWindow()->getSize().x /2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 100);
-    m_HistorySprite.setPosition(getWindow()->getSize().x / 2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 300);
-    m_QuitSprite.setPosition(getWindow()->getSize().x / 2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 350);
+    m_PlaySprite.setPosition(getWindow()->getSize().x /2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 300);
+    m_HistorySprite.setPosition(getWindow()->getSize().x / 2 - m_HistorySprite.getGlobalBounds().width / 2.0f, 400);
+    m_QuitSprite.setPosition(getWindow()->getSize().x / 2 - m_QuitSprite.getGlobalBounds().width / 2.0f, 600);
 }
 
 

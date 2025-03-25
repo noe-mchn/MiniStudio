@@ -79,6 +79,15 @@ void Game::ProcessInput(const sf::Event& event)
 		m_sceneManager->SetScene(2);
 		return;
 	}
+
+	if (event.type == sf::Event::KeyPressed &&
+		event.key.code == sf::Keyboard::O)
+	{
+		SetPaused(true);
+		getWindow()->setMouseCursorVisible(true);
+		m_sceneManager->SetScene(3);
+		return;
+	}
 	
 	//if (GetScore() <= 0)
 	//{
