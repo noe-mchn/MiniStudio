@@ -10,10 +10,6 @@ MainMenuScene::MainMenuScene(sf::RenderWindow* window, const float& framerate, T
     : ISceneBase(window, framerate, texture)
     , m_sceneManager(sceneManager)
 {
-    if (!m_font.loadFromFile("arial.ttf")) 
-    {
-        std::cerr << "Couldn't load font!" << std::endl;
-    }
 
     m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
     m_backgroundShape.setPosition(0, 0);
@@ -39,10 +35,27 @@ void MainMenuScene::Update(const float& deltatime)
     sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
     sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 
-    for (auto button : m_buttons) 
+    if (m_PlaySprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        button->update(mousePosF);
+        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+        if (gameScene) 
+        {
+            gameScene->ResetGame();
+            getWindow()->setMouseCursorVisible(false);
+        }
+        m_sceneManager->SetScene(1);
     }
+
+    //else if (m_HistorySprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left)
+    //{
+
+    //}
+
+    else if (m_QuitSprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+    {
+        getWindow()->close();
+    }
+
     getWindow()->setMouseCursorVisible(true);
 }
 
@@ -62,7 +75,10 @@ void MainMenuScene::Render()
     sf::RenderWindow* window = getWindow();
 
     window->draw(m_backgroundShape);
-    window->draw(m_titleText);
+    window->draw(m_titleSprite);
+    window->draw(m_PlaySprite);
+    window->draw(m_HistorySprite);
+    window->draw(m_QuitSprite);
 
     for (auto button : m_buttons) 
     {
@@ -72,58 +88,43 @@ void MainMenuScene::Render()
 
 void MainMenuScene::setupTitle() 
 {
-    m_titleText.setFont(m_font);
-    m_titleText.setString("CYBERPUNK SHOOTER");
-    m_titleText.setCharacterSize(72);
-    m_titleText.setFillColor(sf::Color::White);
-    m_titleText.setStyle(sf::Text::Bold);
+    if (!m_titleTexture.loadFromFile("ressource/Titre.png"))
+    {
+        std::cerr << "Erreur chargement Titre" << std::endl;
+    }
 
-    sf::FloatRect titleBounds = m_titleText.getLocalBounds();
-    m_titleText.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
+    m_titleSprite.setTexture(m_titleTexture);
+    sf::FloatRect titleBounds = m_titleSprite.getLocalBounds();
+    m_titleSprite.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
         titleBounds.top + titleBounds.height / 2.0f);
-    m_titleText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
+    m_titleSprite.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
 }
 
-void MainMenuScene::setupButtons() 
+void MainMenuScene::setupButtons()
 {
-    sf::Vector2f buttonSize(300, 60);
-    float startY = getWindow()->getSize().y / 2.0f;
-    float spacing = 80.0f;
+    if (!m_PlayTexture.loadFromFile("ressource/jouer.png")) 
+    {
+        std::cerr << "Erreur chargement boutton play" << std::endl;
+    }
+    if (!m_HistoryTexture.loadFromFile("ressource/Histoire.png")) 
+    {
+        std::cerr << "Erreur chargement boutton histoire" << std::endl;
+    }
+    if (!m_QuitTexture.loadFromFile("ressource/quitter_debut.png"))
+    {
+        std::cerr << "Erreur chargement boutton quitte" << std::endl;
+    }
+
+    m_PlaySprite.setTexture(m_PlayTexture);
+    m_HistorySprite.setTexture(m_HistoryTexture);
+    m_QuitSprite.setTexture(m_QuitTexture);
 
 
-    Button* playButton = new Button(
-        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY),
-        buttonSize,
-        "JOUER",
-        m_font,
-        32
-    );
-    playButton->setCallback([this]() 
-        {
-        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-        if (gameScene) 
-        {
-            gameScene->ResetGame();
-            getWindow()->setMouseCursorVisible(false);
-        }
-        m_sceneManager->SetScene(1);
-        });
-    m_buttons.push_back(playButton);
-
-    // Bouton Quitter
-    Button* quitButton = new Button(
-        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY + spacing),
-        buttonSize,
-        "QUITTER",
-        m_font,
-        32
-    );
-    quitButton->setCallback([this]() 
-        {
-        getWindow()->close();
-        });
-    m_buttons.push_back(quitButton);
+    m_PlaySprite.setPosition(getWindow()->getSize().x /2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 100);
+    m_HistorySprite.setPosition(getWindow()->getSize().x / 2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 300);
+    m_QuitSprite.setPosition(getWindow()->getSize().x / 2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 350);
 }
+
 
 ////===== IMPLÉMENTATION DU MENU PAUSE =====//
 
