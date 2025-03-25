@@ -72,6 +72,12 @@ MegaBoss::IState* MegaBoss::PatrolState::handle(const State& state)
 
 void MegaBoss::PatrolState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "move_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -121,6 +127,7 @@ void MegaBoss::PatrolState::update(MegaBoss* boss, float deltaTime)
 }
 
 
+
 MegaBoss::IState* MegaBoss::ChaseState::handle(const State& state)
 {
     switch (state)
@@ -150,6 +157,12 @@ float MegaBoss::getCurrentPhaseDistance() const
 
 void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "move_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
     float targetDistance = boss->getCurrentPhaseDistance();
@@ -208,6 +221,7 @@ void MegaBoss::ChaseState::update(MegaBoss* boss, float deltaTime)
 }
 
 
+
 MegaBoss::IState* MegaBoss::LoadState::handle(const State& state)
 {
     switch (state)
@@ -222,6 +236,12 @@ MegaBoss::IState* MegaBoss::LoadState::handle(const State& state)
 
 void MegaBoss::LoadState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "idle_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -245,6 +265,7 @@ void MegaBoss::LoadState::update(MegaBoss* boss, float deltaTime)
 }
 
 
+
 MegaBoss::IState* MegaBoss::FireState::handle(const State& state)
 {
     switch (state)
@@ -259,6 +280,12 @@ MegaBoss::IState* MegaBoss::FireState::handle(const State& state)
 
 void MegaBoss::FireState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "attack_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -341,6 +368,12 @@ MegaBoss::IState* MegaBoss::HandState::handle(const State& state)
 
 void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "attack_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     sf::Vector2f direction = boss->m_target->getPosition() - boss->getShape()->getPosition();
     float distance = std::sqrt(direction.x * direction.x + direction.y * direction.y);
 
@@ -359,12 +392,13 @@ void MegaBoss::HandState::update(MegaBoss* boss, float deltaTime)
         return;
     }
 
-    if (distance > 400.0f)
+    if (distance > 100.f)
     {
         boss->changeState(State::CHASE);
         return;
     }
 }
+
 
 
 MegaBoss::IState* MegaBoss::ProtectState::handle(const State& state)
@@ -381,6 +415,12 @@ MegaBoss::IState* MegaBoss::ProtectState::handle(const State& state)
 
 void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "idle_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     protectionTimer += deltaTime;
 
     boss->regenerateHealth(regenerationRate * deltaTime);
@@ -427,6 +467,7 @@ void MegaBoss::ProtectState::update(MegaBoss* boss, float deltaTime)
 }
 
 
+
 MegaBoss::IState* MegaBoss::DestructState::handle(const State& state)
 {
     switch (state)
@@ -439,6 +480,12 @@ MegaBoss::IState* MegaBoss::DestructState::handle(const State& state)
 
 void MegaBoss::DestructState::update(MegaBoss* boss, float deltaTime)
 {
+    std::string animationName = "attack_" + boss->getOrientationString();
+    if (boss->getAnimationComponent()->getCurrentAnimation() != animationName)
+    {
+        boss->getAnimationComponent()->playAnimation(animationName);
+    }
+
     if (boss->getCurrentLife() <= boss->getMaxLife() * 0.025)
     {
         boss->changeState(State::HELP);
@@ -458,6 +505,7 @@ void MegaBoss::DestructState::update(MegaBoss* boss, float deltaTime)
         boss->m_attackTimer.resetTimer();
     }
 }
+
 
 MegaBoss::IState* MegaBoss::HelpState::handle(const State& state)
 {
@@ -527,10 +575,9 @@ MegaBoss::MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMod
     , m_maxProjectilesBeforeReload(5)
     , m_movementPattern(MovementPattern::Horizontal)
     , m_currentState(new PatrolState())
-    , m_animate({ "BossSprite1.png", "BossSprite2.png", "BossSprite3.png" })
+    , m_animate({ "HeroF.png" })
     , m_animationTimer(0.2f)
 {
-
     m_bossParams = BossParameters::getForPhase(m_currentPhase, m_currentMode);
     m_speed = m_bossParams.speed;
     m_isInvulnerableToCollisions = m_bossParams.invulnerableToCollisions;
@@ -544,16 +591,101 @@ MegaBoss::MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMod
         m_target = defaultTarget;
     }
 
+    // Créer et configurer le composant d'animation
+    m_animationComponent = new AnimationComponent(this);
+    setupAnimations();
+
+    // Configurer l'échelle si nécessaire
+    setScale(5.0f, 5.0f); // Par exemple, pour doubler la taille du sprite
+
+    // Mettre à jour la position initiale
+    m_animationComponent->updatePosition(screenPosition);
+
+    // Démarrer avec l'animation patrol
+    m_animationComponent->playAnimation("patrol");
+
     createWeapons(70.0f);
 
     new Life(this, this, Color::Pink);
-
-    m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 }
+
 
 MegaBoss::~MegaBoss()
 {
     delete m_currentState;
+}
+
+void MegaBoss::setupAnimations()
+{
+    const int FRAME_WIDTH = 64;
+    const int FRAME_HEIGHT = 64;
+
+    const int IDLE_FRAMES = 6;
+    const int MOVE_FRAMES = 5;
+    const int ATTACK_FRAMES = 6;
+
+    Animation idleAnimDown("HeroF.png", IDLE_FRAMES, 100);
+    idleAnimDown.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    idleAnimDown.setStartPosition(sf::Vector2i(0, 0 * FRAME_HEIGHT), 1);
+
+    Animation idleAnimUp("HeroF.png", IDLE_FRAMES, 100);
+    idleAnimUp.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    idleAnimUp.setStartPosition(sf::Vector2i(0, 3 * FRAME_HEIGHT), 1);
+
+    Animation idleAnimLeft("HeroF.png", IDLE_FRAMES, 100);
+    idleAnimLeft.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    idleAnimLeft.setStartPosition(sf::Vector2i(0, 6 * FRAME_HEIGHT), 1);
+
+    Animation idleAnimRight("HeroF.png", IDLE_FRAMES, 100);
+    idleAnimRight.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    idleAnimRight.setStartPosition(sf::Vector2i(0, 9 * FRAME_HEIGHT), 1);
+
+    Animation moveAnimDown("HeroF.png", MOVE_FRAMES, 100);
+    moveAnimDown.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    moveAnimDown.setStartPosition(sf::Vector2i(0, 1 * FRAME_HEIGHT), 1);
+
+    Animation moveAnimUp("HeroF.png", MOVE_FRAMES, 100);
+    moveAnimUp.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    moveAnimUp.setStartPosition(sf::Vector2i(0, 4 * FRAME_HEIGHT), 1);
+
+    Animation moveAnimLeft("HeroF.png", MOVE_FRAMES, 100);
+    moveAnimLeft.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    moveAnimLeft.setStartPosition(sf::Vector2i(0, 7 * FRAME_HEIGHT), 1);
+
+    Animation moveAnimRight("HeroF.png", MOVE_FRAMES, 100);
+    moveAnimRight.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    moveAnimRight.setStartPosition(sf::Vector2i(0, 10 * FRAME_HEIGHT), 1);
+
+    Animation attackAnimDown("HeroF.png", ATTACK_FRAMES, 100, false);
+    attackAnimDown.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    attackAnimDown.setStartPosition(sf::Vector2i(0, 2 * FRAME_HEIGHT), 1);
+
+    Animation attackAnimUp("HeroF.png", ATTACK_FRAMES, 100, false);
+    attackAnimUp.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    attackAnimUp.setStartPosition(sf::Vector2i(0, 5 * FRAME_HEIGHT), 1);
+
+    Animation attackAnimLeft("HeroF.png", ATTACK_FRAMES, 100, false);
+    attackAnimLeft.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    attackAnimLeft.setStartPosition(sf::Vector2i(0, 8 * FRAME_HEIGHT), 1);
+
+    Animation attackAnimRight("HeroF.png", ATTACK_FRAMES, 100, false);
+    attackAnimRight.setFrameSize(sf::Vector2i(FRAME_WIDTH, FRAME_HEIGHT));
+    attackAnimRight.setStartPosition(sf::Vector2i(0, 11 * FRAME_HEIGHT), 1);
+
+    m_animationComponent->addAnimation("idle_down", idleAnimDown);
+    m_animationComponent->addAnimation("idle_up", idleAnimUp);
+    m_animationComponent->addAnimation("idle_left", idleAnimLeft);
+    m_animationComponent->addAnimation("idle_right", idleAnimRight);
+
+    m_animationComponent->addAnimation("move_down", moveAnimDown);
+    m_animationComponent->addAnimation("move_up", moveAnimUp);
+    m_animationComponent->addAnimation("move_left", moveAnimLeft);
+    m_animationComponent->addAnimation("move_right", moveAnimRight);
+
+    m_animationComponent->addAnimation("attack_down", attackAnimDown);
+    m_animationComponent->addAnimation("attack_up", attackAnimUp);
+    m_animationComponent->addAnimation("attack_left", attackAnimLeft);
+    m_animationComponent->addAnimation("attack_right", attackAnimRight);
 }
 
 void MegaBoss::createWeapons(float weaponOffset)
@@ -599,6 +731,7 @@ void MegaBoss::Update(const float& deltaTime)
         findTarget();
     }
 
+    // Gestion de l'absence de cible
     if (!m_target) {
         if (!(dynamic_cast<PatrolState*>(m_currentState))) {
             changeState(State::PATROL);
@@ -611,12 +744,11 @@ void MegaBoss::Update(const float& deltaTime)
         }
         m_attackTimer.NextTIck(deltaTime);
 
-        if (m_animationTimer.AutoActionIsReady(deltaTime)) {
-            m_animate.ChangeToNextPath();
-            m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
-        }
-
-        m_shape->setPosition(worldToScreenPosition(m_worldPosition));
+        // Mettre à jour la position du sprite d'animation
+        sf::Vector2f screenPos = worldToScreenPosition(m_worldPosition);
+        m_shape->setPosition(screenPos);
+        m_animationComponent->updatePosition(screenPos);
+        m_animationComponent->Update(deltaTime);
 
         IComposite::Update(deltaTime);
         return;
@@ -641,11 +773,10 @@ void MegaBoss::Update(const float& deltaTime)
         }
     }
 
-    if (m_animationTimer.AutoActionIsReady(deltaTime))
-    {
-        m_animate.ChangeToNextPath();
-        m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
-    }
+    sf::Vector2f screenPos = worldToScreenPosition(m_worldPosition);
+    m_shape->setPosition(screenPos);
+    m_animationComponent->updatePosition(screenPos);
+    m_animationComponent->Update(deltaTime);
 
     if (m_isTrackingTarget && m_target)
     {
@@ -706,7 +837,7 @@ void MegaBoss::Update(const float& deltaTime)
 
 void MegaBoss::Render()
 {
-    m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
+    m_animationComponent->Render();
     IComposite::Render();
 }
 
@@ -1228,4 +1359,40 @@ void MegaBoss::changeState(const State& newState)
             m_currentState = state;
         }
     }
+}
+
+std::string MegaBoss::getOrientationString() const
+{
+    switch (m_currentOrientation)
+    {
+    case Orientation::UP:
+        return "up";
+    case Orientation::DOWN:
+        return "down";
+    case Orientation::LEFT:
+        return "left";
+    case Orientation::RIGHT:
+        return "right";
+    default:
+        return "down";
+    }
+}
+
+Orientation MegaBoss::determineOrientation(float angle)
+{
+    angle = std::fmod(angle + 360.0f, 360.0f);
+
+    if (angle >= 315.0f || angle < 45.0f)
+        return Orientation::RIGHT;
+    else if (angle >= 45.0f && angle < 135.0f)
+        return Orientation::DOWN;
+    else if (angle >= 135.0f && angle < 225.0f)
+        return Orientation::LEFT;
+    else
+        return Orientation::UP;
+}
+
+void MegaBoss::setScale(float scaleX, float scaleY)
+{
+    m_animationComponent->getSprite().setScale(scaleX, scaleY);
 }

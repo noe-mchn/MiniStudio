@@ -29,7 +29,7 @@ public:
     void setFrameSize(const sf::Vector2i& frameSize);
 
     void setStartPosition(const sf::Vector2i& startPos, int rowCount = 1);
-
+    sf::Vector2i getFrameSize() const { return m_frameSize; }
     void setOrientation(Orientation orientation);
 
     bool isFinished() const;

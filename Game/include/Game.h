@@ -19,7 +19,7 @@ private:
 	sf::RectangleShape m_Ship;
 	Cursor cursor;
 	Colision collision;
-	AsteroidSpawner* m_spawner;
+	//AsteroidSpawner* m_spawner;
 	BossSpawner* m_bossSpawner;
 	Timer m_bossSpawnTimer;
 

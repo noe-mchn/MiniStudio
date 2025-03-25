@@ -2,6 +2,7 @@
 #include "IGameObject.h"
 #include "GameObject.h"
 #include "BossBullet.h"
+#include "Animation.h"
 
 namespace BossAI
 {
@@ -148,7 +149,7 @@ protected:
     };
 
 public:
-    MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMode mode = BossMode::Combined, float maxHealth = 10000.0f);
+    MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMode mode, float maxHealth);
     virtual ~MegaBoss();
 
     void ProcessInput(const sf::Event& event) override {};
@@ -187,6 +188,8 @@ public:
     BossPhase getCurrentPhase() const { return m_currentPhase; }
 
     void changeState(const State& newState);
+
+    std::string getOrientationString() const;
 
 protected:
     void findTarget();
@@ -247,4 +250,13 @@ protected:
     const float PHASE_THREE_DISTANCE = 500.0f;
     const float PHASE_FOUR_DISTANCE = 350.0f;
     const float PHASE_FIVE_DISTANCE = 200.0f;
+    void setScale(float scaleX, float scaleY);
+    AnimationComponent* m_animationComponent;
+
+private:
+    AnimationComponent* getAnimationComponent() { return m_animationComponent; }
+    void setupAnimations();
+
+    Orientation determineOrientation(float angle);
+	Orientation m_currentOrientation;
 };

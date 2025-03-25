@@ -87,9 +87,10 @@ void Animation::setFrameSize(const sf::Vector2i& frameSize)
 void Animation::setStartPosition(const sf::Vector2i& startPos, int rowCount)
 {
     m_startPosition = startPos;
-    m_rowCount = rowCount;
+    m_rowCount = 1;
     m_currentRow = 0;
 }
+
 
 
 bool Animation::isFinished() const
@@ -104,18 +105,17 @@ int Animation::getCurrentFrame() const
 
 void Animation::setOrientation(Orientation orientation)
 {
-    m_currentRow = static_cast<int>(orientation);
 }
+
 
 sf::IntRect Animation::getCurrentFrameRect() const
 {
     int x = m_startPosition.x + (m_currentFrame * m_frameSize.x);
-    int y = m_startPosition.y + (m_currentRow * m_frameSize.y);
+    int y = m_startPosition.y;
 
     return { x, y, m_frameSize.x, m_frameSize.y };
 }
 
-// Adaptation du AnimationComponent à votre système de composants
 AnimationComponent::AnimationComponent(IComposite* parent)
     : ILeaf(parent)
     , m_currentAnimation("")
@@ -154,11 +154,13 @@ void AnimationComponent::addAnimation(const std::string& name, const Animation& 
     m_animations[name] = animation;
 }
 
-// Modifiez la méthode playAnimation pour utiliser TextureCache au lieu de TextureManager
 void AnimationComponent::playAnimation(const std::string& name)
 {
     if (m_animations.find(name) == m_animations.end())
+    {
+        std::cerr << "Animation not found: " << name << std::endl;
         return;
+    }
 
     if (m_currentAnimation == name && m_playing)
         return;
@@ -169,18 +171,22 @@ void AnimationComponent::playAnimation(const std::string& name)
     m_currentAnimation = name;
     m_animations[name].reset();
 
-    // Utiliser TextureCache directement
-    sf::Texture& texture = getRoot()->getScene()->getTexture()->getTexture(m_animations[name].m_textureName);
-    m_sprite.setTexture(texture);
-    m_sprite.setTextureRect(m_animations[name].getCurrentFrameRect());
+    try {
+        sf::Texture& texture = getRoot()->getScene()->getTexture()->getTexture(m_animations[name].m_textureName);
+        m_sprite.setTexture(texture);
+        m_sprite.setTextureRect(m_animations[name].getCurrentFrameRect());
 
-    m_sprite.setPosition(currentPosition);
-    m_sprite.setScale(currentScale);
+        sf::Vector2i frameSize = m_animations[name].getFrameSize();
+        m_sprite.setOrigin(frameSize.x / 2.0f, frameSize.y / 2.0f);
 
-    sf::FloatRect bounds = m_sprite.getLocalBounds();
-    m_sprite.setOrigin(bounds.width / 2.0f, bounds.height / 2.0f);
+        m_sprite.setPosition(currentPosition);
+        m_sprite.setScale(currentScale);
 
-    m_playing = true;
+        m_playing = true;
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error in playAnimation: " << e.what() << std::endl;
+    }
 }
 
 void AnimationComponent::stopAnimation()
@@ -245,7 +251,4 @@ void AnimatedGameObject::ProcessInput(const sf::Event& event)
 void AnimatedGameObject::Render()
 {
     m_animationComponent->Render();
-
-    // Si vous avez besoin de rendre autre chose spécifique à l'objet
-    // Vous pouvez le faire ici
 }
