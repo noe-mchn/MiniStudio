@@ -80,23 +80,14 @@ void Game::ProcessInput(const sf::Event& event)
 		return;
 	}
 
-	if (event.type == sf::Event::KeyPressed &&
-		event.key.code == sf::Keyboard::O)
+	
+	if (m_ship->getCurrentLife() <= 0 && !m_gameovered)
 	{
-		SetPaused(true);
-		getWindow()->setMouseCursorVisible(true);
+		m_gameovered = true;
 		m_sceneManager->SetScene(3);
+		getWindow()->setMouseCursorVisible(true);
 		return;
 	}
-	
-	//if (GetScore() <= 0)
-	//{
-	//	SetPaused(true);
-	//	getWindow()->setMouseCursorVisible(true);
-	//	m_sceneManager->SetScene(3);
-	//	return;
-	//}
-
 
 	for (auto& obj : getChildren())
 	{
@@ -115,6 +106,7 @@ void Game::Render()
 	}
 	cursor.Render();
 }
+
 
 void Game::ResetGame()
 {/*

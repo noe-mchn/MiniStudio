@@ -48,6 +48,8 @@ private:
 	SceneManager* m_sceneManager;
 	Ship* m_ship;
 	bool m_paused = false;
+	bool m_gameovered = false;
+
 	std::vector<IGameObject*> m_children;
 
 };
