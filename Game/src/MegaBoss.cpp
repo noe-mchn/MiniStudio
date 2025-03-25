@@ -904,21 +904,24 @@ float MegaBoss::calculateAngleToTarget() const
 {
     if (!m_target) return m_movementAngle;
 
-    try {
+    try 
+    {
         sf::Vector2f targetPos = m_target->getPosition();
         sf::Vector2f myPos = m_shape->getPosition();
 
         if (std::isnan(targetPos.x) || std::isnan(targetPos.y) ||
             std::isinf(targetPos.x) || std::isinf(targetPos.y) ||
             std::isnan(myPos.x) || std::isnan(myPos.y) ||
-            std::isinf(myPos.x) || std::isinf(myPos.y)) {
+            std::isinf(myPos.x) || std::isinf(myPos.y)) 
+        {
             return m_movementAngle;
         }
 
         sf::Vector2f direction = targetPos - myPos;
         return std::atan2(direction.y, direction.x) * 180.0f / 3.14159f;
     }
-    catch (...) {
+    catch (...) 
+    {
         return m_movementAngle;
     }
 }

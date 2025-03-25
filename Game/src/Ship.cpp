@@ -298,6 +298,8 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
 
 
     m_animationComponent->playAnimation("idle_down");
+
+
 }
 
 

@@ -22,6 +22,11 @@ public:
 
     ISceneBase* getScene(const int& idx) { return m_scene[idx]; }
 
+
+
+    void SetSelectedCharacter(const std::string& name) { m_selectedCharacter = name; }
+    std::string GetSelectedCharacter() const { return m_selectedCharacter; }
+
     sf::RenderWindow* getWindow();
 
     TextureCache* geTextureCash();
@@ -32,4 +37,5 @@ private:
     ISceneBase* m_currentScene;
     sf::Event m_event;
     TextureCache* m_texture;
+    std::string m_selectedCharacter;
 };

@@ -2,6 +2,7 @@
 #include "IGameObject.h"
 #include "MegaBoss.h"
 #include "Animation.h"
+#include "MenuScenes.h"
 
 class Ship : public DestructibleObject, public IComposite
 {
@@ -94,6 +95,7 @@ public:
     std::string getOrientationString() const;
 
 
+
 private:
     IShapeSFML* m_background;
     IShapeSFML* m_target;
@@ -120,4 +122,7 @@ private:
     void setupAnimations();
     Orientation determineOrientation(float angle);
     Orientation m_currentOrientation;
+
+    SceneManager* m_sceneManager;
+
 };
