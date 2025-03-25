@@ -91,6 +91,19 @@ private:
     sf::Text m_scoreText;
     std::vector<Button*> m_buttons;
 
+private:
+    sf::Texture m_titleTexture;
+    sf::Sprite m_titleSprite;
+
+    sf::Texture m_tryagainTexture;
+    sf::Sprite m_tryagainSprite;
+
+    sf::Texture m_flowerTexture;
+    sf::Sprite m_flowerSprite;
+
+    sf::Texture m_quitGameTexture;
+    sf::Sprite m_quitGameSprite;
+
 
     sf::RectangleShape m_backgroundShape;
 

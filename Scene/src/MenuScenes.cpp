@@ -300,24 +300,22 @@ GameOverScene::GameOverScene(sf::RenderWindow* window, const float& framerate, T
     , m_playerName("Player")
 {
     // Charger la police
-    if (!m_font.loadFromFile("C:\\Code\\MiniStudio\\Re\\font\\BRLNSB")) 
-    {
-        std::cerr << "Couldn't load font!" << std::endl;
-    }
+    
 
     m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
     m_backgroundShape.setPosition(0, 0);
-    m_backgroundShape.setFillColor(sf::Color(50, 0, 0, 220));
+    m_backgroundShape.setFillColor(sf::Color(0, 0, 0, 0));
 
     setupTitle();
 
-    m_scoreText.setFont(m_font);
-    m_scoreText.setCharacterSize(48);
-    m_scoreText.setFillColor(sf::Color::White);
-    sf::FloatRect scoreBounds = m_scoreText.getLocalBounds();
-    m_scoreText.setOrigin(scoreBounds.left + scoreBounds.width / 2.0f,
-        scoreBounds.top + scoreBounds.height / 2.0f);
-    m_scoreText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 3.0f);
+   
+    //m_scoreText.setFont(m_font);
+    //m_scoreText.setCharacterSize(48);
+    //m_scoreText.setFillColor(sf::Color::White);
+    //sf::FloatRect scoreBounds = m_scoreText.getLocalBounds();
+    //m_scoreText.setOrigin(scoreBounds.left + scoreBounds.width / 2.0f,
+    //    scoreBounds.top + scoreBounds.height / 2.0f);
+    //m_scoreText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 3.0f);
 
     /*m_namePromptText.setFont(m_font);
     m_namePromptText.setString("Nouveau record ! Entrez votre nom :");
@@ -355,16 +353,32 @@ GameOverScene::~GameOverScene()
 
 void GameOverScene::Update(const float& deltatime) 
 {
-    if (!m_nameInputActive) 
-    {
+   /* if (!m_nameInputActive) 
+    {*/
         sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
         sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
+
+        if (m_tryagainSprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+            if (gameScene)
+            {
+                gameScene->ResetGame();
+                getWindow()->setMouseCursorVisible(false);
+            }
+            m_sceneManager->SetScene(1);
+        }
+        else if (m_quitGameSprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
+        {
+            getWindow()->close();
+        }
+
 
         for (auto button : m_buttons) 
         {
             button->update(mousePosF);
         }
-    }
+    //}
 
     //static float blinkTimer = 0;
     static bool showCursor = true;
@@ -432,9 +446,20 @@ void GameOverScene::Render()
 {
     sf::RenderWindow* window = getWindow();
 
+    /*sf::RectangleShape debugRect;
+    debugRect.setSize(sf::Vector2f(m_quitGameSprite.getGlobalBounds().width, m_quitGameSprite.getGlobalBounds().height));
+    debugRect.setPosition(m_quitGameSprite.getGlobalBounds().left, m_quitGameSprite.getGlobalBounds().top);
+    debugRect.setOutlineColor(sf::Color::Red);
+    debugRect.setOutlineThickness(2);
+    debugRect.setFillColor(sf::Color::Transparent);
+    window->draw(debugRect);*/
+
+
     window->draw(m_backgroundShape);
-    window->draw(m_titleText);
-    window->draw(m_scoreText);
+    window->draw(m_titleSprite);
+    window->draw(m_flowerSprite);
+    window->draw(m_tryagainSprite);
+    window->draw(m_quitGameSprite);
 
     /*if (m_nameInputActive) 
     {
@@ -452,61 +477,41 @@ void GameOverScene::Render()
 
 void GameOverScene::setupTitle() 
 {
-    m_titleText.setFont(m_font);
-    m_titleText.setString("GAME OVER");
-    m_titleText.setCharacterSize(72);
-    m_titleText.setFillColor(sf::Color::White);
-    m_titleText.setStyle(sf::Text::Bold);
+    if (!m_titleTexture.loadFromFile("ressource/Vous_etes_mort.png"))
+    {
+        std::cerr << "Erreur chargement Titre" << std::endl;
+    }
 
-    sf::FloatRect titleBounds = m_titleText.getLocalBounds();
-    m_titleText.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
+    m_titleSprite.setTexture(m_titleTexture);
+    sf::FloatRect titleBounds = m_titleSprite.getLocalBounds();
+    m_titleSprite.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
         titleBounds.top + titleBounds.height / 2.0f);
-    m_titleText.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 6.0f);
+    m_titleSprite.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
 }
 
 void GameOverScene::setupButtons() 
 {
-    sf::Vector2f buttonSize(300, 60);
-    float startY = getWindow()->getSize().y * 0.6f;
-    float spacing = 80.0f;
+    if (!m_flowerTexture.loadFromFile("ressource/Fleur.png"))
+    {
+        std::cerr << "Erreur chargement boutton fleur" << std::endl;
+    }
+    if (!m_tryagainTexture.loadFromFile("ressource/rejouer.png"))
+    {
+        std::cerr << "Erreur chargement boutton histoire" << std::endl;
+    }
+    if (!m_quitGameTexture.loadFromFile("ressource/quitter.png"))
+    {
+        std::cerr << "Erreur chargement boutton quitte" << std::endl;
+    }
+
+    m_flowerSprite.setTexture(m_flowerTexture);
+    m_tryagainSprite.setTexture(m_tryagainTexture);
+    m_quitGameSprite.setTexture(m_quitGameTexture);
 
 
-    Button* playAgainButton = new Button(
-        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY),
-        buttonSize,
-        "REJOUER",
-        m_font,
-        32
-    );
-    playAgainButton->setCallback([this]() 
-        {
-
-        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-
-        if (gameScene) 
-        {
-            gameScene->ResetGame();
-            getWindow()->setMouseCursorVisible(false);
-        }
-
-        m_sceneManager->SetScene(1);
-        });
-    m_buttons.push_back(playAgainButton);
-
-
-    Button* mainMenuButton = new Button(
-        sf::Vector2f((getWindow()->getSize().x - buttonSize.x) / 2.0f, startY + spacing),
-        buttonSize,
-        "MENU PRINCIPAL",
-        m_font,
-        32
-    );
-    mainMenuButton->setCallback([this]() 
-        {
-        getWindow()->setMouseCursorVisible(true);
-        m_sceneManager->SetScene(0);
-        });
-    m_buttons.push_back(mainMenuButton);
+    m_flowerSprite.setPosition(getWindow()->getSize().x / 2 - m_flowerSprite.getGlobalBounds().width / 2.0f, 100);
+    m_tryagainSprite.setPosition(getWindow()->getSize().x / 2 - m_tryagainSprite.getGlobalBounds().width / 2.0f, 500);
+    m_quitGameSprite.setPosition(getWindow()->getSize().x / 2 - m_quitGameSprite.getGlobalBounds().width / 2.0f, 600);
 }
 //
 //void GameOverScene::updateScoreDisplay() 
