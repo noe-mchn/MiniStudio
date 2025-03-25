@@ -244,7 +244,7 @@ Ship::IState* Ship::ReloadState::handle(const State& state)
 
 void Ship::ReloadState::update(Ship* ship, float deltaTime)
 {
-    // Jouer l'animation de rechargement
+
     if (ship->m_animationComponent->getCurrentAnimation() != "reload")
         ship->m_animationComponent->playAnimation("reload");
 
@@ -280,14 +280,14 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
     m_shape = new SquareSFML(150, scene->getRoot()->getScene());
     m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 
-    // Créer et configurer le composant d'animation
+
     m_animationComponent = new AnimationComponent(this);
     setupAnimations();
 
-    // Mettre à jour la position initiale du composant d'animation
+
     m_animationComponent->updatePosition(m_shape->getPosition());
 
-    // Configurer le reste du vaisseau
+
     new Life(this, this, Color::Blue);
     m_turret = new FixTurret(this, m_shape, sf::Vector2f(35, -25), 0.75);
     m_turret->SetFireRate(0.2f);
@@ -296,7 +296,7 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
 
     m_currentState = new IdleState();
 
-    // Démarrer avec l'animation d'idle
+
     m_animationComponent->playAnimation("idle_down");
 }
 
@@ -305,12 +305,11 @@ Ship::~Ship()
 {
     delete m_physics;
     delete m_currentState;
-    // Le composant d'animation sera détruit avec le ship grâce à la hiérarchie de composants
 }
 
 void Ship::setupAnimations()
 {
-    // S'assurer que le TextureManager a été initialisé et a chargé les textures
+
     TextureManager::getInstance().initialize();
 
     // Vérifier si les textures sont chargées, sinon les charger

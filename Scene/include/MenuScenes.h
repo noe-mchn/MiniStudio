@@ -59,7 +59,8 @@ private:
 };
 
 //===== GAME OVER =====//
-class GameOverScene : public ISceneBase {
+class GameOverScene : public ISceneBase 
+{
 public:
     GameOverScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~GameOverScene() override;
@@ -74,12 +75,12 @@ private:
     sf::Text m_scoreText;
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
+
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
 
-    // Pour saisir le nom du joueur si high score
+
     bool m_nameInputActive;
     sf::Text m_namePromptText;
     sf::Text m_nameInputText;

@@ -79,6 +79,14 @@ void Game::ProcessInput(const sf::Event& event)
 		m_sceneManager->SetScene(2);
 		return;
 	}
+	
+	if (GetScore() <= 0)
+	{
+		SetPaused(true);
+		getWindow()->setMouseCursorVisible(true);
+		m_sceneManager->SetScene(3);
+		return;
+	}
 
 
 	for (auto& obj : getChildren())

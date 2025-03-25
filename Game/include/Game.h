@@ -21,6 +21,8 @@ public:
 	void SetPaused(bool paused);
 
 	void SetSceneManager(SceneManager* manager);
+	int GetScore() { return m_score->getCurrentScore(); }
+	ScoreManager* GetScoreManager() { return m_score; }
 
 private:
 	void Game::addChild(IGameObject* obj)

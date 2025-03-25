@@ -4,7 +4,8 @@
 #include <fstream>
 #include <algorithm>
 
-struct HighScore {
+struct HighScore 
+{
     std::string playerName;
     int score;
 
