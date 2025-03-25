@@ -17,7 +17,7 @@ MainMenuScene::MainMenuScene(sf::RenderWindow* window, const float& framerate, T
 
     m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
     m_backgroundShape.setPosition(0, 0);
-    m_backgroundShape.setFillColor(sf::Color(20, 20, 50));
+    m_backgroundShape.setFillColor(sf::Color(43, 33, 50));
 
     getWindow()->setMouseCursorVisible(true);
 
@@ -337,7 +337,7 @@ GameOverScene::GameOverScene(sf::RenderWindow* window, const float& framerate, T
 
     setupButtons();
 
-    updateScoreDisplay();
+    //updateScoreDisplay();
 
     window->setMouseCursorVisible(true);
 }
@@ -506,58 +506,58 @@ void GameOverScene::setupButtons()
         });
     m_buttons.push_back(mainMenuButton);
 }
-
-void GameOverScene::updateScoreDisplay() 
-{
-    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-    if (gameScene) 
-    {
-        std::stringstream ss;
-        ss << "Score final: " << gameScene->GetScore();
-        m_scoreText.setString(ss.str());
-
-        sf::FloatRect scoreBounds = m_scoreText.getLocalBounds();
-        m_scoreText.setOrigin(scoreBounds.left + scoreBounds.width / 2.0f,
-            scoreBounds.top + scoreBounds.height / 2.0f);
-
-        checkHighScore();
-    }
-
-    else
-    {
-        std::cout << "Cast Echoue dans ButtonPressed()" << std::endl;
-    }
-}
-
-void GameOverScene::checkHighScore() 
-{
-    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-    if (gameScene) 
-    {
-        ScoreManager* scoreManager = gameScene->GetScoreManager();
-        int currentScore = scoreManager->getCurrentScore();
-
-        if (scoreManager->isHighScore(currentScore)) 
-        {
-            m_nameInputActive = true;
-        }
-        else 
-        {
-            m_nameInputActive = false;
-        }
-    }
-}
-
-void GameOverScene::submitHighScore() 
-{
-    if (m_playerName.empty()) 
-    {
-        m_playerName = "Player";
-    }
-
-    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-    if (gameScene) {
-        ScoreManager* scoreManager = gameScene->GetScoreManager();
-        scoreManager->addHighScore(m_playerName);
-    }
-}
+//
+//void GameOverScene::updateScoreDisplay() 
+//{
+//    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+//    if (gameScene) 
+//    {
+//        std::stringstream ss;
+//        ss << "Score final: " << gameScene->GetScore();
+//        m_scoreText.setString(ss.str());
+//
+//        sf::FloatRect scoreBounds = m_scoreText.getLocalBounds();
+//        m_scoreText.setOrigin(scoreBounds.left + scoreBounds.width / 2.0f,
+//            scoreBounds.top + scoreBounds.height / 2.0f);
+//
+//        checkHighScore();
+//    }
+//
+//    else
+//    {
+//        std::cout << "Cast Echoue dans ButtonPressed()" << std::endl;
+//    }
+//}
+//
+//void GameOverScene::checkHighScore() 
+//{
+//    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+//    if (gameScene) 
+//    {
+//        ScoreManager* scoreManager = gameScene->GetScoreManager();
+//        int currentScore = scoreManager->getCurrentScore();
+//
+//        if (scoreManager->isHighScore(currentScore)) 
+//        {
+//            m_nameInputActive = true;
+//        }
+//        else 
+//        {
+//            m_nameInputActive = false;
+//        }
+//    }
+//}
+//
+//void GameOverScene::submitHighScore() 
+//{
+//    if (m_playerName.empty()) 
+//    {
+//        m_playerName = "Player";
+//    }
+//
+//    Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
+//    if (gameScene) {
+//        ScoreManager* scoreManager = gameScene->GetScoreManager();
+//        scoreManager->addHighScore(m_playerName);
+//    }
+//}

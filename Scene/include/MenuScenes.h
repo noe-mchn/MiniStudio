@@ -88,7 +88,7 @@ private:
 
     void setupTitle();
     void setupButtons();
-    void updateScoreDisplay();
+    //void updateScoreDisplay();
     void checkHighScore();
     void submitHighScore();
 };
