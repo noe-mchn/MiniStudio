@@ -52,5 +52,4 @@ private:
 
 	std::vector<IGameObject*> m_children;
 
-
 };

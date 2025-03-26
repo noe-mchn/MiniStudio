@@ -318,55 +318,77 @@ void Ship::setupAnimations()
     if (!TextureManager::getInstance().hasTexture("Hero"))
         TextureManager::getInstance().loadTexture("Hero", "Hero.png");
 
+    if (!TextureManager::getInstance().hasTexture("HeroF"))
+        TextureManager::getInstance().loadTexture("HeroF", "HeroF.png");
+
+
+    if (character == "fille")
+    {
+        m_texturePath = "HeroF.png";
+    }
+    else
+    {
+        m_texturePath = "Hero.png";
+    }
+
     // Créer les animations pour chaque état et chaque direction
     // Animation d'idle - 6 frames
-    Animation idleAnimDown("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    if (character == "fille")
+    {
+        m_texturePath = "HeroF.png";
+    }
+    else
+    {
+        m_texturePath = "Hero.png";
+    }
+
+    Animation idleAnimDown(m_texturePath, 6, 0.2f); // Utiliser le nom de fichier complet
     idleAnimDown.setFrameSize(sf::Vector2i(128, 128));
     idleAnimDown.setStartPosition(sf::Vector2i(0, 0), 4);
 
-    Animation idleAnimUp("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    Animation idleAnimUp(m_texturePath, 6, 0.2f); // Utiliser le nom de fichier complet
     idleAnimUp.setFrameSize(sf::Vector2i(32, 32));
     idleAnimUp.setStartPosition(sf::Vector2i(0, 64), 4);
 
-    Animation idleAnimLeft("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    Animation idleAnimLeft(m_texturePath, 6, 0.2f); // Utiliser le nom de fichier complet
     idleAnimLeft.setFrameSize(sf::Vector2i(32, 32));
     idleAnimLeft.setStartPosition(sf::Vector2i(0, 192), 4);
 
-    Animation idleAnimRight("Hero.png", 6, 0.2f); // Utiliser le nom de fichier complet
+    Animation idleAnimRight(m_texturePath, 6, 0.2f); // Utiliser le nom de fichier complet
     idleAnimRight.setFrameSize(sf::Vector2i(32, 32));
     idleAnimRight.setStartPosition(sf::Vector2i(0, 128), 4);
 
     // Animation de mouvement - 5 frames
-    Animation moveAnimDown("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    Animation moveAnimDown(m_texturePath, 5, 0.1f); // Utiliser le nom de fichier complet
     moveAnimDown.setFrameSize(sf::Vector2i(32, 32));
     moveAnimDown.setStartPosition(sf::Vector2i(64, 0), 4);
 
-    Animation moveAnimUp("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    Animation moveAnimUp(m_texturePath, 5, 0.1f); // Utiliser le nom de fichier complet
     moveAnimUp.setFrameSize(sf::Vector2i(32, 32));
     moveAnimUp.setStartPosition(sf::Vector2i(6 * 64, 64), 4);
 
-    Animation moveAnimLeft("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    Animation moveAnimLeft(m_texturePath, 5, 0.1f); // Utiliser le nom de fichier complet
     moveAnimLeft.setFrameSize(sf::Vector2i(32, 32));
     moveAnimLeft.setStartPosition(sf::Vector2i(6 * 64, 128), 4);
 
-    Animation moveAnimRight("Hero.png", 5, 0.1f); // Utiliser le nom de fichier complet
+    Animation moveAnimRight(m_texturePath, 5, 0.1f); // Utiliser le nom de fichier complet
     moveAnimRight.setFrameSize(sf::Vector2i(32, 32));
     moveAnimRight.setStartPosition(sf::Vector2i(6 * 64, 192), 4);
 
     // Animation d'attaque - 6 frames
-    Animation attackAnimDown("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    Animation attackAnimDown(m_texturePath, 6, 0.05f, false); // Utiliser le nom de fichier complet
     attackAnimDown.setFrameSize(sf::Vector2i(32, 32));
     attackAnimDown.setStartPosition(sf::Vector2i((6 + 5) * 64, 0), 4);
 
-    Animation attackAnimUp("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    Animation attackAnimUp(m_texturePath, 6, 0.05f, false); // Utiliser le nom de fichier complet
     attackAnimUp.setFrameSize(sf::Vector2i(32, 32));
     attackAnimUp.setStartPosition(sf::Vector2i((6 + 5) * 64, 64), 4);
 
-    Animation attackAnimLeft("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    Animation attackAnimLeft(m_texturePath, 6, 0.05f, false); // Utiliser le nom de fichier complet
     attackAnimLeft.setFrameSize(sf::Vector2i(32, 32));
     attackAnimLeft.setStartPosition(sf::Vector2i((6 + 5) * 64, 128), 4);
 
-    Animation attackAnimRight("Hero.png", 6, 0.05f, false); // Utiliser le nom de fichier complet
+    Animation attackAnimRight(m_texturePath, 6, 0.05f, false); // Utiliser le nom de fichier complet
     attackAnimRight.setFrameSize(sf::Vector2i(32, 32));
     attackAnimRight.setStartPosition(sf::Vector2i((6 + 5) * 64, 192), 4);
 

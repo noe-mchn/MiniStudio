@@ -3,6 +3,7 @@
 #include "MegaBoss.h"
 #include "Animation.h"
 #include "MenuScenes.h"
+#include "SceneManager.h"
 
 class Ship : public DestructibleObject, public IComposite
 {
@@ -94,7 +95,7 @@ public:
 
     std::string getOrientationString() const;
 
-
+    std::string m_texturePath;
 
 private:
     IShapeSFML* m_background;
@@ -124,5 +125,6 @@ private:
     Orientation m_currentOrientation;
 
     SceneManager* m_sceneManager;
-
+    std::string character = m_sceneManager->GetSelectedCharacter();
+ 
 };

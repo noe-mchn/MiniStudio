@@ -35,14 +35,6 @@ void Game::Init()
 	getWindow()->setMouseCursorVisible(false);
 
 
-	if (character == "fille") 
-	{
-		m_player.loadTexture("ressource/fille.png");
-	}
-	else {
-		m_player.loadTexture("ressource/garcon.png");
-	}
-
 }
 
 void Game::Update(const float& deltatime)
