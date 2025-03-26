@@ -161,8 +161,8 @@ void CustomScene::Update(const float& deltatime)
         Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
         if (gameScene)
         {
-            gameScene->ResetGame();
             m_sceneManager->SetSelectedCharacter("fille");
+            gameScene->ResetGame();
             getWindow()->setMouseCursorVisible(false);
         }
         m_sceneManager->SetScene(1);
@@ -174,8 +174,8 @@ void CustomScene::Update(const float& deltatime)
         Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
         if (gameScene)
         {
-            gameScene->ResetGame();
             m_sceneManager->SetSelectedCharacter("garcon");
+            gameScene->ResetGame();
             getWindow()->setMouseCursorVisible(false);
         }
         m_sceneManager->SetScene(1);

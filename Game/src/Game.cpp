@@ -10,7 +10,7 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	m_sceneManager(manager)
 
 {
-	Init();
+
 }
 
 void Game::Init()

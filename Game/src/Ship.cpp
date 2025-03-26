@@ -321,18 +321,6 @@ void Ship::setupAnimations()
     if (!TextureManager::getInstance().hasTexture("HeroF"))
         TextureManager::getInstance().loadTexture("HeroF", "HeroF.png");
 
-
-    if (character == "fille")
-    {
-        m_texturePath = "HeroF.png";
-    }
-    else
-    {
-        m_texturePath = "Hero.png";
-    }
-
-    // Créer les animations pour chaque état et chaque direction
-    // Animation d'idle - 6 frames
     if (character == "fille")
     {
         m_texturePath = "HeroF.png";
