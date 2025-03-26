@@ -1,5 +1,5 @@
 #include "Game.h"
-#include "Ship.h"
+#include "Hero.h"
 #include "IGameObject.h"
 #include <iostream>
 
@@ -11,8 +11,8 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 {
 	m_Background = new SquareSFML(10000, sf::Vector2f(0, 0));
 	m_Background->setTexture(m_texture->getTexture("Map.png"));
-	m_ship = new Ship(this, m_Background);
-	new BorderShip(m_ship, m_Background, static_cast<Ship*>(m_ship));
+	m_hero = new Hero(this, m_Background);
+	new BorderShip(m_hero, m_Background, static_cast<Hero*>(m_hero));
 	new GameBorder(this, m_Background, Position::Down, 5);
 	new GameBorder(this, m_Background, Position::Up, 5);
 	new GameBorder(this, m_Background, Position::Left, 5);
@@ -22,9 +22,9 @@ Game::Game(sf::RenderWindow* window, const float& framerate, TextureCache* textu
 	new WorldBorder(this, m_Background, Position::Left, 5, 1000);
 	new WorldBorder(this, m_Background, Position::Right, 5, 1000);
 	//m_spawner = new AsteroidSpawner(this, 10);
-	m_bossSpawner = new BossSpawner(this, 1);
-	sf::Vector2f bossSpawnPosition(GetCenterWindow().x, GetCenterWindow().y - 300);
-	m_bossSpawner->SetSpawnPosition(bossSpawnPosition);
+	//m_bossSpawner = new BossSpawner(this, 1);
+	//sf::Vector2f bossSpawnPosition(GetCenterWindow().x, GetCenterWindow().y - 300);
+	//m_bossSpawner->SetSpawnPosition(bossSpawnPosition);
 
 	getWindow()->setMouseCursorVisible(false);
 }
@@ -39,12 +39,12 @@ void Game::Update(const float& deltatime)
 	cursor.Update(deltatime);
 	//m_spawner->Spawn();
 
-	m_bossSpawnTimer.NextTIck(deltatime);
-	if (m_bossSpawnTimer.ActionIsReady())
-	{
-		m_bossSpawner->Spawn();
-		m_bossSpawnTimer.setNewTimer(9999999999999999.0f);
-	}
+	//m_bossSpawnTimer.NextTIck(deltatime);
+	//if (m_bossSpawnTimer.ActionIsReady())
+	//{
+	//	m_bossSpawner->Spawn();
+	//	m_bossSpawnTimer.setNewTimer(9999999999999999.0f);
+	//}
 
 	auto vec = getFullTree();
 	collision.HandleCollision(vec);

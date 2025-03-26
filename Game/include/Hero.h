@@ -3,7 +3,7 @@
 #include "MegaBoss.h"
 #include "Animation.h"
 
-class Ship : public DestructibleObject, public IComposite
+class Hero : public DestructibleObject, public IComposite
 {
 protected:
     enum State
@@ -19,28 +19,28 @@ protected:
     {
         virtual ~IState() = default;
         virtual IState* handle(const State& state) = 0;
-        virtual void update(Ship* ship, float deltaTime) = 0;
+        virtual void update(Hero* ship, float deltaTime) = 0;
     };
 
     struct IdleState : IState
     {
         ~IdleState() override = default;
         IState* handle(const State& state) override;
-        void update(Ship* ship, float deltaTime) override;
+        void update(Hero* ship, float deltaTime) override;
     };
 
     struct MoveState : IState
     {
         ~MoveState() override = default;
         IState* handle(const State& state) override;
-        void update(Ship* ship, float deltaTime) override;
+        void update(Hero* ship, float deltaTime) override;
     };
 
     struct HandAttackState : IState
     {
         ~HandAttackState() override = default;
         IState* handle(const State& state) override;
-        void update(Ship* ship, float deltaTime) override;
+        void update(Hero* ship, float deltaTime) override;
 
         float attackDuration = 0.3f;
         float attackTimer = 0.0f;
@@ -53,14 +53,14 @@ protected:
     {
         ~PistolAttackState() override = default;
         IState* handle(const State& state) override;
-        void update(Ship* ship, float deltaTime) override;
+        void update(Hero* ship, float deltaTime) override;
     };
 
     struct ReloadState : IState
     {
         ~ReloadState() override = default;
         IState* handle(const State& state) override;
-        void update(Ship* ship, float deltaTime) override;
+        void update(Hero* ship, float deltaTime) override;
 
     private:
         float reloadTime = 100.0f;
@@ -71,8 +71,8 @@ protected:
 
 public:
     friend BorderShip;
-    Ship(IComposite* scene, IShapeSFML* background);
-    ~Ship() override;
+    Hero(IComposite* scene, IShapeSFML* background);
+    ~Hero() override;
 
     void ProcessInput(const sf::Event& event) override;
     void physics();

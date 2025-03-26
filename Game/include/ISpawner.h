@@ -24,30 +24,16 @@ protected:
 
 };
 
-//class AsteroidSpawner : public ISpawner
+//class BossSpawner : public ISpawner
 //{
 //public:
-//	AsteroidSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
+//	BossSpawner(IComposite* scene, const size_t& maxEntity = 1);
 //	void Spawn() override;
-//};
 //
-//class CometeSpawner : public ISpawner
-//{
-//public:
-//	CometeSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
-//	void Spawn() override;
+//	void SetSpawnPosition(const sf::Vector2f& position) { m_fixedSpawnPosition = position; m_useFixedPosition = true; }
+//
+//private:
+//	bool m_useFixedPosition;
+//	sf::Vector2f m_fixedSpawnPosition;
+//	float m_bossHealth;
 //};
-
-class BossSpawner : public ISpawner
-{
-public:
-	BossSpawner(IComposite* scene, const size_t& maxEntity = 1);
-	void Spawn() override;
-
-	void SetSpawnPosition(const sf::Vector2f& position) { m_fixedSpawnPosition = position; m_useFixedPosition = true; }
-
-private:
-	bool m_useFixedPosition;
-	sf::Vector2f m_fixedSpawnPosition;
-	float m_bossHealth;
-};

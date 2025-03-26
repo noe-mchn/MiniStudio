@@ -1,10 +1,10 @@
-#include "Ship.h"
+#include "Hero.h"
 #include "IGameObject.h"
 #include "Animation.h"
 #include <iostream>
 
 //=========== IDLE STATE ===========//
-Ship::IState* Ship::IdleState::handle(const State& state)
+Hero::IState* Hero::IdleState::handle(const State& state)
 {
     if (state == State::MOVE)
     {
@@ -23,7 +23,7 @@ Ship::IState* Ship::IdleState::handle(const State& state)
     return nullptr;
 }
 
-void Ship::IdleState::update(Ship* ship, float deltaTime)
+void Hero::IdleState::update(Hero* ship, float deltaTime)
 {
     std::string animationName = "idle_" + ship->getOrientationString();
     if (ship->m_animationComponent->getCurrentAnimation() != animationName)
@@ -53,7 +53,7 @@ void Ship::IdleState::update(Ship* ship, float deltaTime)
 }
 
 //=========== MOVE STATE ===========//
-Ship::IState* Ship::MoveState::handle(const State& state)
+Hero::IState* Hero::MoveState::handle(const State& state)
 {
     if (state == State::IDLE)
     {
@@ -72,7 +72,7 @@ Ship::IState* Ship::MoveState::handle(const State& state)
     return nullptr;
 }
 
-void Ship::MoveState::update(Ship* ship, float deltaTime)
+void Hero::MoveState::update(Hero* ship, float deltaTime)
 {
     std::string animationName = "move_" + ship->getOrientationString();
     if (ship->m_animationComponent->getCurrentAnimation() != animationName)
@@ -89,7 +89,7 @@ void Ship::MoveState::update(Ship* ship, float deltaTime)
         return;
     }
 
-    static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(
+    static_cast<Physics*>(ship->m_physics)->ExecutePhysics(
         ship->m_strafe,
         ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()
     );
@@ -106,7 +106,7 @@ void Ship::MoveState::update(Ship* ship, float deltaTime)
 }
 
 //=========== HAND ATTACK STATE ===========//
-Ship::IState* Ship::HandAttackState::handle(const State& state)
+Hero::IState* Hero::HandAttackState::handle(const State& state)
 {
     if (state == State::IDLE)
     {
@@ -123,7 +123,7 @@ Ship::IState* Ship::HandAttackState::handle(const State& state)
     return nullptr;
 }
 
-void Ship::HandAttackState::update(Ship* ship, float deltaTime)
+void Hero::HandAttackState::update(Hero* ship, float deltaTime)
 {
     std::string attackAnimName = "attack_" + ship->getOrientationString();
     if (ship->m_animationComponent->getCurrentAnimation() != attackAnimName)
@@ -169,7 +169,7 @@ void Ship::HandAttackState::update(Ship* ship, float deltaTime)
     if (ship->m_strafe[trust::Left] || ship->m_strafe[trust::Right] ||
         ship->m_strafe[trust::Up] || ship->m_strafe[trust::Down])
     {
-        static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(
+        static_cast<Physics*>(ship->m_physics)->ExecutePhysics(
             ship->m_strafe,
             ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()
         );
@@ -177,7 +177,7 @@ void Ship::HandAttackState::update(Ship* ship, float deltaTime)
 }
 
 //=========== PISTOL ATTACK STATE ===========//
-Ship::IState* Ship::PistolAttackState::handle(const State& state)
+Hero::IState* Hero::PistolAttackState::handle(const State& state)
 {
     if (state == State::IDLE)
     {
@@ -202,7 +202,7 @@ Ship::IState* Ship::PistolAttackState::handle(const State& state)
     return nullptr;
 }
 
-void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
+void Hero::PistolAttackState::update(Hero* ship, float deltaTime)
 {
     std::string attackAnimName = "attack_" + ship->getOrientationString();
     if (ship->m_animationComponent->getCurrentAnimation() != attackAnimName)
@@ -242,7 +242,7 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
         || ship->m_strafe[trust::Up]
         || ship->m_strafe[trust::Down])
     {
-        static_cast<MovementInSpace*>(ship->m_physics)->ExecutePhysics(
+        static_cast<Physics*>(ship->m_physics)->ExecutePhysics(
             ship->m_strafe,
             ship->m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()
         );
@@ -250,7 +250,7 @@ void Ship::PistolAttackState::update(Ship* ship, float deltaTime)
 }
 
 //=========== RELOAD STATE ===========//
-Ship::IState* Ship::ReloadState::handle(const State& state)
+Hero::IState* Hero::ReloadState::handle(const State& state)
 {
     if (state == State::PISTOL_ATTACK)
     {
@@ -260,7 +260,7 @@ Ship::IState* Ship::ReloadState::handle(const State& state)
     return nullptr;
 }
 
-void Ship::ReloadState::update(Ship* ship, float deltaTime)
+void Hero::ReloadState::update(Hero* ship, float deltaTime)
 {
     if (ship->m_animationComponent->getCurrentAnimation() != "reload")
         ship->m_animationComponent->playAnimation("reload");
@@ -279,14 +279,14 @@ void Ship::ReloadState::update(Ship* ship, float deltaTime)
 }
 
 //=========== SHIP IMPLEMENTATION ===========//
-Ship::Ship(IComposite* scene, IShapeSFML* background)
+Hero::Hero(IComposite* scene, IShapeSFML* background)
     : DestructibleObject(scene, 10)
     , IComposite(scene)
     , m_background(background)
     , m_angle(0)
     , m_elapsedTime(0.2)
     , m_animate({ "Hero.png" })
-    , m_physics(new MovementInSpace(1000, 400, 200))
+    , m_physics(new Physics(500))
     , m_invisibility(2.5)
     , m_detectionRadius(30.0f)
     , m_meleeDamage(0.01f)
@@ -315,13 +315,13 @@ Ship::Ship(IComposite* scene, IShapeSFML* background)
     m_animationComponent->playAnimation("idle_down");
 }
 
-Ship::~Ship()
+Hero::~Hero()
 {
     delete m_physics;
     delete m_currentState;
 }
 
-void Ship::setupAnimations()
+void Hero::setupAnimations()
 {
     const int FRAME_WIDTH = 64;
     const int FRAME_HEIGHT = 64;
@@ -394,22 +394,22 @@ void Ship::setupAnimations()
     m_animationComponent->addAnimation("attack_right", attackAnimRight);
 }
 
-bool Ship::IsDestroyed()
+bool Hero::IsDestroyed()
 {
     return m_life <= 0;
 }
 
-void Ship::ProcessInput(const sf::Event& event)
+void Hero::ProcessInput(const sf::Event& event)
 {
 
 }
 
-void Ship::physics()
+void Hero::physics()
 {
     m_angle = anglecalcul();
 }
 
-void Ship::Update(const float& deltatime)
+void Hero::Update(const float& deltatime)
 {
     if (!m_currentState)
         throw std::runtime_error("current state est nullptr!");
@@ -452,7 +452,7 @@ void Ship::Update(const float& deltatime)
 
     m_shape->setRotation(0);
 
-    m_background->setPosition(static_cast<MovementInSpace*>(m_physics)->calculPosition(
+    m_background->setPosition(static_cast<Physics*>(m_physics)->calculPosition(
         m_background, m_scene->getRoot()->getScene(), m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()));
 
     m_animationComponent->updatePosition(m_shape->getPosition());
@@ -464,7 +464,7 @@ void Ship::Update(const float& deltatime)
     m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
 }
 
-void Ship::Render()
+void Hero::Render()
 {
     m_animationComponent->Render();
 
@@ -479,8 +479,6 @@ void Ship::Render()
         debugRect.setOrigin(frameSize.x * scale / 2.0f, frameSize.y * scale / 2.0f);
         debugRect.setPosition(pos);
         debugRect.setFillColor(sf::Color::Transparent);
-        //debugRect.setOutlineColor(sf::Color::Red);
-        //debugRect.setOutlineThickness(1.0f);
 
         m_scene->getRoot()->getScene()->getWindow()->draw(debugRect);
     }
@@ -494,7 +492,7 @@ void Ship::Render()
     IComposite::Render();
 }
 
-float Ship::anglecalcul()
+float Hero::anglecalcul()
 {
     sf::Vector2i mousePos = sf::Mouse::getPosition(*m_scene->getRoot()->getScene()->getWindow());
     sf::Vector2f shipPos = m_shape->getPosition();
@@ -504,7 +502,7 @@ float Ship::anglecalcul()
     return angle;
 }
 
-void Ship::HandleCollision(IGameObject* object)
+void Hero::HandleCollision(IGameObject* object)
 {
     if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
         return;
@@ -512,7 +510,7 @@ void Ship::HandleCollision(IGameObject* object)
     ChangeLife(-1);
 }
 
-void Ship::ChangeLife(const float& life)
+void Hero::ChangeLife(const float& life)
 {
     if (!m_invisibility.ActionIsReady())
         return;
@@ -523,7 +521,7 @@ void Ship::ChangeLife(const float& life)
     m_invisibility.resetTimer();
 }
 
-void Ship::ChangeState(const State& newState)
+void Hero::ChangeState(const State& newState)
 {
     if (m_currentState)
     {
@@ -536,7 +534,7 @@ void Ship::ChangeState(const State& newState)
     }
 }
 
-Orientation Ship::determineOrientation(float angle)
+Orientation Hero::determineOrientation(float angle)
 {
     angle = std::fmod(angle + 360.0f, 360.0f);
 
@@ -550,7 +548,7 @@ Orientation Ship::determineOrientation(float angle)
         return Orientation::UP;
 }
 
-float Ship::distanceToBoss(MegaBoss* boss)
+float Hero::distanceToBoss(MegaBoss* boss)
 {
     sf::Vector2f myPos = this->getShape()->getPosition();
     sf::Vector2f bossPos = boss->getShape()->getPosition();
@@ -558,7 +556,7 @@ float Ship::distanceToBoss(MegaBoss* boss)
     return std::sqrt(std::pow(bossPos.x - myPos.x, 2) + std::pow(bossPos.y - myPos.y, 2));
 }
 
-void Ship::createMeleeHitbox(float angle, float offsetDistance)
+void Hero::createMeleeHitbox(float angle, float offsetDistance)
 {
     float angleRadians = angle * 3.14159f / 180.0f;
 
@@ -583,7 +581,7 @@ void Ship::createMeleeHitbox(float angle, float offsetDistance)
     }
 }
 
-void Ship::checkMeleeCollisions(RectangleSFML* attackHitbox)
+void Hero::checkMeleeCollisions(RectangleSFML* attackHitbox)
 {
     for (auto child : m_scene->getRoot()->getFullTree())
     {
@@ -608,7 +606,7 @@ void Ship::checkMeleeCollisions(RectangleSFML* attackHitbox)
     }
 }
 
-std::string Ship::getOrientationString() const
+std::string Hero::getOrientationString() const
 {
     switch (m_currentOrientation)
     {

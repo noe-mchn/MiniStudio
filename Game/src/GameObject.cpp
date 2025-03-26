@@ -1,15 +1,19 @@
 #include "GameObject.h"
-#include "Ship.h"
+#include "Hero.h"
 #include "cmath"
 #include <iostream>
-
 #include "RandomNumber.h"
+
+IBorder::IBorder(IComposite* scene, IShapeSFML* object) :
+	NonDestructibleObject(scene), ILeaf(scene), m_ObjectToProtect(object)
+{
+}
 
 void IBorder::Update(const float& deltatime)
 {
 }
 
-BorderShip::BorderShip(IComposite* scene, IShapeSFML* game_object, Ship* ship) :
+BorderShip::BorderShip(IComposite* scene, IShapeSFML* game_object, Hero* ship) :
 	IBorder(scene, game_object)
 	, m_ship(ship)
 	, m_sprite({ "FenceTmp.png","FenceTmp2.png" })
@@ -431,55 +435,6 @@ void Life::Update(const float& deltatime)
 	m_backgroundShape->setPosition(sf::Vector2f(m_object->getShape()->getPosition().x - 5, m_object->getShape()->getPosition().y - m_object->getShape()->getSize().y / 2 - 10));
 }
 
-Asteroid::Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life) :
-	DestructibleObject(scene, life)
-	, IComposite(scene)
-	, m_animate({ "Asteroid.png" })
-	, m_elapsedTime(0.2)
-	, m_speed(speed)
-	, m_psotition(Spawnposition)
-	, m_angle(angle)
-	, m_invisibility(0.2)
-{
-	m_shape = new RectangleSFML(Size.x, Size.y, Spawnposition);
-	m_shape->setRotation(angle);
-	m_rotation = UseRandomNumber().getRandomNumber<int>(-180, 180);
-	m_shape->setRotation(m_rotation);
-	new Life(this, this, Color::Orange);
-}
-
-void Asteroid::Render()
-{
-	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
-	IComposite::Render();
-}
-
-void Asteroid::Update(const float& deltatime)
-{
-	float angleRad = convertDegToRad(m_angle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	sf::Vector2f ActualPos;
-	m_psotition += moov;
-	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x + m_psotition.x, m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_psotition.y));
-
-	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
-	{
-		m_animate.ChangeToNextPath();
-		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
-	}
-	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	IComposite::Update(deltatime);
-}
-
-void Asteroid::HandleCollision(IGameObject* object)
-{
-	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
-		return;
-	if (getObj<Asteroid*>(object))
-		return;
-
-	ChangeLife(-1);
-}
 
 
 Cursor::Cursor(IComposite* scene) :
@@ -506,108 +461,114 @@ void Cursor::Render()
 {
 	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<SquareSFML*>(m_shape)->getShape());
 }
-IBorder::IBorder(IComposite* scene, IShapeSFML* object) :NonDestructibleObject(scene), ILeaf(scene), m_ObjectToProtect(object) {}
 
-MovementInSpace::MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& deceleration) :m_maxVelocity(maxVelority), m_acceleration(acceleratrion), m_decceleration(deceleration) {}
-
-void MovementInSpace::ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float framerate)
-{
-	if (isStrafing[trust::Right] == true)
-	{
-		velocity[trust::Right] += m_acceleration * framerate;
-		if (velocity[trust::Right] > m_maxVelocity) velocity[trust::Right] = m_maxVelocity;
-	}
-	else
-	{
-		velocity[0] -= m_decceleration * framerate;
-		if (velocity[0] < 0) velocity[0] = 0;
-	}
-	if (isStrafing[trust::Left] == true)
-	{
-		velocity[trust::Left] += m_acceleration * framerate;
-		if (velocity[trust::Left] > m_maxVelocity) velocity[trust::Left] = m_maxVelocity;
-	}
-	else
-	{
-		velocity[trust::Left] -= m_decceleration * framerate;
-		if (velocity[trust::Left] < 0) velocity[trust::Left] = 0;
-	}
-	if (isStrafing[trust::Up] == true)
-	{
-		velocity[trust::Up] += m_acceleration * framerate;
-		if (velocity[trust::Up] > m_maxVelocity) velocity[trust::Up] = m_maxVelocity;
-	}
-	else
-	{
-		velocity[trust::Up] -= m_decceleration * framerate;
-		if (velocity[trust::Up] < 0) velocity[trust::Up] = 0;
-	}
-	if (isStrafing[trust::Down] == true)
-	{
-		velocity[trust::Down] += m_acceleration * framerate;
-		if (velocity[trust::Down] > m_maxVelocity) velocity[trust::Down] = m_maxVelocity;
-	}
-	else
-	{
-		velocity[trust::Down] -= m_decceleration * framerate;
-		if (velocity[trust::Down] < 0) velocity[trust::Down] = 0;
-	}
+Physics::Physics(const float& maxVelocity)
+	: m_maxVelocity(maxVelocity), movementDirection{ 0, 0, 0, 0 } {
 }
 
-sf::Vector2f MovementInSpace::calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate)
+void Physics::ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float framerate)
 {
-	auto x = velocity[trust::Left] - velocity[trust::Right];
-	auto y = velocity[trust::Up] - velocity[trust::Down];
-	sf::Vector2f Newposition = { entity->getPosition().x + ((x * scene->getRefreshTime().asSeconds())),entity->getPosition().y + ((y * scene->getRefreshTime().asSeconds())) };
-	return Newposition;
+	movementDirection[trust::Right] = isStrafing[trust::Left] ? m_maxVelocity : 0;
+	movementDirection[trust::Left] = isStrafing[trust::Right] ? -m_maxVelocity : 0;
+	movementDirection[trust::Up] = isStrafing[trust::Down] ? -m_maxVelocity : 0;
+	movementDirection[trust::Down] = isStrafing[trust::Up] ? m_maxVelocity : 0;
 }
 
-Comete::Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life) :
-	DestructibleObject(scene, life)
-	, IComposite(scene)
-	, m_animate({ "Commette.png" })
-	, m_elapsedTime(0.2)
-	, m_speed(speed)
-	, m_position(Spawnposition)
-	, m_angle(angle)
-	, m_invisibility(0.2)
+sf::Vector2f Physics::calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate)
 {
-	m_shape = new RectangleSFML(Size.x, Size.y, Spawnposition);
-	m_shape->setRotation(angle);
-	m_rotation = UseRandomNumber().getRandomNumber<int>(-180, 180);
-	m_shape->setRotation(m_rotation);
-	new Life(this, this, Color::Orange);
+	float x = movementDirection[trust::Left] + movementDirection[trust::Right];
+	float y = movementDirection[trust::Up] + movementDirection[trust::Down];
+
+	sf::Vector2f newPosition = {
+		entity->getPosition().x + (x * scene->getRefreshTime().asSeconds()),
+		entity->getPosition().y + (y * scene->getRefreshTime().asSeconds())
+	};
+
+	return newPosition;
 }
 
-void Comete::Render()
+
+
+
+DecorativeGameObject::DecorativeGameObject(IComposite* scene, const sf::Vector2f& position, float size) :
+	NonDestructibleObject(scene),
+	ILeaf(scene),
+	m_animate({}),
+	m_animationTimer(0.2f),
+	m_animationSpeed(0.2f),
+	m_isAnimating(true)
 {
-	m_scene->getRoot()->getScene()->getWindow()->draw(static_cast<RectangleSFML*>(m_shape)->getShape());
-	IComposite::Render();
+	m_shape = new SquareSFML(size, position);
 }
 
-void Comete::Update(const float& deltatime)
+DecorativeGameObject::DecorativeGameObject(IComposite* scene, const sf::Vector2f& position, const sf::Vector2f& size) :
+	NonDestructibleObject(scene),
+	ILeaf(scene),
+	m_animate({}),
+	m_animationTimer(0.2f),
+	m_animationSpeed(0.2f),
+	m_isAnimating(true)
 {
-	float angleRad = convertDegToRad(m_angle);
-	sf::Vector2f moov(std::cos(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds(), std::sin(angleRad) * m_speed * m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	sf::Vector2f ActualPos;
-	m_position += moov;
-	m_shape->setPosition(sf::Vector2f(m_scene->getRoot()->getScene()->getBackgroundCenter().x + m_position.x, m_scene->getRoot()->getScene()->getBackgroundCenter().y + m_position.y));
+	m_shape = new RectangleSFML(size.x, size.y, position);
+}
 
-	if (m_elapsedTime.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
+void DecorativeGameObject::Update(const float& deltatime)
+{
+	if (m_isAnimating && m_animationTimer.AutoActionIsReady(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds()))
 	{
 		m_animate.ChangeToNextPath();
 		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
 	}
-	m_invisibility.NextTIck(m_scene->getRoot()->getScene()->getRefreshTime().asSeconds());
-	IComposite::Update(deltatime);
 }
 
-void Comete::HandleCollision(IGameObject* object)
+void DecorativeGameObject::Render()
 {
-	if (object->globalGameObjectType() != GameObjectType::DestructibleObject)
-		return;
-	if (getObj<Comete*>(object))
-		return;
+	if (auto* squareShape = dynamic_cast<SquareSFML*>(m_shape))
+	{
+		m_scene->getRoot()->getScene()->getWindow()->draw(squareShape->getShape());
+	}
+	else if (auto* rectShape = dynamic_cast<RectangleSFML*>(m_shape))
+	{
+		m_scene->getRoot()->getScene()->getWindow()->draw(rectShape->getShape());
+	}
+}
 
-	ChangeLife(-1);
+void DecorativeGameObject::setPosition(const sf::Vector2f& position)
+{
+	m_shape->setPosition(position);
+}
+
+sf::Vector2f DecorativeGameObject::getPosition() const
+{
+	return m_shape->getPosition();
+}
+
+void DecorativeGameObject::setAnimationTextures(const std::vector<std::string>& texturePaths)
+{
+	m_animate.resetTexture();
+	for (const auto& path : texturePaths)
+	{
+		m_animate.add(path);
+	}
+
+	if (!texturePaths.empty())
+	{
+		m_shape->setTexture(m_scene->getRoot()->getScene()->getTexture()->getTexture(m_animate.getCurrentPath()));
+	}
+}
+
+void DecorativeGameObject::setAnimationSpeed(float animationSpeed)
+{
+	m_animationSpeed = animationSpeed;
+	m_animationTimer.setNewTimer(animationSpeed);
+}
+
+void DecorativeGameObject::stopAnimation()
+{
+	m_isAnimating = false;
+}
+
+void DecorativeGameObject::resumeAnimation()
+{
+	m_isAnimating = true;
 }

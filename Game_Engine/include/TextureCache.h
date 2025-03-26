@@ -9,26 +9,20 @@
 
 namespace sf { class Texture; }
 
-// Fonction utilitaire pour trouver le dossier Re
 inline std::string findResourceFolder() {
     try {
-        // Commençons par le chemin actuel
         std::filesystem::path currentPath = std::filesystem::current_path();
-        std::cout << "Current path: " << currentPath.string() << std::endl;
 
-        // Vérifions si Re est dans le répertoire courant
         if (std::filesystem::exists(currentPath / "Re")) {
             return (currentPath / "Re").string();
         }
 
-        // Vérifions une structure typique de projets
         std::filesystem::path buildPath = currentPath;
-        for (int i = 0; i < 5; i++) { // Essayer jusqu'à 5 niveaux vers le haut
+        for (int i = 0; i < 5; i++) {
             if (std::filesystem::exists(buildPath / "Re")) {
                 return (buildPath / "Re").string();
             }
 
-            // Vérifions aussi à côté du chemin actuel
             if (std::filesystem::exists(buildPath.parent_path() / "Re")) {
                 return (buildPath.parent_path() / "Re").string();
             }
@@ -36,12 +30,11 @@ inline std::string findResourceFolder() {
             buildPath = buildPath.parent_path();
         }
 
-        // En dernier recours, renvoyer un chemin par rapport au répertoire courant
         return (currentPath / "Re").string();
     }
     catch (const std::exception& e) {
         std::cerr << "Error finding resource folder: " << e.what() << std::endl;
-        return "Re"; // Fallback
+        return "Re";
     }
 }
 
@@ -52,7 +45,6 @@ public:
     ~TextureCache();
 
     sf::Texture& getTexture(const std::string& filename);
-    // Nouvelle méthode pour afficher où les textures sont cherchées
     void debugResourcePath();
 
 private:
@@ -66,10 +58,9 @@ private:
 
     std::vector<TextureInfo> m_allTextureInfos;
     std::string m_execFilePath;
-    std::string m_resourceBasePath; // Nouveau: stocke le chemin de base vers les ressources
+    std::string m_resourceBasePath;
 };
 
-// TextureManager reste inchangé pour l'instant
 class TextureManager
 {
 public:

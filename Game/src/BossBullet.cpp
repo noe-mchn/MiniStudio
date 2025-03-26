@@ -1,5 +1,5 @@
 #include "BossBullet.h"
-#include "Ship.h"
+#include "Hero.h"
 
 EntityProjectileBase::EntityProjectileBase(AnimateSprite animate, IComposite* scene, ITurret* gun, float angle, float speed, float size, float hp)
     : IBullet(animate, scene, gun, angle, speed, size, hp)

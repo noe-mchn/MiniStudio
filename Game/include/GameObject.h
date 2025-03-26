@@ -5,7 +5,7 @@
 #include "IShape.h"
 #include <array>
 
-class Ship;
+class Hero;
 enum trust
 {
 	Right = 0
@@ -29,23 +29,20 @@ private:
 	AnimateSprite m_animate;
 };
 
-class MovementInSpace : public IPhysics
+class Physics : public IPhysics
 {
 public:
-	MovementInSpace(const float& maxVelority, const float& acceleratrion, const float& decceleration);
+	Physics(const float& maxVelocity);
 	void ExecutePhysics(KT::VectorND<bool, 4>& isStrafing, float framerate);
 
 	sf::Vector2f calculPosition(IShapeSFML* entity, ISceneBase* scene, float framerate);
-	float getMaxVelocity()
-	{
-		return m_maxVelocity;
-	}
+	float getMaxVelocity() { return m_maxVelocity; }
+
 private:
 	float m_maxVelocity;
-	float m_acceleration;
-	float m_decceleration;
-	std::array<float, 4>velocity;
+	std::array<float, 4> movementDirection;
 };
+
 
 class IBorder : public NonDestructibleObject, public ILeaf
 {
@@ -62,14 +59,14 @@ protected:
 class BorderShip : public IBorder
 {
 public:
-	BorderShip(IComposite* scene, IShapeSFML* game_object, Ship* ship);
+	BorderShip::BorderShip(IComposite* scene, IShapeSFML* game_object, Hero* ship);
 	void ProcessInput(const sf::Event& event) override {}
 	void Update(const float& deltatime);
 	void Render() override;
 
 private:
 	sf::Vector2f VerifyLimit();
-	Ship* m_ship;
+	Hero* m_ship;
 	AnimateSprite m_sprite;
 	Timer m_elapsedTime;
 	bool IsInBorder;
@@ -224,58 +221,29 @@ protected:
 	float m_sizeDiff;
 };
 
-class Asteroid : public  DestructibleObject, public  IComposite
+
+
+class DecorativeGameObject : public NonDestructibleObject, public ILeaf
 {
 public:
-	Asteroid(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
+	DecorativeGameObject(IComposite* scene, const sf::Vector2f& position, float size);
+	DecorativeGameObject(IComposite* scene, const sf::Vector2f& position, const sf::Vector2f& size);
+
+	void ProcessInput(const sf::Event& event) override {}
+	void Update(const float& deltatime) override;
 	void Render() override;
-	void ProcessInput(const sf::Event& event) {};
-	void Update(const float& deltatime);
-	void HandleCollision(IGameObject* object) override;
-	void ChangeLife(const float& life)
-	{
-		if (!m_invisibility.ActionIsReady())
-			return;
 
-		m_life += life;
-		if (m_life <= 0)
-			destroy();
-		m_invisibility.resetTimer();
-	}
+	void setPosition(const sf::Vector2f& position);
+	sf::Vector2f getPosition() const;
+
+	void setAnimationTextures(const std::vector<std::string>& texturePaths);
+	void setAnimationSpeed(float animationSpeed);
+	void stopAnimation();
+	void resumeAnimation();
+
 private:
-	Timer m_elapsedTime;
 	AnimateSprite m_animate;
-	sf::Vector2f m_psotition;
-	float m_angle;
-	float m_speed;
-	float m_rotation;
-	Timer m_invisibility;
-};
-
-class Comete : public  DestructibleObject, public  IComposite
-{
-public:
-	Comete(IComposite* scene, const sf::Vector2f& Spawnposition, const sf::Vector2f& Size, const float& angle, const float& speed, const float& life);
-	void Render() override;
-	void ProcessInput(const sf::Event& event) {};
-	void Update(const float& deltatime);
-	void HandleCollision(IGameObject* object) override;
-	void ChangeLife(const float& life)
-	{
-		if (!m_invisibility.ActionIsReady())
-			return;
-
-		m_life += life;
-		if (m_life <= 0)
-			destroy();
-		m_invisibility.resetTimer();
-	}
-private:
-	Timer m_elapsedTime;
-	AnimateSprite m_animate;
-	sf::Vector2f m_position;
-	float m_angle;
-	float m_speed;
-	float m_rotation;
-	Timer m_invisibility;
+	Timer m_animationTimer;
+	float m_animationSpeed;
+	bool m_isAnimating;
 };

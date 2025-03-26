@@ -43,11 +43,14 @@ void SceneManager::Exe()
 
 		m_window->clear();
 
-		while (m_window->pollEvent(m_event)) {
-			if (m_event.type == sf::Event::Closed ||
-				(m_event.type == sf::Event::KeyPressed && m_event.key.code == sf::Keyboard::Escape)) {
+		while (m_window->pollEvent(m_event))
+		{
+			if (m_event.type == sf::Event::Closed)
 				m_window->close();
-			}
+
+			if (m_window->hasFocus())
+				m_currentScene->ProcessInput(m_event);
+
 		}
 
 		if (m_window->hasFocus())
@@ -91,7 +94,7 @@ sf::RenderWindow* SceneManager::getWindow()
 	return m_window;
 }
 
-TextureCache* SceneManager::geTextureCash()
+TextureCache* SceneManager::getTextureCache()
 {
 	return m_texture;
 }

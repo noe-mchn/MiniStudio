@@ -1,6 +1,6 @@
 #include "MegaBoss.h"
 #include "RandomNumber.h"
-#include "Ship.h"
+#include "Hero.h"
 #include <functional>
 #include <iostream>
 #include <cmath>
@@ -591,17 +591,13 @@ MegaBoss::MegaBoss(IComposite* scene, const sf::Vector2f& spawnPosition, BossMod
         m_target = defaultTarget;
     }
 
-    // Créer et configurer le composant d'animation
     m_animationComponent = new AnimationComponent(this);
     setupAnimations();
 
-    // Configurer l'échelle si nécessaire
-    setScale(5.0f, 5.0f); // Par exemple, pour doubler la taille du sprite
+    setScale(5.0f, 5.0f);
 
-    // Mettre à jour la position initiale
     m_animationComponent->updatePosition(screenPosition);
 
-    // Démarrer avec l'animation patrol
     m_animationComponent->playAnimation("patrol");
 
     createWeapons(70.0f);
@@ -731,7 +727,6 @@ void MegaBoss::Update(const float& deltaTime)
         findTarget();
     }
 
-    // Gestion de l'absence de cible
     if (!m_target) {
         if (!(dynamic_cast<PatrolState*>(m_currentState))) {
             changeState(State::PATROL);
@@ -744,7 +739,6 @@ void MegaBoss::Update(const float& deltaTime)
         }
         m_attackTimer.NextTIck(deltaTime);
 
-        // Mettre à jour la position du sprite d'animation
         sf::Vector2f screenPos = worldToScreenPosition(m_worldPosition);
         m_shape->setPosition(screenPos);
         m_animationComponent->updatePosition(screenPos);
@@ -1306,7 +1300,7 @@ void MegaBoss::findTarget()
         for (auto& child : node->getChildren()) {
             if (!child) continue;
 
-            Ship* ship = getObj<Ship*>(child);
+            Hero* ship = getObj<Hero*>(child);
             if (ship) {
                 m_target = ship->getShape();
                 return true;
@@ -1322,7 +1316,7 @@ void MegaBoss::findTarget()
     for (auto& node : root->getChildren()) {
         if (!node) continue;
 
-        Ship* ship = getObj<Ship*>(node);
+        Hero* ship = getObj<Hero*>(node);
         if (ship) {
             m_target = ship->getShape();
             return;

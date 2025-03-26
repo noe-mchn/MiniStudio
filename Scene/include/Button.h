@@ -3,7 +3,8 @@
 #include <functional>
 #include <string>
 
-class Button {
+class Button
+{
 public:
     Button(const sf::Vector2f& position, const sf::Vector2f& size,
         const std::string& text, const sf::Font& font, unsigned int fontSize = 24);
@@ -21,7 +22,8 @@ public:
     void draw(sf::RenderWindow& window);
 
 private:
-    enum class State {
+    enum class State
+    {
         Normal,
         Hover,
         Pressed

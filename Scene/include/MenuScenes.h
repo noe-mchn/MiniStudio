@@ -9,7 +9,8 @@ class SceneManager;
 class Game;
 
 //===== MENU PRINCIPAL =====//
-class MainMenuScene : public ISceneBase {
+class MainMenuScene : public ISceneBase
+{
 public:
     MainMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~MainMenuScene() override;
@@ -19,11 +20,26 @@ public:
     void Render() override;
 
 private:
-    sf::Font m_font;
-    sf::Text m_titleText;
+    /*sf::Font m_font;
+    sf::Text m_titleText;*/
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
+
+private:
+
+    sf::Texture m_titleTexture;
+    sf::Sprite m_titleSprite;
+
+    sf::Texture m_PlayTexture;
+    sf::Sprite m_PlaySprite;
+
+    sf::Texture m_HistoryTexture;
+    sf::Sprite m_HistorySprite;
+
+    sf::Texture m_QuitTexture;
+    sf::Sprite m_QuitSprite;
+
+
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
@@ -32,14 +48,17 @@ private:
     void setupButtons();
 };
 
+
 //===== MENU PAUSE =====//
-class PauseMenuScene : public ISceneBase {
+class PauseMenuScene : public ISceneBase
+{
 public:
     PauseMenuScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~PauseMenuScene() override;
 
     void Update(const float& deltatime) override;
     void ProcessInput(const sf::Event& event) override;
+    void ButtonPressed();
     void Render() override;
 
 private:
@@ -48,7 +67,6 @@ private:
     sf::RectangleShape m_overlay;
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
@@ -58,7 +76,8 @@ private:
 };
 
 //===== GAME OVER =====//
-class GameOverScene : public ISceneBase {
+class GameOverScene : public ISceneBase
+{
 public:
     GameOverScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
     ~GameOverScene() override;
@@ -73,12 +92,25 @@ private:
     sf::Text m_scoreText;
     std::vector<Button*> m_buttons;
 
-    // Utilisation directe d'une forme SFML pour l'arrière-plan
+private:
+    sf::Texture m_titleTexture;
+    sf::Sprite m_titleSprite;
+
+    sf::Texture m_tryagainTexture;
+    sf::Sprite m_tryagainSprite;
+
+    sf::Texture m_flowerTexture;
+    sf::Sprite m_flowerSprite;
+
+    sf::Texture m_quitGameTexture;
+    sf::Sprite m_quitGameSprite;
+
+
     sf::RectangleShape m_backgroundShape;
 
     SceneManager* m_sceneManager;
 
-    // Pour saisir le nom du joueur si high score
+
     bool m_nameInputActive;
     sf::Text m_namePromptText;
     sf::Text m_nameInputText;
@@ -86,7 +118,7 @@ private:
 
     void setupTitle();
     void setupButtons();
-    void updateScoreDisplay();
+    //void updateScoreDisplay();
     void checkHighScore();
     void submitHighScore();
 };
