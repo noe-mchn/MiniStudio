@@ -48,53 +48,6 @@ private:
     void setupButtons();
 };
 
-//===== MENU CUSTOM =====//
-class CustomScene : public ISceneBase
-{
-public:
-    CustomScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager);
-    ~CustomScene() override;
-
-    void Update(const float& deltatime) override;
-    void ProcessInput(const sf::Event& event) override;
-    void Render() override;
-
-    bool genree()
-    {
-        return m_girl;
-    }
-
-private:
-    /*sf::Font m_font;
-    sf::Text m_titleText;*/
-    std::vector<Button*> m_buttons;
-
-
-private:
-
-    
-
-    sf::Texture m_titleTexture;
-    sf::Sprite m_titleSprite;
-
-    sf::Texture m_PlayTexture;
-    sf::Sprite m_PlaySprite;
-
-    sf::Texture m_HistoryTexture;
-    sf::Sprite m_HistorySprite;
-
-    sf::Texture m_QuitTexture;
-    sf::Sprite m_QuitSprite;
-
-    bool m_girl = false;
-
-    sf::RectangleShape m_backgroundShape;
-
-    SceneManager* m_sceneManager;
-
-    void setupTitle();
-    void setupButtons();
-};
 
 //===== MENU PAUSE =====//
 class PauseMenuScene : public ISceneBase 

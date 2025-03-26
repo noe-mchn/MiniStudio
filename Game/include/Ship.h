@@ -124,7 +124,4 @@ private:
     Orientation determineOrientation(float angle);
     Orientation m_currentOrientation;
 
-    SceneManager* m_sceneManager;
-    std::string character = m_sceneManager->GetSelectedCharacter();
- 
 };

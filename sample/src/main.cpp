@@ -12,7 +12,6 @@ int main(int argc, char** argv)
     a.AddScene(new Game(a.getWindow(),240.0f ,a.geTextureCash(), &a));
     a.AddScene(new PauseMenuScene(a.getWindow(), 240.0f, a.geTextureCash(), &a));
     a.AddScene(new GameOverScene(a.getWindow(), 240.0f, a.geTextureCash(), &a));
-    a.AddScene(new CustomScene(a.getWindow(), 240.0f, a.geTextureCash(), &a));
     a.Exe();
 
 }

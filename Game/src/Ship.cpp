@@ -321,15 +321,6 @@ void Ship::setupAnimations()
     if (!TextureManager::getInstance().hasTexture("HeroF"))
         TextureManager::getInstance().loadTexture("HeroF", "HeroF.png");
 
-    if (character == "fille")
-    {
-        m_texturePath = "HeroF.png";
-    }
-    else
-    {
-        m_texturePath = "Hero.png";
-    }
-
     Animation idleAnimDown(m_texturePath, 6, 0.2f); // Utiliser le nom de fichier complet
     idleAnimDown.setFrameSize(sf::Vector2i(128, 128));
     idleAnimDown.setStartPosition(sf::Vector2i(0, 0), 4);

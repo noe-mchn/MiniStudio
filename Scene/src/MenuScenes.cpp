@@ -37,12 +37,12 @@ void MainMenuScene::Update(const float& deltatime)
 
     if (m_PlaySprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
     {
-        CustomScene* gameScene = dynamic_cast<CustomScene*>(m_sceneManager->getScene(4));
+        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
         if (gameScene) 
         {
             getWindow()->setMouseCursorVisible(true);
         }
-        m_sceneManager->SetScene(4);
+        m_sceneManager->SetScene(1);
     }
 
     //else if (m_HistorySprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left)
@@ -124,135 +124,6 @@ void MainMenuScene::setupButtons()
     m_HistorySprite.setPosition(getWindow()->getSize().x / 2, 500);
     m_QuitSprite.setPosition(getWindow()->getSize().x / 2 - m_QuitSprite.getGlobalBounds().width / 2.0f, 700);
 }
-
-//===== IMPLÉMENTATION DU MENU CUSTOM =====//
-
-CustomScene::CustomScene(sf::RenderWindow* window, const float& framerate, TextureCache* texture, SceneManager* sceneManager)
-    : ISceneBase(window, framerate, texture)
-    , m_sceneManager(sceneManager)
-{
-
-    m_backgroundShape.setSize(sf::Vector2f(window->getSize().x, window->getSize().y));
-    m_backgroundShape.setPosition(0, 0);
-    m_backgroundShape.setFillColor(sf::Color(0, 0, 50));
-
-    getWindow()->setMouseCursorVisible(true);
-
-    setupTitle();
-    setupButtons();
-}
-
-CustomScene::~CustomScene()
-{
-    for (auto button : m_buttons)
-    {
-        delete button;
-    }
-    m_buttons.clear();
-}
-
-void CustomScene::Update(const float& deltatime)
-{
-    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
-    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-
-    if (m_PlaySprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-        if (gameScene)
-        {
-            m_sceneManager->SetSelectedCharacter("fille");
-            gameScene->ResetGame();
-            getWindow()->setMouseCursorVisible(false);
-        }
-        m_sceneManager->SetScene(1);
-    }
-
-
-    else if (m_QuitSprite.getGlobalBounds().contains(mousePosF) && sf::Mouse::isButtonPressed(sf::Mouse::Left))
-    {
-        Game* gameScene = dynamic_cast<Game*>(m_sceneManager->getScene(1));
-        if (gameScene)
-        {
-            m_sceneManager->SetSelectedCharacter("garcon");
-            gameScene->ResetGame();
-            getWindow()->setMouseCursorVisible(false);
-        }
-        m_sceneManager->SetScene(1);
-    }
-
-    getWindow()->setMouseCursorVisible(true);
-
-    
-}
-
-void CustomScene::ProcessInput(const sf::Event& event)
-{
-    sf::Vector2i mousePos = sf::Mouse::getPosition(*getWindow());
-    sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
-
-    for (auto button : m_buttons)
-    {
-        button->handleEvent(event, mousePosF);
-    }
-}
-
-void CustomScene::Render()
-{
-    sf::RenderWindow* window = getWindow();
-
-    window->draw(m_backgroundShape);
-    window->draw(m_titleSprite);
-    window->draw(m_PlaySprite);
-    window->draw(m_HistorySprite);
-    window->draw(m_QuitSprite);
-
-
-    for (auto button : m_buttons)
-    {
-        button->draw(*window);
-    }
-}
-
-void CustomScene::setupTitle()
-{
-    if (!m_titleTexture.loadFromFile("ressource/Titre.png"))
-    {
-        std::cerr << "Erreur chargement Titre" << std::endl;
-    }
-
-    m_titleSprite.setTexture(m_titleTexture);
-    sf::FloatRect titleBounds = m_titleSprite.getLocalBounds();
-    m_titleSprite.setOrigin(titleBounds.left + titleBounds.width / 2.0f,
-        titleBounds.top + titleBounds.height / 2.0f);
-    m_titleSprite.setPosition(getWindow()->getSize().x / 2.0f, getWindow()->getSize().y / 4.0f);
-}
-
-void CustomScene::setupButtons()
-{
-    if (!m_PlayTexture.loadFromFile("ressource/jouer2.png"))
-    {
-        std::cerr << "Erreur chargement boutton play" << std::endl;
-    }
-    if (!m_HistoryTexture.loadFromFile("ressource/Histoire2.png"))
-    {
-        std::cerr << "Erreur chargement boutton histoire" << std::endl;
-    }
-    if (!m_QuitTexture.loadFromFile("ressource/quitter_debut2.png"))
-    {
-        std::cerr << "Erreur chargement boutton quitte" << std::endl;
-    }
-
-    m_PlaySprite.setTexture(m_PlayTexture);
-    m_HistorySprite.setTexture(m_HistoryTexture);
-    m_QuitSprite.setTexture(m_QuitTexture);
-
-
-    m_PlaySprite.setPosition(getWindow()->getSize().x / 2 - m_PlaySprite.getGlobalBounds().width / 2.0f, 300);
-    m_HistorySprite.setPosition(getWindow()->getSize().x / 2 - m_HistorySprite.getGlobalBounds().width / 2.0f, 400);
-    m_QuitSprite.setPosition(getWindow()->getSize().x / 2 - m_QuitSprite.getGlobalBounds().width / 2.0f, 600);
-}
-
 
 ////===== IMPLÉMENTATION DU MENU PAUSE =====//
 
