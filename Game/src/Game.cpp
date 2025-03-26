@@ -27,7 +27,7 @@ void Game::Init()
 	new WorldBorder(this, m_Background, Position::Up, 5, 1000);
 	new WorldBorder(this, m_Background, Position::Left, 5, 1000);
 	new WorldBorder(this, m_Background, Position::Right, 5, 1000);
-	m_spawner = new AsteroidSpawner(this, 10);
+	//m_spawner = new AsteroidSpawner(this, 10);
 	m_bossSpawner = new BossSpawner(this, 1);
 	sf::Vector2f bossSpawnPosition(GetCenterWindow().x, GetCenterWindow().y - 300);
 	m_bossSpawner->SetSpawnPosition(bossSpawnPosition);
@@ -52,7 +52,7 @@ void Game::Update(const float& deltatime)
 	}
 
 	cursor.Update(deltatime);
-	m_spawner->Spawn();
+	//m_spawner->Spawn();
 
 	m_bossSpawnTimer.NextTIck(deltatime);
 	if (m_bossSpawnTimer.ActionIsReady())

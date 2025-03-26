@@ -24,19 +24,19 @@ protected:
 
 };
 
-class AsteroidSpawner : public ISpawner
-{
-public:
-	AsteroidSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
-	void Spawn() override;
-};
-
-class CometeSpawner : public ISpawner
-{
-public:
-	CometeSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
-	void Spawn() override;
-};
+//class AsteroidSpawner : public ISpawner
+//{
+//public:
+//	AsteroidSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
+//	void Spawn() override;
+//};
+//
+//class CometeSpawner : public ISpawner
+//{
+//public:
+//	CometeSpawner(IComposite* scene, const size_t& maxEntity) :ISpawner(scene, maxEntity) {}
+//	void Spawn() override;
+//};
 
 class BossSpawner : public ISpawner
 {

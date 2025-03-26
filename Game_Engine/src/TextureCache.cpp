@@ -5,7 +5,6 @@
 TextureCache::TextureCache(const std::string& execFilePath)
     : m_execFilePath(execFilePath)
 {
-    // Trouver le chemin du dossier Re au moment de l'initialisation
     m_resourceBasePath = findResourceFolder();
     std::cout << "Resource base path initialized to: " << m_resourceBasePath << std::endl;
 }
@@ -25,27 +24,22 @@ void TextureCache::debugResourcePath()
 
 std::string TextureCache::getAbsoluteFilepath(const std::string& filename)
 {
-    // Utiliser directement le chemin de base trouvé à l'initialisation
     return (std::filesystem::path(m_resourceBasePath) / filename).string();
 }
 
 sf::Texture& TextureCache::getTexture(const std::string& filename)
 {
     std::string path = getAbsoluteFilepath(filename);
-
-    // Vérifier si la texture est déjà chargée
     for (auto& texture : m_allTextureInfos)
     {
         if (texture.path == path)
             return *texture.texture;
     }
 
-    // Créer une nouvelle entrée de texture
     TextureInfo ti;
     ti.path = path;
     ti.texture = new sf::Texture;
-
-    // Tenter de charger la texture
+	
     if (!ti.texture->loadFromFile(path))
     {
         std::cerr << "Failed to load image \"" << path << "\". Reason: Unable to open file" << std::endl;
@@ -89,7 +83,6 @@ bool TextureManager::loadTexture(const std::string& name, const std::string& fil
 
     auto texture = std::make_unique<sf::Texture>();
 
-    // Utiliser la même méthode de recherche de chemin que TextureCache
     std::string fullPath = (std::filesystem::path(findResourceFolder()) / filename).string();
 
     if (!texture->loadFromFile(fullPath))
@@ -199,7 +192,6 @@ void TextureManager::loadAllGameTextures()
     if (!m_initialized)
         initialize();
 
-    // Charger directement sans le préfixe "Re\\"
     loadTexture("Hero", "Hero.png");
     loadTexture("Boss1", "Boss1.png");
 
