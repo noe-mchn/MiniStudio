@@ -8,7 +8,7 @@ set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(HEADERS
  ${HEADER_DIR}/Game.h
  ${HEADER_DIR}/GameObject.h
- ${HEADER_DIR}/Ship.h
+ ${HEADER_DIR}/Hero.h
  ${HEADER_DIR}/Collision.h
  ${HEADER_DIR}/ISpawner.h
  ${HEADER_DIR}/MegaBoss.h
@@ -18,7 +18,7 @@ set(HEADERS
 set(SOURCES
 ${SOURCE_DIR}/Game.cpp
 ${SOURCE_DIR}/GameObject.cpp
-${SOURCE_DIR}/Ship.cpp
+${SOURCE_DIR}/Hero.cpp
 ${SOURCE_DIR}/Collision.cpp
 ${SOURCE_DIR}/ISpawner.cpp
 ${SOURCE_DIR}/MegaBoss.cpp
